@@ -65,6 +65,8 @@ type
     FailSafeCopier:Boolean;
     Language:WideString;
     CopyResumeNoAgeVerification:Boolean;
+    SaveSecurityOnCopy:Boolean;
+    SaveSecurityOnMove:Boolean;
   end;
 
   TConfig=class
@@ -187,6 +189,8 @@ const
     FailSafeCopier:False;
     Language:'';
     CopyResumeNoAgeVerification:False;
+    SaveSecurityOnCopy:False;
+    SaveSecurityOnMove:False;
   );
 
   CONFIG_REGISTRY_KEY='Software\SFX TEAM\SuperCopier2';
@@ -390,6 +394,8 @@ begin
       FailSafeCopier:=ReadBoolean('FailSafeCopier');
       Language:=UTF8Decode(ReadString('Language'));
       CopyResumeNoAgeVerification:=ReadBoolean('CopyResumeNoAgeVerification');
+      SaveSecurityOnCopy:=ReadBoolean('SaveSecurityOnCopy');
+      SaveSecurityOnMove:=ReadBoolean('SaveSecurityOnMove');
     except
       // ne rien faire si une valeur n'existe pas
     end;
@@ -451,6 +457,8 @@ begin
     WriteBoolean('FailSafeCopier',FailSafeCopier);
     WriteString('Language',UTF8Encode(Language));
     WriteBoolean('CopyResumeNoAgeVerification',CopyResumeNoAgeVerification);
+    WriteBoolean('SaveSecurityOnCopy',SaveSecurityOnCopy);
+    WriteBoolean('SaveSecurityOnMove',SaveSecurityOnMove);
   end;
 end;
 

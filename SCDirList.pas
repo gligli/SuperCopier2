@@ -26,6 +26,8 @@ type
 	TDirItem=class
   private
     Owner:TDirList;
+    FAttributesCopied:Boolean;
+    FSecurityCopied:Boolean;
 	public
     BaseListId:Integer;
 
@@ -34,9 +36,12 @@ type
 		ParentDir:TDirItem;
 		Created:Boolean;
 
+    constructor Create;
+
     procedure SaveToStream(TheStream:TStream);
     procedure LoadFromStream(TheStream:TStream;Version:integer;BaseDirListIndex:Integer);
 		procedure DestCopyAge;
+    function DestCopyAttributes:boolean;
 		function DestCopySecurity:boolean;
 		procedure VerifyOrCreate;
     function SrcDelete:Boolean;
@@ -136,6 +141,30 @@ begin
 	end;
 end;
 
+function TDirItem.DestCopyAttributes: boolean;
+var Attr:Cardinal;
+    ErrCode:Integer;
+
+  //HACK: la gestion interne de l'unicode de delphi pourrit le code d'erreur win32
+  //      lors du retour d'une fonction, ceci permets de le conserver
+  procedure DestCopyAttributes_;
+  begin
+    Attr:=SCWin32.GetFileAttributes(PWideChar(SrcPath));
+    Result:=Attr<>$ffffffff;
+    if Result then Result:=SCWin32.SetFileAttributes(PWideChar(Destpath),Attr);
+    ErrCode:=GetLastError;
+  end;
+
+begin
+  Result:=True;
+  if not FAttributesCopied then
+  begin
+    DestCopyAttributes_;
+    SetLastError(ErrCode);
+    FAttributesCopied:=True;
+  end;
+end;
+
 function TDirItem.DestCopySecurity:boolean;
 var ErrCode:Integer;
 
@@ -148,8 +177,13 @@ var ErrCode:Integer;
   end;
 
 begin
-  DestCopySecurity_;
-  SetLastError(ErrCode);
+  Result:=True;
+  if not FSecurityCopied then
+  begin
+    DestCopySecurity_;
+    SetLastError(ErrCode);
+    FSecurityCopied:=True;
+  end;
 end;
 
 procedure TDirItem.VerifyOrCreate;
@@ -160,9 +194,8 @@ begin
 
 	Created:=SCWin32.CreateDirectory(PWideChar(DestPath),nil) or (GetLastError=ERROR_ALREADY_EXISTS);
 
-  // nouveau répertoire créé -> on recopie sa date de modif et sa sécurité
+  // nouveau répertoire créé -> on recopie sa date de modif
   DestCopyAge;
-  DestCopySecurity;
 end;
 
 function TDirItem.SrcDelete:Boolean;
@@ -253,6 +286,19 @@ begin
   end;
 
   if Found then Result:=Items[i-1];
+end;
+
+constructor TDirItem.Create;
+begin
+  inherited;
+  Owner:=nil;
+  FAttributesCopied:=False;
+  FSecurityCopied:=False;
+  BaseListId:=-1;
+  SrcPath:='';
+  Destpath:='';
+  ParentDir:=nil;
+  Created:=False;
 end;
 
 end.

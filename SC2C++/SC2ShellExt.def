@@ -1,0 +1,9 @@
+; SC2ShellExt.def : Declares the module parameters.
+
+LIBRARY      "SC2ShellExt.DLL"
+
+EXPORTS
+	DllCanUnloadNow		PRIVATE
+	DllGetClassObject	PRIVATE
+	DllRegisterServer	PRIVATE
+	DllUnregisterServer	PRIVATE

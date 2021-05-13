@@ -20,7 +20,7 @@ uses
   Windows,Commctrl,Classes,Messages,SCObjectThreadList,SCWorkThread,SCWorkThreadList,
   SCCopier,SCAnsiBufferedCopier,SCWideUnbufferedCopier,SCCommon,SCConfig,SCBaseList,
   SCDirList,SCSystray,SCCopyForm,SCDiskSpaceForm,SCCollisionForm,SCCopyErrorForm,
-  SCBaseListQueue,Forms,TntForms;
+  SCBaseListQueue,Forms,TntForms,ShlObj,ShellApi;
 
 type
   TCopyThread=class(TWorkThread)
@@ -31,6 +31,8 @@ type
 
     FDefaultDir,SrcDir:WideString;
     FIsMove:Boolean;
+
+    FIsThreadAlive:Boolean;
 
     // variables pour la copie
     LastCopyWindowUpdate:Integer;
@@ -150,7 +152,7 @@ type
 implementation
 
 uses SysUtils,SCMainForm,TntSysUtils,FileCtrl,SCLocStrings, TntComCtrls,
-  SCFileList, StrUtils, MaskUtils,SCWin32;
+  SCFileList, StrUtils,SCWin32,Math;
 
 //******************************************************************************
 //******************************************************************************
@@ -169,6 +171,7 @@ begin
   inherited Create;
   FreeOnTerminate:=True;
   FThreadType:=wttCopy;
+  FIsThreadAlive:=True;
 
   // on choisis le copier en fonction de la config et de l'OS
   if Config.Values.FailSafeCopier or (Win32Platform<>VER_PLATFORM_WIN32_NT) then
@@ -183,6 +186,12 @@ begin
   FDefaultDir:='?';
   SrcDir:='?';
   FIsMove:=PIsMove;
+
+  Copier.CopyAttributes:=(Config.Values.SaveAttributesOnCopy and not IsMove) or
+                         (Config.Values.SaveAttributesOnMove and IsMove);
+
+  Copier.CopySecurity:=(Config.Values.SaveSecurityOnCopy and not IsMove) or
+                       (Config.Values.SaveSecurityOnMove and IsMove);
 
   // init calcul vitesse
   NumSamples:=0;
@@ -211,6 +220,14 @@ end;
 //******************************************************************************
 destructor TCopyThread.Destroy;
 begin
+  if FIsThreadAlive then
+  begin
+    // annuler la copie
+    FreeOnTerminate:=False; // pour éviter que le Cancel fasse que le Destroy soit rappelé
+    Cancel;
+    WaitFor;
+  end;
+
   // sauvegarde automatique du log des erreurs
   if Config.Values.ErrorLogAutoSave then Synchronize(SyncSaveErrorLog);
 
@@ -281,7 +298,7 @@ begin
   case AddMode of
     amDefaultDir:
     begin
-      Assert(FDefaultDir<>'','No DefaultDir');
+      Assert(FDefaultDir<>'?','No DefaultDir');
       DestDir:=FDefaultDir;
     end;
     amSpecifyDest:
@@ -311,10 +328,15 @@ begin
     end;
 
     // on ajoute la baselist à la queue
-    BLQueueItem:=TBaseListQueueItem.Create;
-    BLQueueItem.BaseList:=BaseList;
-    BLQueueItem.DestDir:=DestDir;
-    BaseListQueue.Push(BLQueueItem);
+    BaseListQueue.Lock;
+    try
+      BLQueueItem:=TBaseListQueueItem.Create;
+      BLQueueItem.BaseList:=BaseList;
+      BLQueueItem.DestDir:=DestDir;
+      BaseListQueue.Push(BLQueueItem);
+    finally
+      BaseListQueue.Unlock;
+    end;
   end
   else
   begin
@@ -332,23 +354,28 @@ var BLQueueItem:TBaseListQueueItem;
 begin
   Result:=False;
 
-  // on boucle tant que la queue n'est pas vidée
-  while BaseListQueue.Count>0 do
-  begin
-    Result:=True;
+  BaseListQueue.Lock;
+  try
+    // on boucle tant que la queue n'est pas vidée
+    while BaseListQueue.Count>0 do
+    begin
+      Result:=True;
 
-    BLQueueItem:=BaseListQueue.Pop;
+      BLQueueItem:=BaseListQueue.Pop;
 
-    // on ajoute les fichiers au copier
-    Copier.AddBaseList(BLQueueItem.BaseList,BLQueueItem.DestDir);
+      // on ajoute les fichiers au copier
+      Copier.AddBaseList(BLQueueItem.BaseList,BLQueueItem.DestDir);
 
-    // on vérifie si il y a assez de place
-    Copier.VerifyFreeSpace;
+      // on vérifie si il y a assez de place
+      Copier.VerifyFreeSpace;
 
-    // on a ajouté des fichiers, màj de lvFileList
-    Synchronize(SyncSetFileListviewCount);
+      // on a ajouté des fichiers, màj de lvFileList
+      Synchronize(SyncSetFileListviewCount);
 
-    BLQueueItem.Free;
+      BLQueueItem.Free;
+    end;
+  finally
+    BaseListQueue.Unlock;
   end;
 end;
 
@@ -451,21 +478,17 @@ begin
     //          dbgln('Copying: '+Copier.CurrentCopy.FileItem.SrcFullName);
     //          dbgln('      -> '+Copier.CurrentCopy.FileItem.DestFullName);
 
-              Copier.CurrentCopy.DirItem.VerifyOrCreate;
+              Copier.VerifyOrCreateDir;
 
               CopyError:=not Copier.DoCopy;
               UnfinishedCopy:=(Copier.CurrentCopy.CopiedSize+Copier.CurrentCopy.SkippedSize)<Copier.CurrentCopy.FileItem.SrcSize;
               if not CopyError then
               begin
-                if (Config.Values.SaveAttributesOnCopy and not IsMove) or
-                   (Config.Values.SaveAttributesOnMove and IsMove) then
-                begin
-                  Copier.CopyAttributesAndSecurity;
-                end;
+                Copier.CopyAttributesAndSecurity;
 
                 // déplacement et le fichier à été copié en entier -> on peut supprimer le source
                 if FIsMove and not UnfinishedCopy then
-                     Copier.DeleteSrcFile;
+                  Copier.DeleteSrcFile;
               end;
 
               // gestion suppression copies non terminées
@@ -519,6 +542,7 @@ begin
   finally
     // dé-rescencer la thread
     WorkThreadList.Remove(Self);
+    FIsThreadAlive:=False;
   end;
 end;
 
@@ -846,7 +870,6 @@ begin
   Synchronize(SyncUpdateCopy);
 
   // gérer la pause
-  //TODO: implémenter d'abord la queue
   HandlePause;
 
   Result:=not Sync.Copy.CancelPending;
@@ -1053,7 +1076,7 @@ procedure TCopyThread.SyncSetFileListviewCount;
 begin
   with Sync.Copy.Form do
   begin
-    lvFileList.Items.Count:=Copier.FileList.Count;
+    lvFileList.Items.Count:=Copier.FileList.Count-1;
   end;
 end;
 
@@ -1065,9 +1088,9 @@ var TIndex:integer;
 begin
   with Sync.Copy.Form do
   begin
-    if lvFileList.Items.Count<>Copier.FileList.Count then
+    if lvFileList.Items.Count<>Copier.FileList.Count-1 then
     begin
-      while lvFileList.Items.Count>Copier.FileList.Count do // on réduit le nombre d'items de lvFileList jusqu'à en avoir le bon nombre
+      while lvFileList.Items.Count>Max(0,Copier.FileList.Count-1) do // on réduit le nombre d'items de lvFileList jusqu'à en avoir le bon nombre
       begin
         lvFileList.Scroll(0,-16);
         lvFileList.Update;
@@ -1218,8 +1241,14 @@ begin
     Form.Caption:=DisplayName+Form.Caption;
 
     Form.llFileName.Caption:=DestFullName;
-    Form.llSourceData.Caption:=Format(lsCollisionFileData,[SizeToString(SrcSize,Config.Values.SizeUnit),DateTimeToStr(FileDateToDateTime(SrcAge))]);
-    Form.llDestinationData.Caption:=Format(lsCollisionFileData,[SizeToString(DestSize,Config.Values.SizeUnit),DateTimeToStr(FileDateToDateTime(DestAge))]);
+
+    Form.llSourceData.Caption:=lsUnknown;
+    if SrcExists then
+      Form.llSourceData.Caption:=Format(lsCollisionFileData,[SizeToString(SrcSize,Config.Values.SizeUnit),DateTimeToStr(FileDateToDateTime(SrcAge))]);
+
+    Form.llDestinationData.Caption:=lsUnknown;
+    if DestExists then
+      Form.llDestinationData.Caption:=Format(lsCollisionFileData,[SizeToString(DestSize,Config.Values.SizeUnit),DateTimeToStr(FileDateToDateTime(DestAge))]);
 
     Form.FileName:=FileName;
 

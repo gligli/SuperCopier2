@@ -20,8 +20,9 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, TntForms,Forms,
   Dialogs, StdCtrls,TntStdCtrls, ComCtrls, TntComCtrls, Controls,
   ExtCtrls, TntExtCtrls, Spin, Menus, TntMenus,SCFilelist,ScBaseList,ShellApi,
-  TntDialogs,TntClasses,SCCommon, SCProgessBar, SCTitleBarBt, ScSystray,
-  SCFileNameLabel, Buttons, TntButtons, ToolWin, ScPopupButton,SCLocEngine,Themes;
+  TntDialogs,TntClasses,SCCommon, SCProgessBar, ScSystray,
+  SCFileNameLabel, Buttons, TntButtons, ToolWin, ScPopupButton,SCLocEngine,Themes,
+  ScTrackBar;
 
 const
   WIDTH_DPI_MULTIPLIER=408/96;
@@ -62,8 +63,7 @@ type
     miChooseSetDefault: TTntMenuItem;
     gbSpeedLimit: TTntGroupBox;
     chSpeedLimit: TTntCheckBox;
-    cbSpeedLimit: TTntComboBox;
-    llSpeedLimitKB: TTntLabel;
+    llCustomSpeedLimit: TTntLabel;
     gbCollisions: TTntGroupBox;
     llCollisions: TTntLabel;
     cbCollisions: TTntComboBox;
@@ -81,7 +81,6 @@ type
     miAddFolder: TTntMenuItem;
     ggFile: TSCProgessBar;
     ggAll: TSCProgessBar;
-    btTitleBar: TSCTitleBarBt;
     Systray: TScSystray;
     tiSystray: TTimer;
     llTo: TSCFileNameLabel;
@@ -107,6 +106,16 @@ type
     miStPause: TTntMenuItem;
     miStResume: TTntMenuItem;
     llFile: TSCFileNameLabel;
+    N4: TTntMenuItem;
+    miSort: TTntMenuItem;
+    miBySrcFullPath: TTntMenuItem;
+    miByDestFullPath: TTntMenuItem;
+    miBySize: TTntMenuItem;
+    miBySrcName: TTntMenuItem;
+    miBySrcExt: TTntMenuItem;
+    tbSpeedLimit: TScTrackBar;
+    edCustomSpeedLimit: TTntEdit;
+    llSpeedLimit: TTntLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure chSpeedLimitClick(Sender: TObject);
@@ -127,8 +136,7 @@ type
     procedure miChooseSetDefaultClick(
       Sender: TObject);
     procedure cbCopyEndChange(Sender: TObject);
-    procedure cbSpeedLimitChange(Sender: TObject);
-    procedure cbSpeedLimitKeyPress(Sender: TObject; var Key: Char);
+    procedure edCustomSpeedLimitKeyPress(Sender: TObject; var Key: Char);
     procedure cbCollisionsChange(Sender: TObject);
     procedure cbCopyErrorChange(Sender: TObject);
     procedure btErrorSaveLogClick(Sender: TObject);
@@ -144,9 +152,16 @@ type
     procedure btSkipClick(Sender: TObject; ItemIndex: Integer);
     procedure btPauseClick(Sender: TObject; ItemIndex: Integer);
     procedure btUnfoldClick(Sender: TObject; ItemIndex: Integer);
-    procedure btTitleBarClick(Sender: TObject);
     procedure miStPauseClick(Sender: TObject);
     procedure miStCancelClick(Sender: TObject);
+    procedure lvFileListColumnClick(Sender: TObject; Column: TListColumn);
+    procedure miBySrcFullPathClick(Sender: TObject);
+    procedure miBySrcNameClick(Sender: TObject);
+    procedure miByDestFullPathClick(Sender: TObject);
+    procedure miBySizeClick(Sender: TObject);
+    procedure miBySrcExtClick(Sender: TObject);
+    procedure tbSpeedLimitChange(Sender: TObject);
+    procedure edCustomSpeedLimitChange(Sender: TObject);
   private
     { Déclarations privées }
     SystrayBmp:TBitmap;
@@ -159,8 +174,10 @@ type
 
     procedure ProcessLvFileListAction(Action:TLvFileListAction;SelectedOnly:Boolean;BackwardScan:Boolean=True);
     procedure OpenNewFilesMenu;
+    procedure SortFileList(Mode:TFileListSortMode);
     procedure OnDropFiles(var Msg:TMessage); message WM_DROPFILES;
     procedure OnWindowPosChanged(var Msg:TMessage); message WM_ACTIVATE;
+    procedure OnSysCommand(var Msg:TMessage); message WM_SYSCOMMAND;
 
     procedure SetState(Value:TCopyWindowState);
     procedure SetConfigData(Value:TCopyWindowConfigData);
@@ -217,7 +234,7 @@ end;
 
 procedure RemoveAction(Filelist:TFileList;Item:TListItem);
 begin
-  Filelist.Delete(Item.Index,True);
+  Filelist.Delete(Item.Index+1,True);
 end;
 
 procedure SelectAction(Filelist:TFileList;Item:TListItem);
@@ -232,32 +249,32 @@ end;
 
 procedure MoveUpAction(Filelist:TFileList;Item:TListItem);
 begin
-  if Item.Index>1 then
+  if Item.Index>0 then
   begin
-    Filelist.Move(Item.Index,Item.Index-1);
+    Filelist.Move(Item.Index+1,Item.Index-1+1);
     MoveSelectionInfo(Item,Item.Index-1);
   end;
 end;
 
 procedure MoveDownAction(Filelist:TFileList;Item:TListItem);
 begin
-  if Item.Index<Filelist.Count-1 then
+  if Item.Index<Filelist.Count-2 then
   begin
-    Filelist.Move(Item.Index,Item.Index+1);
+    Filelist.Move(Item.Index+1,Item.Index+1+1);
     MoveSelectionInfo(Item,Item.Index+1);
   end;
 end;
 
 procedure MoveTopAction(Filelist:TFileList;Item:TListItem);
 begin
-  Filelist.Move(Item.Index,DestIndex);
+  Filelist.Move(Item.Index+1,DestIndex+1);
   MoveSelectionInfo(Item,DestIndex);
   Inc(DestIndex);
 end;
 
 procedure MoveBottomAction(Filelist:TFileList;Item:TListItem);
 begin
-  Filelist.Move(Item.Index,DestIndex);
+  Filelist.Move(Item.Index+1,DestIndex+1);
   MoveSelectionInfo(Item,DestIndex);
   Dec(DestIndex);
 end;
@@ -275,7 +292,6 @@ begin
     begin
       Screen.Cursor:=crHourGlass;
 
-      // l'item 0 n'est pas traité car c'est l'item en train d'être copié et il ne peut être altéré
       if SelectedOnly then
       begin
         if (lvFileList.SelCount=1) and (lvFileList.Selected.Index>1) then
@@ -288,12 +304,12 @@ begin
           begin
             if BackwardScan then
             begin
-              for i:=lvFileList.Items.Count-1 downto 1 do
+              for i:=lvFileList.Items.Count-1 downto 0 do
                 if lvFileList.Items[i].Selected then Action(FileList,lvFileList.Items[i]);
             end
             else
             begin
-              for i:=1 to lvFileList.Items.Count-1 do
+              for i:=0 to lvFileList.Items.Count-1 do
                 if lvFileList.Items[i].Selected then Action(FileList,lvFileList.Items[i]);
             end;
           end;
@@ -303,12 +319,12 @@ begin
       begin
         if BackwardScan then
         begin
-          for i:=lvFileList.Items.Count-1 downto 1 do
+          for i:=lvFileList.Items.Count-1 downto 0 do
             Action(FileList,lvFileList.Items[i]);
         end
         else
         begin
-          for i:=1 to lvFileList.Items.Count-1 do
+          for i:=0 to lvFileList.Items.Count-1 do
             Action(FileList,lvFileList.Items[i]);
         end;
       end;
@@ -317,8 +333,8 @@ begin
       TCopyThread(CopyThread).UpdateCopyWindow;
 
       //maj listview
-      lvFileList.Refresh;
-      lvFileList.Items.Count:=FileList.Count;
+      lvFileList.Invalidate;
+      lvFileList.Items.Count:=FileList.Count-1;
     end;
   finally
     Screen.Cursor:=crDefault;
@@ -394,7 +410,10 @@ begin
   begin
     cbCopyEnd.ItemIndex:=Integer(CopyEndAction);
     chSpeedLimit.Checked:=ThrottleEnabled;
-    cbSpeedLimit.Text:=IntToStr(ThrottleSpeedLimit);
+
+    edCustomSpeedLimit.Text:=IntToStr(ThrottleSpeedLimit);
+    tbSpeedLimit.Position:=SpeedLimitToIndex(ThrottleSpeedLimit);
+
     cbCollisions.ItemIndex:=Integer(CollisionAction);
     cbCopyError.ItemIndex:=Integer(CopyErrorAction);
   end;
@@ -524,14 +543,43 @@ begin
   end;
 end;
 
+//******************************************************************************
+// SortFileList : tri de la liste de fichiers
+//******************************************************************************
+procedure TCopyForm.SortFileList(Mode: TFileListSortMode);
+begin
+  with TCopyThread(CopyThread).LockCopier do
+    try
+      if FileList.SortMode=Mode then
+        FileList.SortReverse:=not FileList.SortReverse
+      else
+        FileList.SortReverse:=False;
+
+      FileList.SortMode:=Mode;
+
+      FileList.Sort;
+
+      //maj listview
+      lvFileList.Invalidate;
+      lvFileList.Items.Count:=FileList.Count-1;
+
+    finally
+      TCopyThread(CopyThread).UnlockCopier
+    end;
+end;
+
 procedure TCopyForm.FormCreate(Sender: TObject);
 var ExStyle:Cardinal;
 begin
   LocEngine.TranslateForm(Self);
 
+  //HACK: correction d'un bug de taille de police sous NT4
+  if (Win32Platform=VER_PLATFORM_WIN32_NT) and (Win32MajorVersion=4) and (PixelsPerInch=96) then
+    PixelsPerInch:=Round(PixelsPerInch*Width/(WIDTH_DPI_MULTIPLIER*96));
+
   //HACK: ne pas mettre directement la fenêtre en resizeable pour que
   //      la gestion des grandes polices puisse la redimentionner
-  BorderStyle:=bsSizeToolWin;
+  BorderStyle:=bsSizeable;
 
   //HACK: fix temporaire pour les pb de scintillement des barres de progression
   //      avec les thèmes activés
@@ -640,9 +688,6 @@ begin
   // accepter le drag & drop
   DragAcceptFiles(Handle,True);
 
-  // réafficher le bouton de titre (qui disparait quand on change les params de la form)
-  btTitleBar.Refresh;
-
   pcPages.ActivePage:=tsCopyList;
 
   if Config.Values.CopyWindowStartMinimized then Minimized:=True;
@@ -693,8 +738,8 @@ begin
   try
     with TCopyThread(CopyThread).LockCopier,TTntListItem(Item) do
     begin
-      if Index<FileList.Count then
-        with FileList[Item.Index] do
+      if Index<FileList.Count-1 then
+        with FileList[Item.Index+1] do
         begin
           Caption:=SrcFullName;
           SubItems.Add(SizeToString(SrcSize,Config.Values.SizeUnit));
@@ -713,8 +758,7 @@ end;
 
 procedure TCopyForm.btErrorSaveLogClick(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   sdErrorLog.InitialDir:=TCopyThread(CopyThread).DefaultDir;
   sdErrorLog.FileName:=WideExtractFileName(Config.Values.ErrorLogFileName);
@@ -755,7 +799,7 @@ end;
 
 procedure TCopyForm.btFileTopClick(Sender: TObject);
 begin
-  DestIndex:=1;
+  DestIndex:=0;
   ProcessLvFileListAction(MoveTopAction,True,False);
 end;
 
@@ -773,8 +817,7 @@ end;
 procedure TCopyForm.btFileSaveClick(Sender: TObject);
 var FS:TTntFileStream;
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   if sdCopyList.Execute then
   begin
@@ -799,8 +842,7 @@ end;
 procedure TCopyForm.btFileLoadClick(Sender: TObject);
 var FS:TTntFileStream;
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   if odCopyList.Execute then
   begin
@@ -819,8 +861,8 @@ begin
         TCopyThread(CopyThread).UpdateCopyWindow;
 
         //maj listview
-        lvFileList.Refresh;
-        lvFileList.Items.Count:=FileList.Count;
+        lvFileList.Invalidate;
+        lvFileList.Items.Count:=FileList.Count-1;
       end;
     finally
       TCopyThread(CopyThread).UnlockCopier;
@@ -862,17 +904,40 @@ end;
 
 procedure TCopyForm.chSpeedLimitClick(Sender: TObject);
 begin
-  cbSpeedLimit.Enabled:=chSpeedLimit.Checked;
+  tbSpeedLimit.Enabled:=chSpeedLimit.Checked;
+  edCustomSpeedLimit.Enabled:=chSpeedLimit.Checked;
+  llCustomSpeedLimit.Enabled:=chSpeedLimit.Checked;
+  llSpeedLimit.Enabled:=chSpeedLimit.Checked;
+
   FConfigData.ThrottleEnabled:=chSpeedLimit.Checked;
 end;
-procedure TCopyForm.cbSpeedLimitChange(Sender: TObject);
+
+procedure TCopyForm.edCustomSpeedLimitChange(Sender: TObject);
 begin
-  FConfigData.ThrottleSpeedLimit:=StrToIntDef(cbSpeedLimit.Text,-1);
+   FConfigData.ThrottleSpeedLimit:=StrToIntDef(edCustomSpeedLimit.Text,-1);
 end;
 
-procedure TCopyForm.cbSpeedLimitKeyPress(Sender: TObject; var Key: Char);
+procedure TCopyForm.edCustomSpeedLimitKeyPress(Sender: TObject; var Key: Char);
 begin
   if not (Key in ['0'..'9']) and (Key>#31) then Key:=#0; // autoriser seulement les chiffres et les caractères de contrôle
+end;
+
+procedure TCopyForm.tbSpeedLimitChange(Sender: TObject);
+var IsCustom:Boolean;
+begin
+  IsCustom:=tbSpeedLimit.Position=0;
+
+  edCustomSpeedLimit.Visible:=IsCustom;
+  llCustomSpeedLimit.Visible:=IsCustom;
+  llSpeedLimit.Visible:=not IsCustom;
+
+  if not IsCustom then
+  begin
+    FConfigData.ThrottleSpeedLimit:=IndexToSpeedLimit(tbSpeedLimit.Position);
+    llSpeedLimit.Caption:=SizeToString(FConfigData.ThrottleSpeedLimit*1024);
+  end
+  else
+    edCustomSpeedLimitChange(nil);
 end;
 
 procedure TCopyForm.cbCollisionsChange(Sender: TObject);
@@ -889,8 +954,7 @@ procedure TCopyForm.miAddFilesClick(Sender: TObject);
 var i:integer;
 		BaseItem:TBaseItem;
 begin
-  // HACK: l'OpenDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   if odFileAdd.Execute then
   begin
@@ -904,6 +968,9 @@ begin
       BaseItem.IsDirectory:=WideDirectoryExists(BaseItem.SrcName);
       NewBaseList.Add(BaseItem);
     end;
+
+    // HACK²: le hack précedent empèche le popupmenu de s'ouvrir, ceci corrige le problème
+    Windows.SetParent(TntPopupList.Window,THandle(HWND_DESKTOP));
 
     OpenNewFilesMenu;
   end;
@@ -1016,11 +1083,6 @@ begin
   if UFFoc then FocusControl(btFold);
 end;
 
-procedure TCopyForm.btTitleBarClick(Sender: TObject);
-begin
-  Minimized:=True;
-end;
-
 procedure TCopyForm.miStPauseClick(Sender: TObject);
 begin
   btPauseClick(nil,0);
@@ -1029,6 +1091,45 @@ end;
 procedure TCopyForm.miStCancelClick(Sender: TObject);
 begin
   btCancelClick(nil,0);
+end;
+
+procedure TCopyForm.lvFileListColumnClick(Sender: TObject;
+  Column: TListColumn);
+var NewMode:TFileListSortMode;
+begin
+  NewMode:=fsmNone;
+  case Column.Index of
+    0: NewMode:=fsmBySrcFullName;
+    1: NewMode:=fsmBySrcSize;
+    2: NewMode:=fsmByDestFullName;
+  end;
+
+  SortFileList(NewMode);
+end;
+
+procedure TCopyForm.miBySrcFullPathClick(Sender: TObject);
+begin
+  SortFileList(fsmBySrcFullName);
+end;
+
+procedure TCopyForm.miBySrcNameClick(Sender: TObject);
+begin
+  SortFileList(fsmBySrcName);
+end;
+
+procedure TCopyForm.miByDestFullPathClick(Sender: TObject);
+begin
+  SortFileList(fsmByDestFullName);
+end;
+
+procedure TCopyForm.miBySizeClick(Sender: TObject);
+begin
+  SortFileList(fsmBySrcSize);
+end;
+
+procedure TCopyForm.miBySrcExtClick(Sender: TObject);
+begin
+  SortFileList(fsmBySrcExt);
 end;
 
 //*******************************************************************************
@@ -1077,6 +1178,17 @@ begin
   begin
     Minimized:=False;
   end;
+end;
+
+procedure TCopyForm.OnSysCommand(var Msg: TMessage);
+begin
+  if Msg.WParam=SC_MINIMIZE then
+  begin
+    Minimized:=True;
+    Msg.Result:=0;
+  end
+  else
+    inherited;
 end;
 
 end.

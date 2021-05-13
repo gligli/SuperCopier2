@@ -12,7 +12,6 @@ type
   TForm1 = class(TForm)
     SCProgessBar1: TSCProgessBar;
     Timer1: TTimer;
-    TrackBar1: TTrackBar;
     SCTitleBarBt1: TSCTitleBarBt;
     ScSystray1: TScSystray;
     XPManifest1: TXPManifest;
@@ -28,10 +27,10 @@ type
     Button1: TButton;
     Timer2: TTimer;
     Button2: TButton;
-    ScPopupButton2: TScPopupButton;
+    ScPopupButton3: TScPopupButton;
+    ScPopupButton4: TScPopupButton;
     procedure Timer1Timer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure TrackBar1Change(Sender: TObject);
     procedure SCTitleBarBt1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure ScPopupButton1Click(Sender: TObject; ItemIndex: Integer);
@@ -66,14 +65,8 @@ Var
 begin
   AllocConsole;
   ScSystray1.Icone:=Application.Icon;
-  TrackBar1.Position:=Timer1.Interval;
    MenuItem:=TTntMenuItem.Create(ScPopupButton1.Popup);
    MenuItem.Caption:='toto';
-end;
-
-procedure TForm1.TrackBar1Change(Sender: TObject);
-begin
-  Timer1.Interval:=TrackBar1.Position;
 end;
 
 procedure TForm1.SCTitleBarBt1Click(Sender: TObject);

@@ -73,24 +73,12 @@ object Form1: TForm1
     Max = 100
     Position = 50
   end
-  object TrackBar1: TTrackBar
-    Left = -8
-    Top = 104
-    Width = 257
-    Height = 33
-    Max = 1000
-    Min = 10
-    Frequency = 20
-    Position = 10
-    TabOrder = 0
-    OnChange = TrackBar1Change
-  end
   object ScPopupButton1: TScPopupButton
-    Left = 352
-    Top = 168
+    Left = 144
+    Top = 172
     Width = 89
     Height = 33
-    TabOrder = 1
+    TabOrder = 0
     TabStop = True
     ItemIndex = 0
     Popup = TntPopupMenu1
@@ -104,16 +92,16 @@ object Form1: TForm1
     Width = 150
     Height = 45
     Max = 3
-    TabOrder = 2
+    TabOrder = 1
     OnChange = TrackBar2Change
   end
   object Button1: TButton
     Left = 64
-    Top = 152
+    Top = 168
     Width = 75
     Height = 25
     Caption = 'Button1'
-    TabOrder = 3
+    TabOrder = 2
     OnClick = Button1Click
   end
   object Button2: TButton
@@ -122,24 +110,36 @@ object Form1: TForm1
     Width = 75
     Height = 25
     Caption = 'Button2'
-    TabOrder = 4
+    TabOrder = 3
     OnClick = Button2Click
   end
-  object ScPopupButton2: TScPopupButton
-    Left = 160
-    Top = 168
-    Width = 100
-    Height = 41
+  object ScPopupButton3: TScPopupButton
+    Left = 240
+    Top = 172
+    Width = 89
+    Height = 33
+    TabOrder = 4
+    TabStop = True
+    ItemIndex = 0
+    Popup = TntPopupMenu1
+    Caption = 'ITEM 0'
+    ImageIndex = 0
+    OnClick = ScPopupButton1Click
+  end
+  object ScPopupButton4: TScPopupButton
+    Left = 336
+    Top = 172
+    Width = 89
+    Height = 33
     TabOrder = 5
     TabStop = True
     ItemIndex = 0
-    Caption = 'yo1'
+    Popup = TntPopupMenu1
+    Caption = 'ITEM 0'
     ImageIndex = 0
-    ImageList = ImageList1
-    OnClick = ScPopupButton2Click
+    OnClick = ScPopupButton1Click
   end
   object Timer1: TTimer
-    Enabled = False
     Interval = 1
     OnTimer = Timer1Timer
     Left = 256

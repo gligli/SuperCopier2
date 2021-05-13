@@ -15,6 +15,9 @@ object CollisionRenameForm: TCollisionRenameForm
   OldCreateOrder = False
   Position = poOwnerFormCenter
   OnCreate = TntFormCreate
+  DesignSize = (
+    400
+    147)
   PixelsPerInch = 96
   TextHeight = 13
   object llOriginalNameTitle: TTntLabel
@@ -74,6 +77,7 @@ object CollisionRenameForm: TCollisionRenameForm
     Height = 25
     TabOrder = 4
     TabStop = True
+    Anchors = [akRight, akBottom]
     ItemIndex = 0
     Caption = 'Cancel'
     ImageIndex = 6
@@ -87,6 +91,7 @@ object CollisionRenameForm: TCollisionRenameForm
     Height = 25
     TabOrder = 3
     TabStop = True
+    Anchors = [akRight, akBottom]
     ItemIndex = 0
     Caption = 'Rename'
     ImageIndex = 20

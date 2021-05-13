@@ -180,7 +180,7 @@ end;
 
 procedure TAboutForm.btReadmeClick(Sender: TObject);
 begin
-  ShellExecute(Handle,'open',PChar(String(btReadme.Caption)),'','',SW_SHOW);
+  ShellExecute(Handle,'open',PChar(String(ExtractFilePath(Application.ExeName)+btReadme.Caption)),'','',SW_SHOW);
 end;
 
 end.

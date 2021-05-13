@@ -44,7 +44,7 @@ IsUTF8=0
 40=SuperCopier2 não se pode lançar
 41=SuperCopier2 não agarrou o processo, e normal se o lançou em silmutâneo.
 
-[ConfigForm]
+[TConfigForm]
 -Caption-=Configuração
 lvSections=,Indioma,Arranque,"Interface utilisador","Opções d'origem das copias","Comportemento das copias","Journal de erros","Processu aceito",Avançado
 gbLanguage=Indioma
@@ -140,7 +140,7 @@ btApply=Aplicar
 odLog=Todos os ficheiros (*.*)
 odProcesses=Processos (*.exe)|*.exe
 
-[MainForm]
+[TMainForm]
 miActivate=Activar
 miDeactivate=Desactivar
 miNewThread=Nova tarefa
@@ -153,7 +153,7 @@ miConfig=Configuração...
 miAbout=A proposito...
 miExit=Fechar
 
-[AboutForm]
+[TAboutForm]
 -Caption-=A proposito do SuperCopier2
 llStaffTitle=Staff:
 llStaff1=GliGli: Codigo principal, Yogi: Copiador NT Original, Portos: Lingua Portuguesa (Brunosilva@hotmail.fr - para questões sobre este software)
@@ -164,7 +164,7 @@ llStaff2=ZeuS: Componentes graficos.
 btOk=Ok
 btReadme=Leia-me.txt
 
-[CopyForm]
+[TCopyForm]
 llFromTitle=De:
 llToTitle=A:
 tsCopyList=Lista da copia
@@ -223,7 +223,7 @@ miStResume=Recomeçar
 miStPause=Pausa
 miStCancel=Anular
 
-[CollisionForm]
+[TCollisionForm]
 -Caption-= - Um ficheiro jà existe
 llCollisionText1=O seguinte ficheiro ja existe:
 llSourceTitle=Raiz:
@@ -244,7 +244,7 @@ Customrename1=Mudar o nome especialmente
 Alwaysrename1=Mudar o nome sempre
 Alwaysrenameoldfile1=Mudar o nome sempre ao antigo ficheiro
 
-[CollisionRenameForm]
+[TCollisionRenameForm]
 -Caption-=Mudar o nome especialmente
 rbRenameNew=Mudar o nome ao novo ficheiro
 rbRenameOld=Mudar o nome ao antigo ficheiro
@@ -253,7 +253,7 @@ llNewNameTitle=Para:
 btCancel=Anular,
 btRename=Mudar o nomer,
 
-[CopyErrorForm]
+[TCopyErrorForm]
 -Caption-= - Erro da copia
 llCopyErrorText3=Que quer fazer?
 llCopyErrorText1=A copia de:
@@ -266,7 +266,7 @@ Alwaysputtoendoflist1=Meter sempre ao fim da lista
 Skip1=Passar
 Alwaysskip1=Passar sempre
 
-[DiskSpaceForm]
+[TDiskSpaceForm]
 -Caption-= - Espaço insuficiente
 llDiskSpaceText1=Espaço insuficiente nos seguintes volumes:
 llDiskSpaceText2=Que quer fazer?

@@ -155,3 +155,26 @@ C:\Program Files\madCollection\madBasic\Delphi 7\madBasic_.bpl=madBasic 1.1i  - 
 C:\Program Files\madCollection\madBasic\Delphi 7\madHelp_.bpl=madHelp 1.1a  -  www.madshi.net
 C:\Program Files\madCollection\madDisAsm\Delphi 7\madDisAsm_.bpl=madDisAsm 2.1b  -  www.madshi.net
 c:\program files\borland\delphi7\Projects\Bpl\VirtualTreesD7D.bpl=Virtual Treeview
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=F:\Projects\SuperCopier2\Components\Other\tntunicodecontrols\
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlSearchPath]
+Count=1
+Item0=.\Components\Other\tntunicodecontrols;.\Components\SFXTeam
+[HistoryLists\hlUnitOutputDirectory]
+Count=2
+Item0=.\Compil
+Item1=Compil
+[HistoryLists\hlOutputDirectorry]
+Count=2
+Item0=.\Compil
+Item1=Compil
+[HistoryLists\hlBPLOutput]
+Count=1
+Item0=Compil
+[HistoryLists\hlDCPOutput]
+Count=1
+Item0=Compil

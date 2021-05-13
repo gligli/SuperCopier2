@@ -132,20 +132,26 @@ end;
 procedure TLocEngine.TranslateForm(Form:TTntForm);
 var i:Integer;
     Name,Text:WideString;
+    FormName:WideString;
 begin
   if not Assigned(LangIni) then exit;
 
+  FormName:=Form.ClassName;
+  // rétrocompat anciens fichiers de langage
+  if not LangIni.SectionExists(FormName) and (Length(FormName)>0) and (FormName[1]='T') then
+    FormName:=Copy(FormName,2,Maxint);
+
   if IsUTF8 then
-    Form.Caption:=UTF8Decode(LangIni.ReadString(Form.Name,CAPTION_VALUE,Form.Caption))
+    Form.Caption:=UTF8Decode(LangIni.ReadString(FormName,CAPTION_VALUE,Form.Caption))
   else
-    Form.Caption:=LangIni.ReadString(Form.Name,CAPTION_VALUE,Form.Caption);
+    Form.Caption:=LangIni.ReadString(FormName,CAPTION_VALUE,Form.Caption);
 
   Form.Font.Name:=UIFont;
 
   for i:=0 to Form.ComponentCount-1 do
   begin
     Name:=Form.Components[i].Name;
-    Text:=LangIni.ReadString(Form.Name,Form.Components[i].Name,'');
+    Text:=LangIni.ReadString(FormName,Form.Components[i].Name,'');
     if Text<>'' then
     begin
       if IsUTF8 then
@@ -164,9 +170,9 @@ begin
   if not Assigned(LangIni) then exit;
 
   if IsUTF8 then
-    LangIni.WriteString(Form.Name,CAPTION_VALUE,UTF8Encode(Form.Caption))
+    LangIni.WriteString(Form.ClassName,CAPTION_VALUE,UTF8Encode(Form.Caption))
   else
-    LangIni.WriteString(Form.Name,CAPTION_VALUE,Form.Caption);
+    LangIni.WriteString(Form.ClassName,CAPTION_VALUE,Form.Caption);
 
   for i:=0 to Form.ComponentCount-1 do
   begin
@@ -179,8 +185,7 @@ begin
       else
         StrText:=Text;                                 
 
-      LangIni.WriteString(Form.Name,Name,StrText);
-//      dbgln(Name+'='+Text);
+      LangIni.WriteString(Form.ClassName,Name,StrText);
     end;
   end;
 end;

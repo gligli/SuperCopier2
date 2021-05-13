@@ -20,7 +20,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics,  TntForms,
   Dialogs, StdCtrls,filectrl,tntsysutils,TntStdCtrls,ShellApi, Controls,
   ComCtrls, TntComCtrls, XPMan, ScSystray, Menus, TntMenus, ImgList,
-  Buttons, TntButtons,SCConfigShared,SCLocEngine;
+  Buttons, TntButtons,SCConfigShared,SCLocEngine,SCAPI;
 
 const
   CANCEL_TIMEOUT=5000; //ms
@@ -71,8 +71,8 @@ var
   MainForm: TMainForm;
 
 implementation
-uses SCConfig,SCCommon,SCWin32,SCCopyThread,SCBaseList,SCFileList,SCDirList,SCHookShared,SCWorkThreadList,madCodeHook,
-  Forms,SCConfigForm,SCAboutForm,SCLocStrings,SCCopyForm,SCHookEngine, Math;
+uses SCConfig,SCCommon,SCWin32,SCCopyThread,SCBaseList,SCFileList,SCDirList,SCWorkThreadList,
+  Forms,SCConfigForm,SCAboutForm,SCLocStrings,SCCopyForm, Math;
 {$R *.dfm}
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -91,24 +91,20 @@ begin
   UpdateSystrayIcon;
 
   try
-    HookEngine:=THookEngine.Create;
-    HookEngine.InstallHook;
-    HookEngine.CopyHandlingActive:=Config.Values.ActivateOnStart;
+    API:=TAPI.Create;
   except
-    on E:EHookEngineInitFailed do
+    on E:EAPIAlreadyRunning do
     begin
-        SCWin32.MessageBox(Handle,lsHookErrorText+e.Message,lsHookErrorCaption,MB_OK or MB_ICONERROR);
-        Application.Terminate;
-    end;
-    on E:EHookingFailed do
-    begin
-        SCWin32.MessageBox(Handle,lsHookErrorText+e.Message,lsHookErrorCaption,MB_OK or MB_ICONERROR);
-        Application.Terminate;
+      SCWin32.MessageBox(Handle,WideFormat(lsAlreadyRunningText,[E.Message]),lsAlreadyRunningCaption,MB_OK or MB_ICONERROR);
+      Application.Terminate;
+      Exit;
     end;
   end;
 
-  miActivate.Visible:=not HookEngine.CopyHandlingActive;
-  miDeactivate.Visible:=HookEngine.CopyHandlingActive;
+  API.Enabled:=Config.Values.ActivateOnStart;
+
+  miActivate.Visible:=not API.Enabled;
+  miDeactivate.Visible:=API.Enabled;
 
   UpdateSystrayIcon;
 
@@ -121,8 +117,7 @@ procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose:=True;
 
-  HookEngine.UninstallHook;
-  HookEngine.Free;
+  API.Free;
 
   WorkThreadList.CancelAllAndWaitTermination(CANCEL_TIMEOUT);
   WorkThreadList.Free;
@@ -199,10 +194,10 @@ end;
 
 procedure TMainForm.miActivateClick(Sender: TObject);
 begin
-  HookEngine.CopyHandlingActive:=not HookEngine.CopyHandlingActive;
+  API.Enabled:=not API.Enabled;
 
-  miActivate.Visible:=not HookEngine.CopyHandlingActive;
-  miDeactivate.Visible:=HookEngine.CopyHandlingActive;
+  miActivate.Visible:=not API.Enabled;
+  miDeactivate.Visible:=API.Enabled;
 
   UpdateSystrayIcon;
 end;
@@ -234,7 +229,7 @@ var TmpIcon:TIcon;
 begin
   TmpIcon:=TIcon.Create;
   try
-    if Assigned(HookEngine) and HookEngine.CopyHandlingActive then Idx:=28 else Idx:=29;
+    if Assigned(API) and API.Enabled then Idx:=28 else Idx:=29;
     ilGlobal.GetIcon(Idx,TmpIcon);
     Systray.Icone:=TmpIcon;
   finally

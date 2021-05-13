@@ -1,0 +1,72 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{45080CFC-E1ED-4E28-A541-2A3F86B01608}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="Components\SFXTeam\SCComponent.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="SC2Config.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="SuperCopier2.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="C:\Documents and Settings\GliGli\My Documents\RAD Studio\Projects\Project1.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="SCComponent">
+			<MSBuild Projects="Components\SFXTeam\SCComponent.dproj"/>
+		</Target>
+		<Target Name="SCComponent:Clean">
+			<MSBuild Targets="Clean" Projects="Components\SFXTeam\SCComponent.dproj"/>
+		</Target>
+		<Target Name="SCComponent:Make">
+			<MSBuild Targets="Make" Projects="Components\SFXTeam\SCComponent.dproj"/>
+		</Target>
+		<Target Name="SC2Config">
+			<MSBuild Projects="SC2Config.dproj"/>
+		</Target>
+		<Target Name="SC2Config:Clean">
+			<MSBuild Targets="Clean" Projects="SC2Config.dproj"/>
+		</Target>
+		<Target Name="SC2Config:Make">
+			<MSBuild Targets="Make" Projects="SC2Config.dproj"/>
+		</Target>
+		<Target Name="SuperCopier2">
+			<MSBuild Projects="SuperCopier2.dproj"/>
+		</Target>
+		<Target Name="SuperCopier2:Clean">
+			<MSBuild Targets="Clean" Projects="SuperCopier2.dproj"/>
+		</Target>
+		<Target Name="SuperCopier2:Make">
+			<MSBuild Targets="Make" Projects="SuperCopier2.dproj"/>
+		</Target>
+		<Target Name="Project1">
+			<MSBuild Projects="C:\Documents and Settings\GliGli\My Documents\RAD Studio\Projects\Project1.dproj"/>
+		</Target>
+		<Target Name="Project1:Clean">
+			<MSBuild Targets="Clean" Projects="C:\Documents and Settings\GliGli\My Documents\RAD Studio\Projects\Project1.dproj"/>
+		</Target>
+		<Target Name="Project1:Make">
+			<MSBuild Targets="Make" Projects="C:\Documents and Settings\GliGli\My Documents\RAD Studio\Projects\Project1.dproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="SCComponent;SC2Config;SuperCopier2;Project1"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="SCComponent:Clean;SC2Config:Clean;SuperCopier2:Clean;Project1:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="SCComponent:Make;SC2Config:Make;SuperCopier2:Make;Project1:Make"/>
+		</Target>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+	</Project>

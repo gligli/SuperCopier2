@@ -44,7 +44,7 @@ IsUTF8=0
 40=SuperCopier2 no puede ser lanzado
 41=SuperCopier2 no podía pegarse a los procesos, esto es normal si usted lo lanzó varias veces.
 
-[ConfigForm]
+[TConfigForm]
 -Caption-=Configuración
 lvSections=,Lenguaje,Arranque,"Interfaz utilizador","Opciones implícitas de las copias","Comportamiento de las copias","Informe de las errores","Proceso tratado de",Avanzado
 gbLanguage=Lenguaje
@@ -140,7 +140,7 @@ btApply=Aplicar
 odLog=Todos los archivos (*.*)
 odProcesses=Proceso (*.exe)|*.exe
 
-[MainForm]
+[TMainForm]
 miActivate=Activar
 miDeactivate=Desactivar
 miNewThread=Nueva tarea
@@ -153,7 +153,7 @@ miConfig=Configuración...
 miAbout=A propósito...
 miExit=Dejar
 
-[AboutForm]
+[TAboutForm]
 -Caption-=A propósito de SuperCopier
 llStaffTitle=Staff:
 llStaff1=GliGli: Code principal, Yogi: Copiador NT Original,
@@ -223,7 +223,7 @@ miStResume=Reanudación
 miStPause=Pausa
 miStCancel=Cancelar
 
-[CollisionForm]
+[TCollisionForm]
 -Caption-= - Un archivo existe ya
 llCollisionText1=El archivo siguiente existe ya:
 llSourceTitle=Fuente:
@@ -244,7 +244,7 @@ Customrename1=Retitulación especial
 Alwaysrename1=Siempre Retitular
 Alwaysrenameoldfile1=Siempre retitular el antiguo archivo
 
-[CollisionRenameForm]
+[TCollisionRenameForm]
 -Caption-=Retitulación especial
 rbRenameNew=Retitular el nuevo archivo
 rbRenameOld=Retitular el antiguo archivo
@@ -253,7 +253,7 @@ llNewNameTitle=Hacia:
 btCancel=Cancelar,
 btRename=Retitular,
 
-[CopyErrorForm]
+[TCopyErrorForm]
 -Caption-= - Error de copia
 llCopyErrorText3=Qué usted desean hacer?
 llCopyErrorText1=La copia de:
@@ -266,7 +266,7 @@ Alwaysputtoendoflist1=Siempre poner al extremo de lista
 Skip1=Pasar
 Alwaysskip1=Siempre pasar
 
-[DiskSpaceForm]
+[TDiskSpaceForm]
 -Caption-= - No bastante lugar libre
 llDiskSpaceText1=No hay bastante lugar en volúmenes siguientes:
 llDiskSpaceText2=Qué usted desean hacer?

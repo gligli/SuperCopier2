@@ -19,7 +19,7 @@ uses
   Windows,Messages,SCCopier;
 
 const
-  MAX_WAITING_IO=8; // nombre max d'I/O en attente
+  MAX_WAITING_IO=16; // nombre max d'I/O en attente
 
   READ_ENDING_EVENT=0;
   WRITE_ENDING_EVENT=1;
@@ -72,9 +72,9 @@ begin
   FBufferSize:=0;
 
   // créer les évènements pour le copier
-  Events[READ_ENDING_EVENT]:=CreateEvent(nil,True,False,PChar(MakeUnique(READ_ENDING_EVENT_NAME)));
-  Events[WRITE_ENDING_EVENT]:=CreateEvent(nil,True,False,PChar(MakeUnique(WRITE_ENDING_EVENT_NAME)));
-  Events[WORK_EVENT]:=CreateEvent(nil,True,False,PChar(MakeUnique(WORK_EVENT_NAME)));
+  Events[READ_ENDING_EVENT]:=Windows.CreateEvent(nil,True,False,PChar(MakeUnique(READ_ENDING_EVENT_NAME)));
+  Events[WRITE_ENDING_EVENT]:=Windows.CreateEvent(nil,True,False,PChar(MakeUnique(WRITE_ENDING_EVENT_NAME)));
+  Events[WORK_EVENT]:=Windows.CreateEvent(nil,True,False,PChar(MakeUnique(WORK_EVENT_NAME)));
 
   if (Events[READ_ENDING_EVENT]=INVALID_HANDLE_VALUE) or
      (Events[WRITE_ENDING_EVENT]=INVALID_HANDLE_VALUE) or
@@ -134,7 +134,7 @@ var HSrc,HDest,HBufferedDest:THandle;
     ReadPosRec:Int64Rec absolute ReadPos;
     WritePosRec:Int64Rec absolute WritePos;
     LastError:Cardinal;
-    SourceIsNotUNC,DestIsNotUNC:Boolean;
+    SourceIsNetwork,DestIsNetwork:Boolean;
 begin
   Assert(Assigned(OnCopyProgress),'OnCopyProgress not assigned');
 
@@ -155,12 +155,12 @@ begin
     SourceFile:=FileItem.SrcFullName;
     DestFile:=FileItem.DestFullName;
 
-    SourceIsNotUNC:=not PathIsUNC(PWideChar(SourceFile));
-    DestIsNotUNC:=not PathIsUNC(PWideChar(DestFile));
+    SourceIsNetwork:=PathIsNetworkPath(PWideChar(SourceFile));
+    DestIsNetwork:=PathIsNetworkPath(PWideChar(DestFile));
 
     // gérer les chemins de plus de MAX_PATH caractères
-    if SourceIsNotUNC then SourceFile:=ENABLE_32K_CHARS_PATH+SourceFile;
-    if DestIsNotUNC then DestFile:=ENABLE_32K_CHARS_PATH+DestFile;
+    if not PathIsUNC(PWideChar(SourceFile)) then SourceFile:=ENABLE_32K_CHARS_PATH+SourceFile;
+    if not PathIsUNC(PWideChar(DestFile)) then DestFile:=ENABLE_32K_CHARS_PATH+DestFile;
 
     Inc(FileItem.CopyTryCount);
 
@@ -176,7 +176,7 @@ begin
                             nil,
                             OPEN_EXISTING,
                             FILE_ATTRIBUTE_NORMAL or FILE_FLAG_OVERLAPPED
-                            or IfThen(SourceIsNotUNC,FILE_FLAG_NO_BUFFERING,0),
+                            or IfThen(SourceIsNetwork,0,FILE_FLAG_NO_BUFFERING),
                             0);
         RaiseCopyErrorIfNot(HSrc<>INVALID_HANDLE_VALUE);
 
@@ -192,7 +192,7 @@ begin
                               nil,
                               CREATE_ALWAYS,
                               FILE_ATTRIBUTE_NORMAL or FILE_FLAG_OVERLAPPED
-                              or IfThen(DestIsNotUNC,FILE_FLAG_NO_BUFFERING,0),
+                              or IfThen(DestIsNetwork,0,FILE_FLAG_NO_BUFFERING),
                               0);
           RaiseCopyErrorIfNot(HDest<>INVALID_HANDLE_VALUE);
 
@@ -329,7 +329,7 @@ begin
         LastError:=GetLastError;
 
         // on déclare la position courrante dans le fichier destination comme fin de fichier
-        SetFileSize(HBufferedDest,CopiedSize+SkippedSize);
+        SetFileSize(HBufferedDest,CopiedSize+SkippedSize); //TODO: ajouter gestion des erreurs !!!
 
         // fermeture des handles si ouverts
         CloseHandle(HSrc);

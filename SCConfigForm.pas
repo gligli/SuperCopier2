@@ -19,7 +19,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
   Dialogs, ExtCtrls, TntExtCtrls, ComCtrls, TntComCtrls, StdCtrls,
-  TntStdCtrls, TntDialogs, SCProgessBar,SCLocEngine;
+  TntStdCtrls, TntDialogs, SCProgessBar,SCLocEngine, ScTrackBar;
 
 type
   TConfigForm = class(TTntForm)
@@ -38,9 +38,6 @@ type
     llCopyEnd: TTntLabel;
     cbCopyEnd: TTntComboBox;
     gbSpeedLimit: TTntGroupBox;
-    llSpeedLimitKB: TTntLabel;
-    chSpeedLimit: TTntCheckBox;
-    cbSpeedLimit: TTntComboBox;
     gbCollisions: TTntGroupBox;
     llCollisions: TTntLabel;
     cbCollisions: TTntComboBox;
@@ -139,6 +136,15 @@ type
     llLanguageInfo: TTntLabel;
     chFailSafeCopier: TTntCheckBox;
     chCopyResumeNoAgeVerification: TTntCheckBox;
+    llAttributesAndSecurityForCopies: TTntLabel;
+    llAttributesAndSecurityForMoves: TTntLabel;
+    chSaveSecurityOnCopy: TTntCheckBox;
+    chSaveSecurityOnMove: TTntCheckBox;
+    llCustomSpeedLimit: TTntLabel;
+    chSpeedLimit: TTntCheckBox;
+    tbSpeedLimit: TScTrackBar;
+    edCustomSpeedLimit: TTntEdit;
+    llSpeedLimit: TTntLabel;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure lvSectionsChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
@@ -166,6 +172,7 @@ type
     procedure btApplyClick(Sender: TObject);
     procedure btProgressTextClick(Sender: TObject);
     procedure btProgressOutlineClick(Sender: TObject);
+    procedure tbSpeedLimitChange(Sender: TObject);
   private
     { Private declarations }
 
@@ -190,8 +197,19 @@ uses SCConfig,SCWin32,SCLocStrings,TntSysutils, Math, SCCommon, SCMainForm,
 // UpdateControlsState : fixe l'état d'activation des controles
 //******************************************************************************
 procedure TConfigForm.UpdateControlsState;
+var IsCustom:Boolean;
 begin
-  cbSpeedLimit.Enabled:=chSpeedLimit.Checked;
+  tbSpeedLimit.Enabled:=chSpeedLimit.Checked;
+  edCustomSpeedLimit.Enabled:=chSpeedLimit.Checked;
+  llCustomSpeedLimit.Enabled:=chSpeedLimit.Checked;
+  llSpeedLimit.Enabled:=chSpeedLimit.Checked;
+
+  IsCustom:=tbSpeedLimit.Position=0;
+  edCustomSpeedLimit.Visible:=IsCustom;
+  llCustomSpeedLimit.Visible:=IsCustom;
+  llSpeedLimit.Visible:=not IsCustom;
+  if not IsCustom then llSpeedLimit.Caption:=SizeToString(IndexToSpeedLimit(tbSpeedLimit.Position)*1024);
+
   chDontDeleteOnCopyError.Enabled:=chDeleteUnfinishedCopies.Checked;
   cbErrorLogAutoSaveMode.Enabled:=chErrorLogAutoSave.Checked;
   edErrorLogFileName.Enabled:=chErrorLogAutoSave.Checked;
@@ -255,7 +273,8 @@ begin
     begin
       cbCopyEnd.ItemIndex:=Integer(CopyEndAction);
       chSpeedLimit.Checked:=ThrottleEnabled;
-      cbSpeedLimit.Text:=IntToStr(ThrottleSpeedLimit);
+      edCustomSpeedLimit.Text:=IntToStr(ThrottleSpeedLimit);
+      tbSpeedLimit.Position:=SpeedLimitToIndex(ThrottleSpeedLimit);
       cbCollisions.ItemIndex:=Integer(CollisionAction);
       cbCopyError.ItemIndex:=Integer(CopyErrorAction);
     end;
@@ -264,7 +283,9 @@ begin
     cbCLHandling.ItemIndex:=Integer(CopyListHandlingMode);
     chCLHandlingConfirm.Checked:=CopyListHandlingConfirm;
     chSaveAttributesOnCopy.Checked:=SaveAttributesOnCopy;
+    chSaveSecurityOnCopy.Checked:=SaveSecurityOnCopy;
     chSaveAttributesOnMove.Checked:=SaveAttributesOnMove;
+    chSaveSecurityOnMove.Checked:=SaveSecurityOnMove;
     chDeleteUnfinishedCopies.Checked:=DeleteUnfinishedCopies;
     chDontDeleteOnCopyError.Checked:=DontDeleteOnCopyError;
     edRenameOldPattern.Text:=RenameOldPattern;
@@ -332,7 +353,12 @@ begin
     begin
       CopyEndAction:=TCopyWindowCopyEndAction(cbCopyEnd.ItemIndex);
       ThrottleEnabled:=chSpeedLimit.Checked;
-      ThrottleSpeedLimit:=StrToIntDef(cbSpeedLimit.Text,CONFIG_DEFAULT_VALUES.DefaultCopyWindowConfig.ThrottleSpeedLimit);
+
+      if tbSpeedLimit.Position=0 then
+        ThrottleSpeedLimit:=StrToIntDef(edCustomSpeedLimit.Text,CONFIG_DEFAULT_VALUES.DefaultCopyWindowConfig.ThrottleSpeedLimit)
+      else
+        ThrottleSpeedLimit:=IndexToSpeedLimit(tbSpeedLimit.Position);
+
       CollisionAction:=TCollisionAction(cbCollisions.ItemIndex);
       CopyErrorAction:=TCopyErrorAction(cbCopyError.ItemIndex);
     end;
@@ -341,7 +367,9 @@ begin
     CopyListHandlingMode:=TCopyListHandlingMode(cbCLHandling.ItemIndex);
     CopyListHandlingConfirm:=chCLHandlingConfirm.Checked;
     SaveAttributesOnCopy:=chSaveAttributesOnCopy.Checked;
+    SaveSecurityOnCopy:=chSaveSecurityOnCopy.Checked;
     SaveAttributesOnMove:=chSaveAttributesOnMove.Checked;
+    SaveSecurityOnMove:=chSaveSecurityOnMove.Checked;
     DeleteUnfinishedCopies:=chDeleteUnfinishedCopies.Checked;
     DontDeleteOnCopyError:=chDontDeleteOnCopyError.Checked;
     RenameOldPattern:=edRenameOldPattern.Text;
@@ -374,6 +402,9 @@ end;
 procedure TConfigForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
+  lvSections.OnChange:=nil; //HACK: empèche l'erreur Win32 #87 de se déclencher sur Windows 7
+  CanClose:=False;
+  Hide;
   Release;
   ConfigForm:=nil;
 end;
@@ -406,6 +437,11 @@ begin
 end;
 
 procedure TConfigForm.chSpeedLimitClick(Sender: TObject);
+begin
+  UpdateControlsState;
+end;
+
+procedure TConfigForm.tbSpeedLimitChange(Sender: TObject);
 begin
   UpdateControlsState;
 end;
@@ -447,8 +483,7 @@ end;
 
 procedure TConfigForm.btELFNBrowseClick(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   if odLog.Execute then
   begin
@@ -458,8 +493,7 @@ end;
 
 procedure TConfigForm.btAddProcessClick(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   if odProcesses.Execute then
   begin
@@ -495,8 +529,7 @@ end;
 
 procedure TConfigForm.btProgressFG1Click(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   cdProgress.Color:=ggProgress.FrontColor1;
   if cdProgress.Execute then ggProgress.FrontColor1:=cdProgress.Color;
@@ -504,8 +537,7 @@ end;
 
 procedure TConfigForm.bgProgressFG2Click(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   cdProgress.Color:=ggProgress.FrontColor2;
   if cdProgress.Execute then ggProgress.FrontColor2:=cdProgress.Color;
@@ -513,8 +545,7 @@ end;
 
 procedure TConfigForm.btProgressBG1Click(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   cdProgress.Color:=ggProgress.BackColor1;
   if cdProgress.Execute then ggProgress.BackColor1:=cdProgress.Color;
@@ -522,8 +553,7 @@ end;
 
 procedure TConfigForm.btProgressBG2Click(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   cdProgress.Color:=ggProgress.BackColor2;
   if cdProgress.Execute then ggProgress.BackColor2:=cdProgress.Color;
@@ -531,8 +561,7 @@ end;
 
 procedure TConfigForm.btProgressBorderClick(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   cdProgress.Color:=ggProgress.BorderColor;
   if cdProgress.Execute then ggProgress.BorderColor:=cdProgress.Color;
@@ -545,8 +574,7 @@ end;
 
 procedure TConfigForm.btProgressTextClick(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   cdProgress.Color:=ggProgress.FontTxt.Color;
   if cdProgress.Execute then
@@ -559,8 +587,7 @@ end;
 
 procedure TConfigForm.btProgressOutlineClick(Sender: TObject);
 begin
-  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
-  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+  FixParentBugs;
 
   cdProgress.Color:=ggProgress.FontTxtColor;
   if cdProgress.Execute then

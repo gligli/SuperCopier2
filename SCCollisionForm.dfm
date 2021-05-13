@@ -128,11 +128,9 @@ object CollisionForm: TCollisionForm
   object llCollisionText2: TTntLabel
     Left = 48
     Top = 96
-    Width = 318
+    Width = 281
     Height = 13
-    Caption = 
-      'What would you like to to?  (keep buttons pressed for more optio' +
-      'ns)'
+    Caption = 'What would you like to to?  (hover buttons for more options)'
   end
   object llSourceData: TTntLabel
     Left = 112
@@ -142,6 +140,7 @@ object CollisionForm: TCollisionForm
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llSourceData'
+    ShowAccelChar = False
   end
   object llDestinationData: TTntLabel
     Left = 112
@@ -151,6 +150,7 @@ object CollisionForm: TCollisionForm
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llDestinationData'
+    ShowAccelChar = False
   end
   object llFileName: TSCFileNameLabel
     Left = 47
@@ -160,6 +160,7 @@ object CollisionForm: TCollisionForm
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llFileName'
+    ShowAccelChar = False
   end
   object btCancel: TScPopupButton
     Left = 323
@@ -168,6 +169,7 @@ object CollisionForm: TCollisionForm
     Height = 25
     TabOrder = 4
     TabStop = True
+    Anchors = [akLeft, akBottom]
     ItemIndex = 0
     Caption = 'Cancel'
     ImageIndex = 6
@@ -181,6 +183,7 @@ object CollisionForm: TCollisionForm
     Height = 25
     TabOrder = 3
     TabStop = True
+    Anchors = [akLeft, akBottom]
     ItemIndex = 0
     Popup = pmSkip
     ImageIndex = -1
@@ -193,6 +196,7 @@ object CollisionForm: TCollisionForm
     Height = 25
     TabOrder = 0
     TabStop = True
+    Anchors = [akLeft, akBottom]
     ItemIndex = 0
     Popup = pmOverwrite
     ImageIndex = -1
@@ -205,6 +209,7 @@ object CollisionForm: TCollisionForm
     Height = 25
     TabOrder = 1
     TabStop = True
+    Anchors = [akLeft, akBottom]
     ItemIndex = 0
     Popup = pmResume
     ImageIndex = -1
@@ -217,6 +222,7 @@ object CollisionForm: TCollisionForm
     Height = 25
     TabOrder = 2
     TabStop = True
+    Anchors = [akLeft, akBottom]
     ItemIndex = 0
     Popup = pmRename
     ImageIndex = -1

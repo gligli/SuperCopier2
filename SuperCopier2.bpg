@@ -9,15 +9,12 @@ MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
 DCC = $(ROOT)\bin\dcc32.exe $**
 BRCC = $(ROOT)\bin\brcc32.exe $**
 #------------------------------------------------------------------------------
-PROJECTS = SCComponent.bpl SC2Hook.dll SC2Config.exe SuperCopier2.exe
+PROJECTS = SCComponent.bpl SC2Config.exe SuperCopier2.exe
 #------------------------------------------------------------------------------
 default: $(PROJECTS)
 #------------------------------------------------------------------------------
 
 SCComponent.bpl: Components\SFXTeam\SCComponent.dpk
-  $(DCC)
-
-SC2Hook.dll: SC2Hook.dpr
   $(DCC)
 
 SC2Config.exe: SC2Config.dpr

@@ -34,6 +34,8 @@ type
 	TCopier=class
 	private
 		LastBaseListId:Integer;
+    FCopyAttributes:Boolean;
+    FCopySecurity:Boolean;
 
     function RecurseSubs(DirItem:TDirItem):Boolean;
   protected
@@ -66,8 +68,6 @@ type
     OnCopyProgress:TCopyProgressEvent;
     OnRecurseProgress:TRecurseProgressEvent;
 
-    property BufferSize:cardinal read FBufferSize write SetBufferSize;
-
 		constructor Create;
 		destructor Destroy;override;
 
@@ -84,8 +84,13 @@ type
     procedure DeleteSrcFile;
     procedure DeleteDestFile;
     procedure CopyAttributesAndSecurity;
+    procedure VerifyOrCreateDir(ADirItem:TDirItem=nil);
 
     function DoCopy:Boolean;virtual;abstract;
+
+    property BufferSize:cardinal read FBufferSize write SetBufferSize;
+    property CopyAttributes:Boolean read FCopyAttributes write FCopyAttributes;
+    property CopySecurity:Boolean read FCopySecurity write FCopySecurity;
 	end;
 
 implementation
@@ -529,8 +534,8 @@ begin
         for i:=0 to FileList.Count-1 do
           AddToVolumeByPath(FileList[i].Directory.Destpath,FileList[i].SrcSize);
 
-        // ne pas compter la partie copiée du fichier en cours
-        if CurrentCopy.CopiedSize>0 then AddToVolumeByPath(CurrentCopy.DirItem.Destpath,-CurrentCopy.CopiedSize);
+        // ne pas compter la taille du fichier en cours (allouée par avance)
+        if CurrentCopy.CopiedSize>0 then AddToVolumeByPath(CurrentCopy.DirItem.Destpath,-CurrentCopy.FileItem.SrcSize);
       end
       else
       begin
@@ -538,8 +543,8 @@ begin
         for i:=0 to FileList.Count-1 do
           AddToVolume(GetVolumeNameString(FileList[i].Directory.Destpath),FileList[i].SrcSize);
 
-        // ne pas compter la partie copiée du fichier en cours
-        if CurrentCopy.CopiedSize>0 then AddToVolume(GetVolumeNameString(CurrentCopy.DirItem.Destpath),-CurrentCopy.CopiedSize);
+        // ne pas compter la taille du fichier en cours (allouée par avance)
+        if CurrentCopy.CopiedSize>0 then AddToVolume(GetVolumeNameString(CurrentCopy.DirItem.Destpath),-CurrentCopy.FileItem.SrcSize);
       end;
 
     finally
@@ -654,7 +659,11 @@ begin
       Result:=False;
     end;
     cpaRetry:
-      // rien à faire
+    begin
+      // on recommence la meme copie -> faire comme si l'on avait rien copié
+      SkippedSize:=SkippedSize-CurrentCopy.SkippedSize;
+      CopiedSize:=CopiedSize-CurrentCopy.CopiedSize;
+    end;
   end;
 end;
 
@@ -763,7 +772,7 @@ procedure TCopier.CreateEmptyDirs;
 var i:integer;
 begin
   for i:=0 to DirList.Count-1  do
-    DirList[i].VerifyOrCreate;
+    VerifyOrCreateDir(DirList[i]);
 end;
 
 //******************************************************************************
@@ -808,21 +817,47 @@ begin
 end;
 
 //******************************************************************************
-// CopyAttributesAndSecurity : Copie les attributs du fichier en cours
+// CopyAttributesAndSecurity : Copie les attributs et la sécurité du fichier en cours
 //******************************************************************************
 procedure TCopier.CopyAttributesAndSecurity;
 begin
-  if not CurrentCopy.FileItem.DestCopyAttributes then
+  if CopyAttributes and not CurrentCopy.FileItem.DestCopyAttributes then
   begin
     // gestion de l'erreur
     GenericError(lsUpdateAttributesAction,CurrentCopy.FileItem.DestFullName,GetLastErrorText);
   end;
 
-  if Win32Platform=VER_PLATFORM_WIN32_NT then
-    if not CurrentCopy.FileItem.DestCopySecurity then
-    begin
-      // gestion de l'erreur
-      GenericError(lsUpdateSecurityAction,CurrentCopy.FileItem.DestFullName,GetLastErrorText);
-    end;
+  if CopySecurity and (Win32Platform=VER_PLATFORM_WIN32_NT) and not CurrentCopy.FileItem.DestCopySecurity then
+  begin
+    // gestion de l'erreur
+    GenericError(lsUpdateSecurityAction,CurrentCopy.FileItem.DestFullName,GetLastErrorText);
+  end;
 end;
+
+//******************************************************************************
+// VerifyOrCreateDir : Appelle VerifyOrCreate pour un DirItem et gère attributs et sécurité
+//******************************************************************************
+procedure TCopier.VerifyOrCreateDir(ADirItem: TDirItem);
+var DirItem:TDirItem;
+begin
+  DirItem:=ADirItem;
+  if DirItem=nil then DirItem:=CurrentCopy.DirItem;
+
+  if DirItem.Created then Exit;
+
+  DirItem.VerifyOrCreate;
+
+  if CopyAttributes and not DirItem.DestCopyAttributes then
+  begin
+    // gestion de l'erreur
+    GenericError(lsUpdateAttributesAction,DirItem.Destpath,GetLastErrorText);
+  end;
+
+  if CopySecurity and (Win32Platform=VER_PLATFORM_WIN32_NT) and not DirItem.DestCopySecurity then
+  begin
+    // gestion de l'erreur
+    GenericError(lsUpdateSecurityAction,DirItem.Destpath,GetLastErrorText);
+  end;
+end;
+
 end.

@@ -13,6 +13,7 @@
 }
 
 unit SCWorkThreadList;
+//TODO: quand on enleve une workthread de la liste, l'enlever aussi de la liste des handles de l'API
 
 interface
 
@@ -27,7 +28,7 @@ type
   public
 	  property Items[Index: Integer]: TWorkThread read Get write Put; default;
 
-    function ProcessBaseList(BaseList:TBaseList;Operation:Cardinal;DestDir:WideString=''):Boolean;
+    function ProcessBaseList(BaseList:TBaseList;Operation:Cardinal;DestDir:WideString=''):TWorkThread;
     procedure CreateEmptyCopyThread(IsMove:Boolean);
     procedure CancelAllAndWaitTermination(Timeout:Cardinal);
 
@@ -77,26 +78,28 @@ end;
 
 //******************************************************************************
 // ProcessBaseList: prends en charge une opération sur une BaseList,
-//                  renvoie False si pas pris en charge
+//                  renvoie la WorkThread qui a pris en charge la BL ou nil si pas de prise en charge
 //******************************************************************************
-function TWorkThreadList.ProcessBaseList(BaseList:TBaseList;Operation:Cardinal;DestDir:WideString=''):Boolean;
+function TWorkThreadList.ProcessBaseList(BaseList:TBaseList;Operation:Cardinal;DestDir:WideString=''):TWorkThread;
 var i:Integer;
     GuessedSrcDir:WideString;
     SameVolumeMove:Boolean;
     CopyThread:TCopyThread;
 begin
+  Result:=nil;
+
+  if BaseList.Count=0 then Exit;
+
   dbgln('ProcessBaseList: B[0]='+BaseList[0].SrcName);
   dbgln('                   DD='+DestDir);
   try
     Lock;
 
-    Result:=False;
-
     case Operation of
       FO_RENAME:
-        Result:=False;
+        Result:=nil;
       FO_DELETE:
-        Result:=False; // non supporté pour le moment
+        Result:=nil; // non supporté pour le moment
       FO_MOVE,
       FO_COPY:
       begin
@@ -105,30 +108,31 @@ begin
 
         if SameVolumeMove then
         begin
-          Result:=False; // non supporté pour le moment
+          Result:=nil; // non supporté pour le moment
         end
         else
         begin
-          Result:=False;
+          Result:=nil;
           CopyThread:=nil;
           i:=0;
-          while (i<Count) and not Result do
+          while (i<Count) and (Result=nil) do
           begin
             if Items[i].ThreadType=wttCopy then
             begin
               CopyThread:=Items[i] as TCopyThread;
 
-              Result:=(CopyThread.IsMove=(Operation=FO_MOVE)) and CopyThread.CanHandle(GuessedSrcDir,DestDir);
+              if (CopyThread.IsMove=(Operation=FO_MOVE)) and CopyThread.CanHandle(GuessedSrcDir,DestDir) then
+                Result:=CopyThread;
             end;
 
             Inc(i);
           end;
 
-          if not Result then // aucune CopyThread ne peut prendre en charge l'opération -> on en crée une nouvelle
+          if Result=nil then // aucune CopyThread ne peut prendre en charge l'opération -> on en crée une nouvelle
           begin
             CopyThread:=TCopyThread.Create(Operation=FO_MOVE);
             Add(CopyThread); // rescencer la thread
-            Result:=True;
+            Result:=CopyThread;
           end;
 
           CopyThread.AddBaseList(BaseList,amSpecifyDest,DestDir);
@@ -160,7 +164,7 @@ var i:Integer;
     Ok:Boolean;
 begin
   // annulation
-  for i:=0 to Count-1 do Items[i].Cancel;
+  for i:=Count-1 downto 0 do Items[i].Cancel;
 
   // attente
   t:=GetTickCount;

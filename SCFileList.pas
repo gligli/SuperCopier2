@@ -15,7 +15,7 @@
 unit SCFileList;
 
 interface
-uses SCDirList,Classes,SCObjectThreadList;
+uses SCCommon,SCDirList,Classes,SCObjectThreadList;
 
 const
   FILELIST_DATA_VERSION=001;
@@ -43,6 +43,7 @@ type
 		function DestSize:Int64;
 		function SrcAge:Integer;
 		function DestAge:Integer;
+		function SrcExists:Boolean;
 		function DestExists:Boolean;
 		function DestIsSameFile:Boolean;
     function SrcDelete:Boolean;
@@ -55,6 +56,8 @@ type
 	TFileList = class (TObjectThreadList)
   private
     FDirList:TDirList;
+    FSortMode:TFileListSortMode;
+    FSortReverse:Boolean;
 	protected
 		function Get(Index: Integer): TFileItem;
 		procedure Put(Index: Integer; Item: TFileItem);
@@ -69,13 +72,18 @@ type
     procedure LoadFromStream(TheStream:TStream);
 		function Add(Item: TFileItem): Integer;
 		procedure Delete(Index: Integer;UpdateTotalCount:Boolean=False);
+    procedure Sort;
 
 		property Items[Index: Integer]: TFileItem read Get write Put; default;
+    property SortMode:TFileListSortMode read FSortMode write FSortMode;
+    property SortReverse:Boolean read FSortReverse write FSortReverse;
 	end;
 
 implementation
 
-uses SCCommon,SCWin32,SysUtils,TntSysUtils,Windows, Contnrs;
+uses SCWin32,SysUtils,TntSysUtils,Windows, Contnrs, Math;
+
+function FLSortCompare(Item1,Item2:Pointer):Integer;forward;
 
 //******************************************************************************
 //******************************************************************************
@@ -158,6 +166,11 @@ end;
 function TFileItem.DestExists:Boolean;
 begin
 	Result:=WideFileAge(DestFullName)<>-1;
+end;
+
+function TFileItem.SrcExists: Boolean;
+begin
+	Result:=WideFileAge(SrcFullName)<>-1;
 end;
 
 function TFileItem.DestIsSameFile:Boolean;
@@ -344,11 +357,61 @@ begin
   Size:=0;
 
   FDirList:=PDirList;
+  FSortMode:=fsmNone;
+  FSortReverse:=False;
 end;
 
 destructor TFileList.Destroy;
 begin
 	inherited Destroy;
+end;
+
+procedure TFileList.Sort;
+begin
+  if Count>1 then inherited Sort(FLSortCompare);
+end;
+
+//******************************************************************************
+// FLSortCompare: fonction de tri pour la filelist
+//******************************************************************************
+
+function FLSortCompare(Item1,Item2:Pointer):Integer;
+var FileItem1,FileItem2:TFileItem;
+begin
+  FileItem1:=TFileItem(Item1);
+  FileItem2:=TFileItem(Item2);
+
+  // le premier element de la liste dois rester le premier element de la liste
+  // ca il est en train d'être copié
+  if FileItem1=FileItem1.Owner.First then
+  begin
+    Result:=-1;
+    Exit;
+  end;
+
+  if FileItem2=FileItem2.Owner.First then
+  begin
+    Result:=1;
+    Exit;
+  end;
+
+  Result:=0;
+  case FileItem1.Owner.SortMode of
+    fsmBySrcName:
+      Result:=WideCompareText(FileItem1.SrcName,FileItem2.SrcName);
+    fsmBySrcFullName:
+      Result:=WideCompareText(FileItem1.SrcFullName,FileItem2.SrcFullName);
+    fsmByDestName:
+      Result:=WideCompareText(FileItem1.DestName,FileItem2.DestName);
+    fsmByDestFullName:
+      Result:=WideCompareText(FileItem1.DestFullName,FileItem2.DestFullName);
+    fsmBySrcSize:
+      Result:=CompareValue(FileItem1.SrcSize,FileItem2.SrcSize);
+    fsmBySrcExt:
+      Result:=WideCompareText(WideExtractFileExt(FileItem1.SrcName),WideExtractFileExt(FileItem2.SrcName));
+  end;
+
+  if FileItem1.Owner.SortReverse then Result:=-Result;
 end;
 
 end.

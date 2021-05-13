@@ -1060,9 +1060,9 @@ object AboutForm: TAboutForm
   object llName: TTntLabel
     Left = 8
     Top = 8
-    Width = 110
+    Width = 101
     Height = 13
-    Caption = 'SuperCopier 2 Beta 1.9'
+    Caption = 'SuperCopier 2.2 Beta'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -1130,7 +1130,7 @@ object AboutForm: TAboutForm
     Width = 265
     Height = 17
     AutoSize = False
-    Caption = 'TntWare (unicode components), Tal Sella (icons),'
+    Caption = 'TntWare (unicode components),'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -1170,9 +1170,9 @@ object AboutForm: TAboutForm
   object llThanks2: TTntLabel
     Left = 16
     Top = 120
-    Width = 152
+    Width = 78
     Height = 13
-    Caption = 'Mathias Rauen (hooking library).'
+    Caption = 'Tal Sella (icons).'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11

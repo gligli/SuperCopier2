@@ -60,6 +60,20 @@ function MessageBox(hWnd: HWND; lpText, lpCaption: WideString; uType: UINT): Int
 function GetTempPath:WideString;
 function CopyFile(lpExistingFileName, lpNewFileName: PWideChar; bFailIfExists: BOOL): BOOL;
 function PathIsUNC(pszPath:PWideChar):LongBool;
+function PathIsNetworkPath(pszPath:PWideChar):LongBool;
+function GetUserName(lpBuffer: PWideChar; var nSize: DWORD): BOOL;
+function CreateMutex(lpMutexAttributes: PSecurityAttributes; bInitialOwner: BOOL; lpName: PWideChar): THandle;
+function CreateFileMapping(hFile: THandle; lpFileMappingAttributes: PSecurityAttributes;
+  flProtect, dwMaximumSizeHigh, dwMaximumSizeLow: DWORD; lpName: PWideChar): THandle;
+function CreateEvent(lpEventAttributes: PSecurityAttributes;
+  bManualReset, bInitialState: BOOL; lpName: PWideChar): THandle;
+function OpenMutex(dwDesiredAccess: DWORD; bInheritHandle: BOOL; lpName: PWideChar): THandle;
+function OpenFileMapping(dwDesiredAccess: DWORD; bInheritHandle: BOOL; lpName: PWideChar): THandle;
+function OpenEvent(dwDesiredAccess: DWORD; bInheritHandle: BOOL; lpName: PWideChar): THandle;
+function CreateSemaphore(lpSemaphoreAttributes: PSecurityAttributes;
+  lInitialCount, lMaximumCount: Longint; lpName: PWideChar): THandle;
+function GlobalAddAtom(lpString: PWideChar): TAtom;
+function GlobalFindAtom(lpString: PWideChar): TAtom;
 
 var
   HKernel32_dll:Cardinal;
@@ -71,10 +85,12 @@ var
 
 implementation
 
-uses TntWindows,Sysutils,SCCommon;
+uses TntWindows,Sysutils;
 
 function PathIsUNCA(pszPath:PChar):LongBool;stdcall;external 'shlwapi.dll' name 'PathIsUNCA';
 function PathIsUNCW(pszPath:PWideChar):LongBool;stdcall;external 'shlwapi.dll' name 'PathIsUNCW';
+function PathIsNetworkPathA(pszPath:PChar):LongBool;stdcall;external 'shlwapi.dll' name 'PathIsNetworkPathA';
+function PathIsNetworkPathW(pszPath:PWideChar):LongBool;stdcall;external 'shlwapi.dll' name 'PathIsNetworkPathW';
 
 //******************************************************************************
 // GetFileSize
@@ -279,6 +295,128 @@ begin
     Result:=PathIsUNCW(pszPath)
   else
     Result:=PathIsUNCA(PChar(String(pszPath)));
+end;
+
+//******************************************************************************
+// PathIsNetworkPath
+//******************************************************************************
+function PathIsNetworkPath(pszPath:PWideChar):LongBool;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=PathIsNetworkPathW(pszPath)
+  else
+    Result:=PathIsNetworkPathA(PChar(String(pszPath)));
+end;
+
+//******************************************************************************
+// GetUserName
+//******************************************************************************
+function GetUserName(lpBuffer: PWideChar; var nSize: DWORD): BOOL;
+begin
+  Result:=Tnt_GetUserNameW(lpBuffer,nSize);
+end;
+
+//******************************************************************************
+// CreateMutex
+//******************************************************************************
+function CreateMutex(lpMutexAttributes: PSecurityAttributes; bInitialOwner: BOOL; lpName: PWideChar): THandle;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=CreateMutexW(lpMutexAttributes,bInitialOwner,lpName)
+  else
+    Result:=CreateMutexA(lpMutexAttributes,bInitialOwner,PChar(String(lpName)));
+end;
+
+//******************************************************************************
+// CreateFileMapping
+//******************************************************************************
+function CreateFileMapping(hFile: THandle; lpFileMappingAttributes: PSecurityAttributes;
+  flProtect, dwMaximumSizeHigh, dwMaximumSizeLow: DWORD; lpName: PWideChar): THandle;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=CreateFileMappingW(hFile,lpFileMappingAttributes,flProtect,dwMaximumSizeHigh,dwMaximumSizeLow,lpName)
+  else
+    Result:=CreateFileMappingA(hFile,lpFileMappingAttributes,flProtect,dwMaximumSizeHigh,dwMaximumSizeLow,PChar(String(lpName)));
+end;
+
+//******************************************************************************
+// CreateEvent
+//******************************************************************************
+function CreateEvent(lpEventAttributes: PSecurityAttributes;
+  bManualReset, bInitialState: BOOL; lpName: PWideChar): THandle;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=CreateEventW(lpEventAttributes,bManualReset,bInitialState,lpName)
+  else
+    Result:=CreateEventA(lpEventAttributes,bManualReset,bInitialState,PChar(String(lpName)));
+end;
+
+//******************************************************************************
+// OpenMutex
+//******************************************************************************
+function OpenMutex(dwDesiredAccess: DWORD; bInheritHandle: BOOL; lpName: PWideChar): THandle;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=OpenMutexW(dwDesiredAccess,bInheritHandle,lpName)
+  else
+    Result:=OpenMutexA(dwDesiredAccess,bInheritHandle,PChar(String(lpName)));
+end;
+
+//******************************************************************************
+// OpenFileMapping
+//******************************************************************************
+function OpenFileMapping(dwDesiredAccess: DWORD; bInheritHandle: BOOL; lpName: PWideChar): THandle;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=OpenFileMappingW(dwDesiredAccess,bInheritHandle,lpName)
+  else
+    Result:=OpenFileMappingA(dwDesiredAccess,bInheritHandle,PChar(String(lpName)));
+end;
+
+//******************************************************************************
+// OpenEvent
+//******************************************************************************
+function OpenEvent(dwDesiredAccess: DWORD; bInheritHandle: BOOL; lpName: PWideChar): THandle;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=OpenEventW(dwDesiredAccess,bInheritHandle,lpName)
+  else
+    Result:=OpenEventA(dwDesiredAccess,bInheritHandle,PChar(String(lpName)));
+end;
+
+//******************************************************************************
+// CreateSemaphore
+//******************************************************************************
+function CreateSemaphore(lpSemaphoreAttributes: PSecurityAttributes;
+  lInitialCount, lMaximumCount: Longint; lpName: PWideChar): THandle;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=CreateSemaphoreW(lpSemaphoreAttributes,lInitialCount,lMaximumCount,lpName)
+  else
+    Result:=CreateSemaphoreA(lpSemaphoreAttributes,lInitialCount,lMaximumCount,PChar(String(lpName)));
+end;
+
+
+//******************************************************************************
+// GlobalAddAtom
+//******************************************************************************
+function GlobalAddAtom(lpString: PWideChar): TAtom;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=GlobalAddAtomW(lpString)
+  else
+    Result:=GlobalAddAtomA(PChar(String(lpString)));
+end;
+
+//******************************************************************************
+// GlobalFindAtom
+//******************************************************************************
+function GlobalFindAtom(lpString: PWideChar): TAtom;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=GlobalFindAtomW(lpString)
+  else
+    Result:=GlobalFindAtomA(PChar(String(lpString)));
 end;
 
 initialization

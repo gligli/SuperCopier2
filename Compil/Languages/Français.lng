@@ -46,8 +46,21 @@ IsUTF8=0
 42=Pas assez de place libre
 43=Fin de copie - %s
 44=Fin de copie (erreurs survenues) - %s
+45=L'initialisation du moteur d'attachement aux procesus à échoué: la création de l'IPC à échouée.
+46=L'initialisation du moteur d'attachement aux procesus à échoué: la création du file mapping à échouée.
+47=L'attachement aux processus à échoué: l'attachement global ne marche que sur un compte ayant les droits d'administrateur.
+48=L'initialisation de l'API a échouée: la création du mutex a échouée
+49=L'initialisation de l'API a échouée: la création du file mapping a échouée
+50=L'initialisation de l'API a échouée: la création de l'event a échouée
+51=Copier ici avec SuperCopier
+52=Déplacer ici avec SuperCopier
+53=L'API est déjà lancée pour la session en cours
+54=%s|Vous ne pouvez pas lancer SuperCopier 2 plus d'une fois par session
+55=SuperCopier 2 est déjà lancé
+56=L'initialisation de l'API a échouée: la création du semaphore a échouée
+57=Inconnu
 
-[ConfigForm]
+[TConfigForm]
 -Caption-=Configuration
 lvSections=,Langage,Démarrage,"Interface utilisateur","Options par défaut des copies","Comportement des copies","Journal des erreurs","Processus pris en charge",Avancé
 gbLanguage=Langage
@@ -85,7 +98,7 @@ llCopyEnd=A la fin de la copie:
 cbCopyEnd="Fermer la fenêtre","Ne pas fermer la fenêtre","Ne pas fermer si il y a eu des erreurs"
 gbSpeedLimit=Limite de vitesse
 llSpeedLimitKB=Ko
-chSpeedLimit=Limiter la vitesse de copie à:
+chSpeedLimit=Activée
 gbCollisions=Collisions de fichiers
 llCollisions=Quand un fichier existe déjà, toujours:
 cbCollisions="Demander quoi faire","Annuler la copie entière",Passer,"Reprendre le transfert",Ecraser,"Ecraser si différent","Renommer le nouveau fichier","Renommer l'ancien fichier"
@@ -94,15 +107,18 @@ llCopyErrors=En cas d'erreur de copie, toujours:
 llRetryInterval=Temps d'attente entre deux essais:
 llRetryIntervalUnit=Millisecondes
 cbCopyError="Demander quoi faire","Annuler la copie entière",Passer,Rééssayer,"Mettre le fichier à la fin de la liste"
-edCopyErrorRetry=2000
 gbCLHandling=Gestion des nouvelles listes de copie
 llCLHandling=Ajouter les nouvelles listes de copie à celles déjà en train de copier quand:
 llCLHandlingInfo=(même source veut dire, par exemple, même disque physique)
 cbCLHandling=Jamais,Toujours,"La source est la même","La destination est la même","La source et la destination sont les mêmes","La source ou la destination sont les mêmes"
 chCLHandlingConfirm=Demander confirmation avant d'ajouter
 gbAttributes=Attributs && sécurité
-chSaveAttributesOnCopy=Copier les attributs et la sécurité quand un fichier est copié
-chSaveAttributesOnMove=Copier les attributs et la sécurité quand un fichier est déplacé
+llAttributesAndSecurityForCopies=Lors d'une copie, copier:
+llAttributesAndSecurityForMoves=Lors d'un déplacement, copier:
+chSaveAttributesOnCopy=les attributs
+chSaveAttributesOnMove=les attributs
+chSaveSecurityOnCopy=la sécurité
+chSaveSecurityOnMove=la sécurité
 gbDeleting=Suppression
 chDeleteUnfinishedCopies=Supprimer les fichiers qui ne sont pas copiés entièrement
 chDontDeleteOnCopyError=Ne pas les supprimer si ça a été causé par une erreur de copie
@@ -144,7 +160,7 @@ btApply=Appliquer
 odLog=Tous les fichiers (*.*)
 odProcesses=Processus (*.exe)|*.exe
 
-[MainForm]
+[TMainForm]
 miActivate=Activer
 miDeactivate=Désactiver
 miNewThread=Nouvelle tâche
@@ -157,18 +173,18 @@ miConfig=Configuration...
 miAbout=A propos...
 miExit=Quitter
 
-[AboutForm]
+[TAboutForm]
 -Caption-=A propos de SuperCopier
 llStaffTitle=Staff:
 llStaff1=GliGli: Code principal, Yogi: Copieur NT Originel,
 llThanksTitle=Remerciements:
-llThanks1=TntWare (composants unicode), Tal Sella (icônes),
-llThanks2=Mathias Rauen (bibliothèque de hook).
+llThanks1=TntWare (composants unicode),
+llThanks2=Tal Sella (icônes).
 llStaff2=ZeuS: Composants graphiques.
 btOk=Ok
 btReadme=LisezMoi.txt
 
-[CopyForm]
+[TCopyForm]
 llFromTitle=De:
 llToTitle=Vers:
 tsCopyList=Liste de copie
@@ -188,8 +204,7 @@ lvErrorList=Heure,Action,Cible,"Texte de l'erreur"
 tsOptions=Options
 gbSpeedLimit=Limite de vitesse
 llSpeedLimitKB=Ko
-chSpeedLimit=Limiter la vitesse de copie à:
-cbSpeedLimit=64,128,256,512,1024,2048,4096,8192,16384,32768
+chSpeedLimit=Activée
 gbCollisions=Collisions de fichiers
 llCollisions=Quand un fichier existe déjà, toujours:
 cbCollisions="Demander quoi faire","Annuler la copie entière",Passer,"Reprendre le transfert",Ecraser,"Ecraser si différent","Renommer le nouveau fichier","Renommer l'ancien fichier"
@@ -226,13 +241,20 @@ miAddFolder=Ajouter un dossier...
 miStResume=Reprise
 miStPause=Pause
 miStCancel=Annuler
+miSort=Trier
+miBySrcFullPath=par chemin complet de la source
+miBySrcName=par nom de la source
+miByDestFullPath=par chemin complet de la destination
+miBySize=par taille
+miBySrcExt=par extension de la source
 
-[CollisionForm]
+
+[TCollisionForm]
 -Caption-= - Un fichier existe déjà
 llCollisionText1=Le fichier suivant existe déjà:
 llSourceTitle=Source:
 llDestiationTitle=Destination:
-llCollisionText2=Que voulez-vous faire? (garder les boutons appuyés pour plus d'options)
+llCollisionText2=Que voulez-vous faire? (survolez les boutons pour plus d'options)
 btCancel=Annuler,
 Skip1=Passer
 Alwaysskip1=Toujours passer
@@ -248,7 +270,7 @@ Customrename1=Renommage spécial
 Alwaysrename1=Toujours renommer
 Alwaysrenameoldfile1=Toujours renommer l'ancien fichier
 
-[CollisionRenameForm]
+[TCollisionRenameForm]
 -Caption-=Renommage spécial
 rbRenameNew=Renommer le nouveau fichier
 rbRenameOld=Renommer l'ancien fichier
@@ -257,9 +279,9 @@ llNewNameTitle=Vers:
 btCancel=Annuler,
 btRename=Renommer,
 
-[CopyErrorForm]
+[TCopyErrorForm]
 -Caption-= - Erreur de copie
-llCopyErrorText3=Que voulez-vous faire? (garder les boutons appuyés pour plus d'options)
+llCopyErrorText3=Que voulez-vous faire? (survolez les boutons pour plus d'options)
 llCopyErrorText1=La copie de:
 llCopyErrorText2=à été interrompue pour la raison suivante:
 btCancel=Annuler,
@@ -270,7 +292,7 @@ Alwaysputtoendoflist1=Toujours mettre en fin de liste
 Skip1=Passer
 Alwaysskip1=Toujours passer
 
-[DiskSpaceForm]
+[TDiskSpaceForm]
 -Caption-= - Pas assez de place libre
 llDiskSpaceText1=Il n'y a pas assez de place sur les volumes suivants:
 llDiskSpaceText2=Que voulez-vous faire?

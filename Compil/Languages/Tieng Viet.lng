@@ -45,7 +45,7 @@ IsUTF8=1
 40=SuperCopier2 ne peut pas être lancé
 41=SuperCopier2 n'a pu s'attacher aux processus, ceci est normal si vous l'avez lancé plusieurs fois.
 
-[ConfigForm]
+[TConfigForm]
 -Caption-=Tham số
 lvSections=,"Ngôn ngữ",Khởi động,"Giao diện","Tùy chọn mặc định","Thông số khác","Danh sách lỗi","Liên kết tới các chương trình","Tham số mở rộng"
 gbLanguage=Ngôn ngữ
@@ -141,7 +141,7 @@ btApply=Appliquer
 odLog=Tous les fichiers (*.*)
 odProcesses=Processus (*.exe)|*.exe
 
-[MainForm]
+[TMainForm]
 miActivate=Bật
 miDeactivate=Tắt
 miNewThread=Tạo tác vụ mới
@@ -154,7 +154,7 @@ miConfig=Tham số...
 miAbout=Giới thiệu chương trình...
 miExit=Thoát
 
-[AboutForm]
+[TAboutForm]
 -Caption-=A propos de SuperCopier
 llStaffTitle=Staff:
 llStaff1=GliGli: Code principal, Yogi: Copieur NT Originel,
@@ -165,7 +165,7 @@ llStaff2=ZeuS: Composants graphiques.
 btOk=Ok
 btReadme=LisezMoi.txt
 
-[CopyForm]
+[TCopyForm]
 llFromTitle=De:
 llToTitle=Vers:
 tsCopyList=Liste de copie
@@ -224,7 +224,7 @@ miStResume=Reprise
 miStPause=Pause
 miStCancel=Annuler
 
-[CollisionForm]
+[TCollisionForm]
 -Caption-= - Un fichier existe déjà
 llCollisionText1=Le fichier suivant existe déjà:
 llSourceTitle=Source:
@@ -245,7 +245,7 @@ Customrename1=Renommage spécial
 Alwaysrename1=Toujours renommer
 Alwaysrenameoldfile1=Toujours renommer l'ancien fichier
 
-[CollisionRenameForm]
+[TCollisionRenameForm]
 -Caption-=Renommage spécial
 rbRenameNew=Renommer le nouveau fichier
 rbRenameOld=Renommer l'ancien fichier
@@ -254,7 +254,7 @@ llNewNameTitle=Vers:
 btCancel=Annuler,
 btRename=Renommer,
 
-[CopyErrorForm]
+[TCopyErrorForm]
 -Caption-= - Erreur de copie
 llCopyErrorText3=Que voulez-vous faire?
 llCopyErrorText1=La copie de:
@@ -267,7 +267,7 @@ Alwaysputtoendoflist1=Toujours mettre en fin de liste
 Skip1=Passer
 Alwaysskip1=Toujours passer
 
-[DiskSpaceForm]
+[TDiskSpaceForm]
 -Caption-= - Pas assez de place libre
 llDiskSpaceText1=Il n'y a pas assez de place sur les volumes suivants:
 llDiskSpaceText2=Que voulez-vous faire?

@@ -1,12 +1,11 @@
 object CopyForm: TCopyForm
   Left = 268
-  Top = 103
+  Top = 104
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
-  BorderIcons = [biSystemMenu]
-  BorderStyle = bsToolWindow
+  BorderStyle = bsSingle
   Caption = 'CopyForm'
-  ClientHeight = 395
+  ClientHeight = 409
   ClientWidth = 400
   Color = clBtnFace
   Constraints.MinHeight = 169
@@ -23,7 +22,7 @@ object CopyForm: TCopyForm
   OnDestroy = FormDestroy
   DesignSize = (
     400
-    395)
+    409)
   PixelsPerInch = 96
   TextHeight = 13
   object ggAll: TSCProgessBar
@@ -59,6 +58,7 @@ object CopyForm: TCopyForm
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llAll'
+    ShowAccelChar = False
   end
   object llSpeed: TTntLabel
     Left = 8
@@ -116,6 +116,7 @@ object CopyForm: TCopyForm
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llTo'
+    ShowAccelChar = False
   end
   object llFrom: TSCFileNameLabel
     Left = 40
@@ -125,6 +126,7 @@ object CopyForm: TCopyForm
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llFrom'
+    ShowAccelChar = False
   end
   object llFile: TSCFileNameLabel
     Left = 8
@@ -134,13 +136,14 @@ object CopyForm: TCopyForm
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llFile'
+    ShowAccelChar = False
   end
   object pcPages: TTntPageControl
     Left = -1
     Top = 150
     Width = 404
-    Height = 254
-    ActivePage = tsErrors
+    Height = 268
+    ActivePage = tsCopyList
     Anchors = [akLeft, akTop, akRight, akBottom]
     Images = MainForm.ilGlobal
     MultiLine = True
@@ -151,7 +154,7 @@ object CopyForm: TCopyForm
       ImageIndex = 8
       DesignSize = (
         396
-        225)
+        239)
       object btFileTop: TTntSpeedButton
         Left = 0
         Top = 0
@@ -244,7 +247,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 219
+        Height = 233
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -259,10 +262,9 @@ object CopyForm: TCopyForm
             Width = 75
           end
           item
-            Caption = 'Target'
+            Caption = 'Destination'
             Width = 300
           end>
-        ColumnClick = False
         HideSelection = False
         MultiSelect = True
         OwnerData = True
@@ -271,6 +273,7 @@ object CopyForm: TCopyForm
         PopupMenu = pmFileContext
         TabOrder = 0
         ViewStyle = vsReport
+        OnColumnClick = lvFileListColumnClick
         OnData = lvFileListData
       end
     end
@@ -285,7 +288,7 @@ object CopyForm: TCopyForm
       ParentFont = False
       DesignSize = (
         396
-        225)
+        239)
       object btErrorClear: TTntSpeedButton
         Left = 0
         Top = 0
@@ -312,7 +315,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 219
+        Height = 233
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -348,7 +351,7 @@ object CopyForm: TCopyForm
       ImageIndex = 4
       DesignSize = (
         396
-        225)
+        239)
       object gbSpeedLimit: TTntGroupBox
         Left = 8
         Top = 51
@@ -357,45 +360,63 @@ object CopyForm: TCopyForm
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Speed limit'
         TabOrder = 1
-        object llSpeedLimitKB: TTntLabel
-          Left = 272
+        DesignSize = (
+          381
+          44)
+        object llCustomSpeedLimit: TTntLabel
+          Left = 357
           Top = 17
           Width = 14
           Height = 13
+          Anchors = [akTop, akRight]
           Caption = 'KB'
+          Enabled = False
+        end
+        object llSpeedLimit: TTntLabel
+          Left = 298
+          Top = 17
+          Width = 73
+          Height = 13
+          Alignment = taRightJustify
+          Anchors = [akTop, akRight]
+          AutoSize = False
+          Caption = 'llSpeedLimit'
+          Enabled = False
+          Visible = False
         end
         object chSpeedLimit: TTntCheckBox
           Left = 8
           Top = 16
-          Width = 177
+          Width = 73
           Height = 17
-          Caption = 'Limit copy speed to:'
+          Caption = 'Enabled'
           TabOrder = 0
           OnClick = chSpeedLimitClick
         end
-        object cbSpeedLimit: TTntComboBox
-          Left = 184
-          Top = 14
-          Width = 81
-          Height = 21
-          DropDownCount = 20
+        object tbSpeedLimit: TScTrackBar
+          Left = 80
+          Top = 13
+          Width = 209
+          Height = 23
+          Anchors = [akLeft, akTop, akRight]
           Enabled = False
-          ItemHeight = 13
+          Max = 52
           TabOrder = 1
-          Text = '1024'
-          OnChange = cbSpeedLimitChange
-          OnKeyPress = cbSpeedLimitKeyPress
-          Items.Strings = (
-            '64'
-            '128'
-            '256'
-            '512'
-            '1024'
-            '2048'
-            '4096'
-            '8192'
-            '16384'
-            '32768')
+          TickMarks = tmBoth
+          TickStyle = tsNone
+          OnChange = tbSpeedLimitChange
+        end
+        object edCustomSpeedLimit: TTntEdit
+          Left = 296
+          Top = 14
+          Width = 57
+          Height = 21
+          Anchors = [akTop, akRight]
+          Enabled = False
+          TabOrder = 2
+          Text = 'edCustomSpeedLimit'
+          OnChange = edCustomSpeedLimitChange
+          OnKeyPress = edCustomSpeedLimitKeyPress
         end
       end
       object gbCollisions: TTntGroupBox
@@ -662,6 +683,37 @@ object CopyForm: TCopyForm
       ShortCut = 16457
       OnClick = miInvertClick
     end
+    object N4: TTntMenuItem
+      Caption = '-'
+    end
+    object miSort: TTntMenuItem
+      Caption = 'Sort by'
+      object miBySrcFullPath: TTntMenuItem
+        Tag = 1
+        Caption = 'Source full path'
+        OnClick = miBySrcFullPathClick
+      end
+      object miBySrcName: TTntMenuItem
+        Tag = 2
+        Caption = 'Source name'
+        OnClick = miBySrcNameClick
+      end
+      object miBySrcExt: TTntMenuItem
+        Tag = 3
+        Caption = 'Source extension'
+        OnClick = miBySrcExtClick
+      end
+      object miByDestFullPath: TTntMenuItem
+        Tag = 4
+        Caption = 'Destination full path'
+        OnClick = miByDestFullPathClick
+      end
+      object miBySize: TTntMenuItem
+        Tag = 5
+        Caption = 'Size'
+        OnClick = miBySizeClick
+      end
+    end
   end
   object pmNewFiles: TTntPopupMenu
     AutoHotkeys = maManual
@@ -730,24 +782,19 @@ object CopyForm: TCopyForm
       OnClick = miAddFolderClick
     end
   end
-  object btTitleBar: TSCTitleBarBt
-    OnClick = btTitleBarClick
-    Left = 107
-    Top = 366
-  end
   object Systray: TScSystray
     Popup = pmSystray
     Visible = False
     OnMouseDown = SystrayMouseDown
     OnBallonClick = SystrayMouseDown
-    Left = 75
+    Left = 107
     Top = 366
   end
   object tiSystray: TTimer
     Enabled = False
     Interval = 500
     OnTimer = tiSystrayTimer
-    Left = 43
+    Left = 75
     Top = 366
   end
   object pmSystray: TTntPopupMenu

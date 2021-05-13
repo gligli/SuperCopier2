@@ -16,6 +16,9 @@ object DiskSpaceForm: TDiskSpaceForm
   Position = poOwnerFormCenter
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  DesignSize = (
+    400
+    147)
   PixelsPerInch = 96
   TextHeight = 13
   object llDiskSpaceText1: TTntLabel
@@ -149,6 +152,7 @@ object DiskSpaceForm: TDiskSpaceForm
     Height = 25
     TabOrder = 1
     TabStop = True
+    Anchors = [akRight, akBottom]
     ItemIndex = 0
     Caption = 'Cancel'
     ImageIndex = 6
@@ -162,6 +166,7 @@ object DiskSpaceForm: TDiskSpaceForm
     Height = 25
     TabOrder = 2
     TabStop = True
+    Anchors = [akRight, akBottom]
     ItemIndex = 0
     Caption = 'Force copy'
     ImageIndex = 1

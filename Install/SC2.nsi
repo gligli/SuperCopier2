@@ -1,7 +1,12 @@
+!include Library.nsh
+!define LIBRARY_X64
+!define LIBRARY_SHELL_EXTENSION
+!define LIBRARY_COM
+
 ; The name of the installer
 Name "SuperCopier 2"
 
-Icon "..\pictures\progicon.ico"
+Icon "..\Resources\progicon.ico"
 
 ; The file to write
 OutFile "SuperCopier2xxx.exe"
@@ -10,6 +15,7 @@ OutFile "SuperCopier2xxx.exe"
 InstallDir $PROGRAMFILES\SuperCopier2
 
 XPStyle on
+RequestExecutionLevel admin
 
 BrandingText "-= SFX TEAM =-"
 
@@ -33,10 +39,12 @@ LangString Sec2Name ${LANG_ENGLISH} "Start menu shortcuts"
 LangString Sec2Name ${LANG_FRENCH} "Raccourcis dans le menu démarrer"
 LangString Sec3Name ${LANG_ENGLISH} "Start when windows starts"
 LangString Sec3Name ${LANG_FRENCH} "Démarrer quand windows démarre"
-LangString Sec4Name ${LANG_ENGLISH} "Run when install finishes"
+LangString Sec4Name ${LANG_ENGLISH} "Start when install finishes"
 LangString Sec4Name ${LANG_FRENCH} "Démarrer à la fin de l'installation"
 LangString Sec5Name ${LANG_ENGLISH} "Open ReadMe when install finishes"
 LangString Sec5Name ${LANG_FRENCH} "Ouvrir le LisezMoi à la fin de l'installation"
+LangString Sec6Name ${LANG_ENGLISH} "Register shell extension (recommended)"
+LangString Sec6Name ${LANG_FRENCH} "Enregistrer l'extension du shell (recommandé)"
 
 LangString UninstSC1 ${LANG_ENGLISH} "You must uninstall SuperCopier 1 before installing SuperCopier 2, would you like to uninstall it?"
 LangString UninstSC1 ${LANG_FRENCH} "Vous devez désinstaller SuperCopier 1 avant d'installer SuperCopier 2, voulez-vous le désinstaller?"
@@ -70,8 +78,8 @@ Section $(Sec1Name)
 
   ; Put file there
   File ..\compil\Languages\Français.lng
-  File ..\compil\Languages\Español.lng
-  File ..\compil\Languages\Português.lng
+;  File ..\compil\Languages\Español.lng
+;  File ..\compil\Languages\Português.lng
 
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
@@ -79,9 +87,10 @@ Section $(Sec1Name)
   ; Put file there
   File ..\compil\SuperCopier2.exe
   File ..\compil\SC2Config.exe
-  File ..\compil\SC2Hook.dll
   File ..\compil\ReadMe.txt
   File ..\compil\LisezMoi.txt
+  File ..\SC2C++\Release\SC2ShellExt.dll
+  File /oname=SC2ShellExt64.dll ..\SC2C++\x64\Release\SC2ShellExt.dll
 
   ; Write the uninstall keys for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SuperCopier2" "DisplayName" "SuperCopier2"
@@ -92,8 +101,16 @@ Section $(Sec1Name)
 
 SectionEnd ; end the section
 
+
+Section $(Sec6Name)
+  RegDLL $INSTDIR\SC2ShellExt.dll
+  !insertmacro InstallLib REGDLL NOTSHARED NOREBOOT_PROTECTED ..\SC2C++\x64\Release\SC2ShellExt.dll $INSTDIR\SC2ShellExt64.dll $INSTDIR
+SectionEnd
+
 Section $(Sec2Name)
   Delete "$SMPROGRAMS\SuperCopier\*.*"
+
+  SetShellVarContext current
 
   CreateDirectory "$SMPROGRAMS\SuperCopier2"
 
@@ -138,14 +155,21 @@ Section "Uninstall"
   DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "SuperCopier2.exe"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SuperCopier2"
 
+  UnRegDLL $INSTDIR\SC2ShellExt.dll
+
+  !insertmacro UnInstallLib REGDLL NOTSHARED NOREBOOT_PROTECTED .$INSTDIR\SC2ShellExt64.dll
+
   ; Remove files and uninstaller
   Delete $INSTDIR\SuperCopier2.exe
   Delete $INSTDIR\SC2Config.exe
-  Delete $INSTDIR\SC2Hook.dll
+  Delete /REBOOTOK $INSTDIR\SC2ShellExt.dll
+  Delete /REBOOTOK $INSTDIR\SC2ShellExt64.dll
   Delete $INSTDIR\readme.txt
   Delete $INSTDIR\lisezmoi.txt
   Delete $INSTDIR\SC2Uninst.exe
   Delete $INSTDIR\Languages\Français.lng
+
+  SetShellVarContext current
 
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\SuperCopier2\*.*"
@@ -153,7 +177,7 @@ Section "Uninstall"
   ; Remove directories used
   RMDir "$SMPROGRAMS\SuperCopier2"
   RMDir "$INSTDIR\Languages"
-  RMDir "$INSTDIR"
+  RMDir /REBOOTOK "$INSTDIR"
 
 SectionEnd
 

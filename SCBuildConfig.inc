@@ -15,5 +15,3 @@
 // commenter pour désactiver le debug trace
 //{$DEFINE DEBUG}
 
-// code non terminé pour gérer les hooks par process (user)
-//{$DEFINE NEW_HOOK_ENGINE}

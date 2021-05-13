@@ -33,7 +33,7 @@ unit ScSystray;
 interface
 
 uses
-  windows,SysUtils,Classes,messages,Shellapi,graphics,Forms,TntMenus;
+  windows,SysUtils,Classes,messages,Shellapi,graphics,Forms,Menus;
 Const
    WM_TRAYICON = WM_USER + $2000;
    NIM_SETVERSION = $00000004;
@@ -47,6 +47,8 @@ Const
    NIIF_INFO = $00000001;
    NIIF_WARNING = $00000002;
    NIIF_ERROR = $00000003;
+
+   BALLOON_TIMEOUT=10000; // msec
 type
 
   TIcoBalloon=(IBNone,IBInfo,IBWarning,IBError);
@@ -98,7 +100,7 @@ type
     FMaskBitmap: TBitmap;
     FHint:WideString;
     FIcon:TIcon;
-    FPopup:TTNTPopupMenu;
+    FPopup:TPopupMenu;
     FVisible: Boolean;
     FDblClick:TNotifyEvent;
     FMouseDown:TNotifyEvent;
@@ -108,6 +110,9 @@ type
     FOnBallonClick:TNotifyEvent;
     WM_TASKBARCREATED:Cardinal;// Message
     HIconBmp:HICON;
+
+    FBalloonCount:Integer;
+
     procedure SetBitmap(const Value:TBitmap);
     procedure SetHint(const Value:WideString);
     procedure SetIcon(const Value:TIcon);
@@ -139,7 +144,7 @@ type
 
   published
     { Déclarations publiées }
-    property Popup:TTNTPopupMenu read FPopup write FPopup; // PopupMenu associé au clic droit sur l'icone du systray
+    property Popup:TPopupMenu read FPopup write FPopup; // PopupMenu associé au clic droit sur l'icone du systray
     property Visible:Boolean read FVisible write SetVisible; // Affiche ou masque l'icone du systray
     property OnDblClick  : TNotifyEvent read FDblClick write FDblClick; // évenement double clic gauche sur l'icone du systray
     property OnMouseDown : TNotifyEvent read FMouseDown write FMouseDown; // évenement clic gauche sur l'icone du systray
@@ -174,6 +179,9 @@ end;
 constructor TScSystray.Create(AOwner: TComponent);
 begin
   inherited;
+
+  FBalloonCount:=0;
+
   if not(csDesigning in ComponentState) then
   begin
 
@@ -416,19 +424,18 @@ end;
 //  Reçois: Tmessage
 //  But: procédure de réception des messages windows
 procedure TScSystray.SysTrayMessages(var Msg: TMessage);
+
+  procedure HandleHide;
+  begin
+    if FBalloonCount>0 then Dec(FBalloonCount);
+    if not FVisible and (FBalloonCount=0) then HideIcon;
+  end;
+
 var
   MousePos:TPoint;
 begin
   //********** Redémarrage de l'explorateur ************************************
-  if (Msg.Msg=WM_TASKBARCREATED) and FVisible then
-  begin
-    case WinVer of
-      Win9x:   ShellNotifyIconA(NIM_ADD, @SysIconStruc9x);
-      WinMe:   ShellNotifyIconA(NIM_ADD, @SysIconStrucMe);
-      WinNT:   ShellNotifyIconW(NIM_ADD, @SysIconStrucNT);
-      Win2kXP: ShellNotifyIconW(NIM_ADD, @SysIconStruc2kXp);
-    end;
-  end
+  if (Msg.Msg=WM_TASKBARCREATED) and FVisible then ShowIcon
   //----------------------------------------------------------------------------
 
   //********** GESTIOON DES MESSAGES SOURIS SUR LE SYSTRAY *********************
@@ -476,16 +483,21 @@ begin
       WM_RBUTTONUP:;
       WM_RBUTTONDBLCLK:;
       NIN_BALLOONSHOW:if Assigned(FOnBallonShow) then FOnBallonShow(Self);
-      NIN_BALLOONHIDE:begin
-                        if not FVisible then
-                        case WinVer of
-                          WinMe : ShellNotifyIconA(NIM_DELETE, @SysIconStrucMe);
-                          Win2kXP: ShellNotifyIconW(NIM_DELETE, @SysIconStruc2kXp);
-                        end;
-                        if Assigned(FOnBallonHide) then FOnBallonHide(Self);
-                      end;
-      NIN_BALLOONTIMEOUT:if Assigned(FOnBallonTimeOut) then FOnBallonTimeOut(Self);
-      NIN_BALLOONUSERCLICK:if Assigned(FOnBallonClick) then FOnBallonClick(Self);
+      NIN_BALLOONHIDE:
+      begin
+        HandleHide;
+        if Assigned(FOnBallonHide) then FOnBallonHide(Self);
+      end;
+      NIN_BALLOONTIMEOUT:
+      begin
+        HandleHide;
+        if Assigned(FOnBallonTimeOut) then FOnBallonTimeOut(Self);
+      end;
+      NIN_BALLOONUSERCLICK:
+      begin
+        HandleHide;
+        if Assigned(FOnBallonClick) then FOnBallonClick(Self);
+      end;
      end;
   end;
   //----------------------------------------------------------------------------
@@ -570,14 +582,16 @@ procedure TScSystray.ShowBalloon(Title,Text: WideString; IconType: TIcoBalloon);
 var
   Size:integer;
   TmpStr:String;
+  OldFlags:Integer;
 begin
-
   {Seulement valable pour windows 2000/Me et >}
-//  if (FVisible)then
-//  begin
-    case WinVer of
-      WinMe :
-        begin
+  case WinVer of
+    WinMe :
+      begin
+        ShowIcon;
+
+        OldFlags:=SysIconStrucMe.uFlags;
+        try
           {titre}
           TmpStr:=WideCharToString(PWideChar(Title));
           size:=length(Fhint);
@@ -599,11 +613,20 @@ begin
             IBError:    SysIconStrucMe.dwInfoFlags:=NIIF_ERROR;
           end;
           SysIconStrucMe.uFlags:=NIF_INFO;
-          SysIconStrucMe.DUMMYUNIONNAME.uTimeout:=500;
-          if FVisible then  ShellNotifyIconW(NIM_MODIFY, @SysIconStrucMe) else ShellNotifyIconW(NIM_ADD, @SysIconStrucMe)
+          SysIconStrucMe.DUMMYUNIONNAME.uTimeout:=BALLOON_TIMEOUT;
+
+          Inc(FBalloonCount);
+          ShellNotifyIconW(NIM_MODIFY, @SysIconStrucMe);
+        finally
+          SysIconStrucMe.uFlags:=OldFlags;
         end;
-      Win2kXP:
-        begin
+      end;
+    Win2kXP:
+      begin
+        ShowIcon;
+
+        OldFlags:=SysIconStruc2kXp.uFlags;
+        try
           SysIconStruc2kXp.szInfo[0]:=#0;
           SysIconStruc2kXp.szInfoTitle[0]:=#0;
           Size:=length(Text);
@@ -623,11 +646,15 @@ begin
             IBError:    SysIconStruc2kXp.dwInfoFlags:=NIIF_ERROR;
           end;
           SysIconStruc2kXp.uFlags:=NIF_INFO;
-          SysIconStruc2kXp.DUMMYUNIONNAME.uTimeout:=500;
-          if FVisible then  ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp) else ShellNotifyIconW(NIM_ADD, @SysIconStruc2kXp)
-      end;
-    end;{fin case}
-  //end;
+          SysIconStruc2kXp.DUMMYUNIONNAME.uTimeout:=BALLOON_TIMEOUT;
+
+          Inc(FBalloonCount);
+          ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp)
+        finally
+          SysIconStruc2kXp.uFlags:=OldFlags;
+        end;
+    end;
+  end;{fin case}
 end;
 
 //##############################################################################

@@ -17,32 +17,32 @@ unit SCFileNameLabel;
 interface
 
 uses
-  Windows,SysUtils, Classes, Controls, StdCtrls, TntStdCtrls;
+  Windows,SysUtils, Classes, Controls, StdCtrls;
 
 type
-  TSCFileNameLabel = class(TTntLabel)
+  TSCFileNameLabel = class(TLabel)
   private
     { Déclarations privées }
-    FMinimizedName:WideString;
+    FMinimizedName:string;
     procedure UpdateMinimizedName;
   protected
     { Déclarations protégées }
     procedure DoDrawText(var Rect: TRect; Flags: Integer);override;
-    function GetCaption:WideString;
-    procedure SetCaption(Value:WideString);
+    function GetCaption:string;
+    procedure SetCaption(Value:string);
     procedure Resize;override;
   public
     { Déclarations publiques }
   published
     { Déclarations publiées }
-    property Caption: WideString read GetCaption write SetCaption; // le Setter du compo TNT est en private, donc je redéclare la prop Caption
+    property Caption: string read GetCaption write SetCaption; // le Setter du compo TNT est en private, donc je redéclare la prop Caption
   end;
 
 procedure Register;
 
 implementation
 
-uses TntSysutils,StrUtils;
+uses StrUtils;
 
 procedure Register;
 begin
@@ -50,7 +50,7 @@ begin
 end;
 
 procedure TSCFileNameLabel.UpdateMinimizedName;
-  procedure CutFirstDirectory(var S: WideString);
+  procedure CutFirstDirectory(var S: string);
   var
     Root: Boolean;
     P: Integer;
@@ -68,7 +68,7 @@ procedure TSCFileNameLabel.UpdateMinimizedName;
         Root := False;
       if S[1] = '.' then
         Delete(S, 1, 4);
-      P := WideTextPos('\',S);
+      P := Pos('\',S);
       if P <> 0 then
       begin
         Delete(S, 1, P);
@@ -82,13 +82,13 @@ procedure TSCFileNameLabel.UpdateMinimizedName;
   end;
 
 var
-  Drive: WideString;
-  Dir: WideString;
-  Name: WideString;
+  Drive: string;
+  Dir: string;
+  Name: string;
 begin
   FMinimizedName := Caption;
-  Dir := WideExtractFilePath(FMinimizedName);
-  Name := WideExtractFileName(FMinimizedName);
+  Dir := ExtractFilePath(FMinimizedName);
+  Name := ExtractFileName(FMinimizedName);
 
   if (Length(Dir) >= 2) and (Dir[2] = ':') then
   begin
@@ -112,12 +112,12 @@ begin
   end;
 end;
 
-function TSCFileNameLabel.GetCaption:WideString;
+function TSCFileNameLabel.GetCaption:string;
 begin
   Result:=inherited Caption;
 end;
 
-procedure TSCFileNameLabel.SetCaption(Value:WideString);
+procedure TSCFileNameLabel.SetCaption(Value:string);
 begin
   inherited Caption:=Value;
 
@@ -133,7 +133,7 @@ end;
 
 procedure TSCFileNameLabel.DoDrawText(var Rect: TRect; Flags: Integer);
 begin
-  TntLabel_DoDrawText(Self,Rect,Flags,FMinimizedName);
+  DrawText(Canvas.Handle,FMinimizedName,Length(FMinimizedName),Rect,Flags);
 end;
 
 end.

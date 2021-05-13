@@ -1,0 +1,65 @@
+HKCR
+{
+    NoRemove CLSID
+    {
+        ForceRemove {68D44A27-FFB6-4B89-A3E5-7B0E50A7AB33} = s 'SC2ShellExt Class'
+        {
+            InprocServer32 = s '%MODULE%'
+            {
+                val ThreadingModel = s 'Apartment'
+            }
+        }
+    }
+    NoRemove Drive
+    {
+        NoRemove shellex
+        {
+            NoRemove DragDropHandlers
+            {
+                ForceRemove SC2ShellExt = s {68D44A27-FFB6-4B89-A3E5-7B0E50A7AB33}
+            }
+        }
+    }
+    NoRemove Directory
+    {
+        NoRemove shellex
+        {
+            NoRemove DragDropHandlers
+            {
+                ForceRemove SC2ShellExt = s {68D44A27-FFB6-4B89-A3E5-7B0E50A7AB33}
+            }
+        }
+    }
+    NoRemove Folder
+    {
+        NoRemove shellex
+        {
+            NoRemove DragDropHandlers
+            {
+                ForceRemove SC2ShellExt = s {68D44A27-FFB6-4B89-A3E5-7B0E50A7AB33}
+            }
+        }
+    }
+}
+HKLM
+{
+	NoRemove Software
+	{
+		NoRemove Microsoft
+		{
+			NoRemove Windows
+			{
+				NoRemove CurrentVersion
+				{
+					NoRemove 'Shell Extensions'
+					{
+						NoRemove Approved
+						{
+							ForceRemove val {68D44A27-FFB6-4B89-A3E5-7B0E50A7AB33} = s 'SC2ShellExt'	
+						}
+					}
+				}
+			}
+		}
+	}
+}

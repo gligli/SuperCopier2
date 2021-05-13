@@ -9,7 +9,7 @@ E=0
 F=0
 G=1
 H=1
-I=1
+I=0
 J=0
 K=0
 L=1
@@ -25,7 +25,7 @@ U=0
 V=1
 W=0
 X=1
-Y=1
+Y=2
 Z=1
 ShowHints=1
 ShowWarnings=1
@@ -97,7 +97,7 @@ PackageDCPOutputDir=
 SearchPath=.\Components\Other\tntunicodecontrols;.\Components\SFXTeam
 Packages=vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;soaprtl;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOffice2k
 Conditionals=
-DebugSourceDirs=F:\Projects\SuperCopier2\Components\Other\tntunicodecontrols\
+DebugSourceDirs=F:\Projects\SuperCopier2\Components\Other\tntunicodecontrols\;C:\Program Files\TntWare\Delphi Unicode Controls\Source\
 UsePackages=0
 [Parameters]
 RunParams=
@@ -105,6 +105,8 @@ HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
+RemoteHost=gligli7
+RemotePath=C:\SCTest\supercopier2.exe
 [Language]
 ActiveLang=
 ProjectLang=
@@ -113,9 +115,9 @@ RootDir=
 IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=2
-MinorVer=0
+MinorVer=2
 Release=0
-Build=568
+Build=651
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +128,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=SFX TEAM
 FileDescription=SuperCopier 2 (explorer file copy replacement)
-FileVersion=2.0.0.568
+FileVersion=2.2.0.651
 InternalName=SuperCopier2
 LegalCopyright=GNU GPL
 LegalTrademarks=
@@ -134,7 +136,42 @@ OriginalFilename=
 ProductName=
 ProductVersion=2
 [Excluded Packages]
-C:\Program Files\madCollection\madBasic\Delphi 7\madBasic_.bpl=madBasic 1.1k  -  www.madshi.net
-C:\Program Files\madCollection\madBasic\Delphi 7\madHelp_.bpl=madHelp 1.1a  -  www.madshi.net
-C:\Program Files\madCollection\madDisAsm\Delphi 7\madDisAsm_.bpl=madDisAsm 2.1b  -  www.madshi.net
-c:\program files\borland\delphi7\Projects\Bpl\dclusr70.bpl=Composants utilisateur Borland
+c:\program files\borland\delphi7\Bin\dclnet70.bpl=Composant Internet Borland
+c:\program files\borland\delphi7\Bin\dclsoap70.bpl=Composants SOAP Borland
+c:\program files\borland\delphi7\Bin\dcldbx70.bpl=Composants dbExpress Borland
+c:\program files\borland\delphi7\Bin\dcldbxcds70.bpl=Composant SimpleDataset Borland (DBX)
+c:\program files\borland\delphi7\Bin\DBWEBXPRT.BPL=Paquet Expert Web Borland
+c:\program files\borland\delphi7\Bin\dclwbm70.bpl=Composants InternetExpress Borland
+c:\program files\borland\delphi7\Bin\dclie70.bpl=Composants Internet Explorer
+c:\program files\borland\delphi7\Bin\dclwebsnap70.bpl=Composants WebSnap Borland
+c:\program files\borland\delphi7\Bin\dcloffice2k70.bpl=Composants Wrapper Serveur Automation MS Office 2000
+c:\program files\borland\delphi7\Bin\dclIntraweb_50_70.bpl=Paquet de conception Intraweb 5.0 pour Delphi 7
+c:\program files\borland\delphi7\bin\dclRave70.bpl=Paquet Rave Reports BE 5.0
+C:\Program Files\Borland\Delphi7\\Projects\Bpl\JclDebugIde70.bpl=JCL Debug IDE extension for Delphi 7
+C:\Program Files\Borland\Delphi7\\Projects\Bpl\ProjectAnalyzer70.bpl=JCL Project Analyzer for Delphi 7
+C:\Program Files\Borland\Delphi7\\Projects\Bpl\IdeOpenDlgFavorite70.bpl=JCL Open and Save IDE dialogs with favorite folders for Delphi 7
+C:\Program Files\Borland\Delphi7\\Projects\Bpl\JVCL200_D70.bpl=JEDI-VCL Components
+[HistoryLists\hlDebugSourcePath]
+Count=2
+Item0=F:\Projects\SuperCopier2\Components\Other\tntunicodecontrols\;C:\Program Files\TntWare\Delphi Unicode Controls\Source\
+Item1=F:\Projects\SuperCopier2\Components\Other\tntunicodecontrols\
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlSearchPath]
+Count=1
+Item0=.\Components\Other\tntunicodecontrols;.\Components\SFXTeam
+[HistoryLists\hlUnitOutputDirectory]
+Count=2
+Item0=.\Compil
+Item1=Compil
+[HistoryLists\hlOutputDirectorry]
+Count=2
+Item0=.\Compil
+Item1=Compil
+[HistoryLists\hlBPLOutput]
+Count=1
+Item0=Compil
+[HistoryLists\hlDCPOutput]
+Count=1
+Item0=Compil

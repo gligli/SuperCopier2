@@ -36,7 +36,6 @@ uses
   SCCopyThread in 'SCCopyThread.pas',
   SCWin32 in 'SCWin32.pas',
   SCCopyForm in 'SCCopyForm.pas' {CopyForm},
-  SCHookShared in 'SCHookShared.pas',
   SCWorkThread in 'SCWorkThread.pas',
   SCWorkThreadList in 'SCWorkThreadList.pas',
   SCDiskSpaceForm in 'SCDiskSpaceForm.pas' {DiskSpaceForm},
@@ -50,12 +49,17 @@ uses
   SCConfigShared in 'SCConfigShared.pas',
   SCLocEngine in 'SCLocEngine.pas',
   SCBaseListQueue in 'SCBaseListQueue.pas',
-  SCHookEngine in 'SCHookEngine.pas';
+  SCAPI in 'SCAPI.pas',
+  SCAPICommon in 'SCAPICommon.pas',
+  SCProcessPrivileges in 'SCProcessPrivileges.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
+
+  // nécessaire pour avoir le droit de copier la sécurité des dossiers et fichiers
+  ProcessSetPrivilege(SE_SECURITY_NAME,True);
 
   SetParent(Application.Handle,THandle(HWND_MESSAGE)); // cacher la form du TApplication
   Application.ShowMainForm:=False;

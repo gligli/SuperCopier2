@@ -1,0 +1,168 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{D258EC00-E5F1-4E32-91BE-EBD1E31AD835}</ProjectGuid>
+			<MainSource>SuperCopier2.dpr</MainSource>
+			<Config Condition="'$(Config)'==''">Debug</Config>
+			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DependencyCheckOutputName>Compil\SuperCopier2.exe</DCC_DependencyCheckOutputName>
+			<DCC_UnitSearchPath>.\Components\Other\tntunicodecontrols;.\Components\SFXTeam;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_IOChecking>false</DCC_IOChecking>
+			<DCC_ImageBase>00400000</DCC_ImageBase>
+			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
+			<DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
+			<DCC_ExeOutput>.\Compil</DCC_ExeOutput>
+			<DCC_Platform>x86</DCC_Platform>
+			<DCC_UsePackage>vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;soaprtl;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOffice2k</DCC_UsePackage>
+			<DCC_K>false</DCC_K>
+			<DCC_F>false</DCC_F>
+			<DCC_S>false</DCC_S>
+			<DCC_N>true</DCC_N>
+			<DCC_UNIT_PLATFORM>false</DCC_UNIT_PLATFORM>
+			<DebugSourcePath>F:\Projects\SuperCopier2\Components\Other\tntunicodecontrols\;C:\Program Files\TntWare\Delphi Unicode Controls\Source\;$(DebugSourcePath)</DebugSourcePath>
+			<DCC_E>false</DCC_E>
+			<DCC_DcuOutput>.\Compil</DCC_DcuOutput>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+		</PropertyGroup>
+		<ItemGroup>
+			<DelphiCompile Include="SuperCopier2.dpr">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<None Include="ana sc.txt">
+				<ContainerId>File</ContainerId>
+			</None>
+			<None Include="SCBuildConfig.inc">
+				<ContainerId>File</ContainerId>
+			</None>
+			<None Include="todo sc.txt">
+				<ContainerId>File</ContainerId>
+			</None>
+			<None Include="Compil\ReadMe.txt">
+				<ContainerId>File</ContainerId>
+			</None>
+			<None Include="Compil\LisezMoi.txt">
+				<ContainerId>File</ContainerId>
+			</None>
+			<DCCReference Include="SCMainForm.pas">
+				<Form>MainForm</Form>
+			</DCCReference>
+			<DCCReference Include="SCBaseList.pas"/>
+			<DCCReference Include="SCCopier.pas"/>
+			<DCCReference Include="SCDirList.pas"/>
+			<DCCReference Include="SCFileList.pas"/>
+			<DCCReference Include="SCLocStrings.pas"/>
+			<DCCReference Include="SCCommon.pas"/>
+			<DCCReference Include="SCObjectThreadList.pas"/>
+			<DCCReference Include="SCConfig.pas"/>
+			<DCCReference Include="SCCopyThread.pas"/>
+			<DCCReference Include="SCWin32.pas"/>
+			<DCCReference Include="SCCopyForm.pas">
+				<Form>CopyForm</Form>
+			</DCCReference>
+			<DCCReference Include="SCWorkThread.pas"/>
+			<DCCReference Include="SCWorkThreadList.pas"/>
+			<DCCReference Include="SCDiskSpaceForm.pas">
+				<Form>DiskSpaceForm</Form>
+			</DCCReference>
+			<DCCReference Include="SCCollisionForm.pas">
+				<Form>CollisionForm</Form>
+			</DCCReference>
+			<DCCReference Include="SCCollisionRenameForm.pas">
+				<Form>CollisionRenameForm</Form>
+			</DCCReference>
+			<DCCReference Include="SCCopyErrorForm.pas">
+				<Form>CopyErrorForm</Form>
+			</DCCReference>
+			<DCCReference Include="SCConfigForm.pas">
+				<Form>ConfigForm</Form>
+			</DCCReference>
+			<DCCReference Include="SCAboutForm.pas">
+				<Form>AboutForm</Form>
+			</DCCReference>
+			<DCCReference Include="SCWideUnbufferedCopier.pas"/>
+			<DCCReference Include="SCAnsiBufferedCopier.pas"/>
+			<DCCReference Include="SCConfigShared.pas"/>
+			<DCCReference Include="SCLocEngine.pas"/>
+			<DCCReference Include="SCBaseListQueue.pas"/>
+			<DCCReference Include="SCAPI.pas"/>
+			<DCCReference Include="SCAPICommon.pas"/>
+			<DCCReference Include="SCProcessPrivileges.pas"/>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType>VCLApplication</Borland.ProjectType>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Source>
+						<Source Name="MainSource">SuperCopier2.dpr</Source>
+					</Source>
+					<Parameters>
+						<Parameters Name="UseLauncher">False</Parameters>
+						<Parameters Name="LoadAllSymbols">True</Parameters>
+						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+					</Parameters>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
+						<VersionInfo Name="MajorVer">2</VersionInfo>
+						<VersionInfo Name="MinorVer">2</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">651</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1036</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName">SFX TEAM</VersionInfoKeys>
+						<VersionInfoKeys Name="FileDescription">SuperCopier 2 (explorer file copy replacement)</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">2.2.0.651</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName">SuperCopier2</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalCopyright">GNU GPL</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">2</VersionInfoKeys>
+					</VersionInfoKeys>
+				</Delphi.Personality>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+	</Project>

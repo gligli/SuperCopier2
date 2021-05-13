@@ -24,7 +24,7 @@ uses
 type
   TConfigLocation=(clRegistry,clIniFile);
 
-  TBaselistAddMode=(amDefaultDir,amSpecifyDest,amPromptForDest,amPromptForDestAndSetDefault);
+  TBaselistAddMode=(amDefaultDir=0,amSpecifyDest=1,amPromptForDest=2,amPromptForDestAndSetDefault=3);
 
   TCopyListHandlingMode=(chmNever,chmAlways,chmSameSource,chmSameDestination,chmSameSourceAndDestination,chmSameSourceorDestination);
 
@@ -58,10 +58,23 @@ type
 
   TMinimizedEventHandling=(mehDoNothing,mehShowBalloon,mehPopupWindow);
 
+  TFileListSortMode=(fsmNone,fsmBySrcName,fsmBySrcFullName,fsmByDestName,fsmByDestFullName,fsmBySrcSize,fsmBySrcExt);
+
+  TSpeedLimitZone=record
+    Step,Start,End_:Integer;
+  end;
+
 const
   DEFAULT_WAIT=20; //ms
   SCL_SIGNATURE='SC2 CopyList    ';
   SCL_SIGNATURE_LENGTH=Length(SCL_SIGNATURE);
+  SPEED_LIMIT_ZONES:array[0..4] of TSpeedLimitZone=(
+    (Step:0;      Start:0; End_:0),
+    (Step:64;     Start:0; End_:16),
+    (Step:512;    Start:14;End_:34),
+    (Step:5*1024; Start:32;End_:52),
+    (Step:50*1024;Start:50;End_:70)
+  );
 
 function GetFileSizeByName(FileName:WideString):Int64;
 function SetFileSize(TheFile:THandle;Size:Int64):Boolean;
@@ -78,6 +91,9 @@ function SamePhysicalDrive(Path1,Path2:WideString):boolean;
 procedure SetProcessPriority(Priority:Cardinal);
 function CopySecurity(const SourceFile:WideString;const DestFile:WideString):Boolean;
 function GetOSLanguageName:String;
+function IndexToSpeedLimit(AIndex:Integer):Integer;
+function SpeedLimitToIndex(ASpeedLimit:Integer):Integer;
+procedure FixParentBugs;
 
 procedure dbg(msg:string);overload;
 procedure dbg(val:cardinal);overload;
@@ -88,7 +104,7 @@ procedure dbgmem(buf:pointer;size:integer);
 implementation
 
 uses
-  SysUtils,TntSysutils,StrUtils,ShellApi,ShlObj,Classes,Forms,Math,SCLocStrings;
+  SysUtils,TntSysutils,StrUtils,ShellApi,ShlObj,Classes,Forms,Math,SCLocStrings,Activex,SCMainForm;
 
 {$ifdef DEBUG}
 var
@@ -177,10 +193,11 @@ begin
 
   Item:=SCWin32.SHBrowseForFolder(BrowseInfo);
 
-  if Item<>nil then
+  if (Item<>nil) and IsWindow(OwnerWindowHandle) then // s'assurer que la fenêtre parente existe toujours
   begin
     Result:=SCWin32.SHGetPathFromIDList(Item,Buffer);
     if Result then Folder:=Buffer;
+    CoTaskMemFree(Item); // liberation du PIDL
   end;
 end;
 
@@ -280,7 +297,7 @@ begin
         else if Tag='name' then
         begin
           if Pos('.',FileName)>0 then // le fichier a une extension?
-            TmpStr:=TmpStr+LeftStr(FileName,Pos('.',FileName)-1)
+            TmpStr:=TmpStr+LeftStr(FileName,Pos(WideExtractFileExt(FileName),FileName)-1)
           else
             TmpStr:=FileName;
         end
@@ -320,6 +337,10 @@ begin
   begin
     Result:=TmpStr;
   end;
+
+  // un nom de fichier ne dois pas pouvoir se terminer par un .
+  if (Length(Result)>0) and (Result[Length(Result)]='.') then
+    Result:=Copy(Result,1,Length(Result)-1);
 
   dbgln(Result);
 end;
@@ -506,6 +527,42 @@ begin
   VerLanguageName(LID,TmpBuf,Length(TmpBuf));
   Result:=TmpBuf;
   Result:=LeftStr(Result,Pos(' (',Result)-1);
+end;
+
+//******************************************************************************
+// IndexToSpeedLimit: renvoie une limite de vitesse calculée a partir des infos de zone
+//******************************************************************************
+function IndexToSpeedLimit(AIndex:Integer):Integer;
+var Zone:Integer;
+begin
+  Zone:=0;
+  while AIndex>=SPEED_LIMIT_ZONES[Zone].End_ do Inc(Zone);
+
+  Result:=SPEED_LIMIT_ZONES[Zone].Step*(AIndex-SPEED_LIMIT_ZONES[Zone].Start);
+end;
+
+//******************************************************************************
+// SpeedLimitToIndex: renvoie un index calculé a partir des infos de zone
+//******************************************************************************
+function SpeedLimitToIndex(ASpeedLimit:Integer):Integer;
+var i:Integer;
+begin
+  Result:=0;
+  for i:=SPEED_LIMIT_ZONES[High(SPEED_LIMIT_ZONES)].End_ downto SPEED_LIMIT_ZONES[Low(SPEED_LIMIT_ZONES)].Start do
+    if IndexToSpeedLimit(i)=ASpeedLimit then
+    begin
+      Result:=i;
+      Break;
+    end;
+end;
+
+//******************************************************************************
+// FixParentBugs: restore les parents de la mainform et de la appform, qui sont altérés par les Common dialogs
+//******************************************************************************
+procedure FixParentBugs;
+begin
+  SetParent(Application.Handle,THandle(HWND_MESSAGE));
+  SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
 end;
 
 //******************************************************************************

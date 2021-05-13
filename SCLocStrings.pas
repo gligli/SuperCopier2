@@ -20,6 +20,8 @@ uses SCLocEngine;
 
 var
 
+lsDummy:WideString='Dummy!';
+
 lsCopyDisplayName:WideString='Copy from %s to %s';
 lsMoveDisplayName:WideString='Move from %s to %s';
 lsCopyOf1:WideString='Copy of %s';
@@ -80,68 +82,92 @@ lsGenericErrorNotifyTitle:WideString='There was a non blocking error';
 lsGenericErrorNotifyText:WideString='%s'+#13#10+'Action: %s'+#13#10+'Target: %s'+#13#10+'Error: %s';
 lsCopyEndNotifyTitle:WideString='Copy end';
 lsCopyEndNotifyText:WideString='%s'+#13#10+'End speed: %s';
-
-lsHookErrorCaption:WideString='SuperCopier2 can''t run';
-lsHookErrorText:WideString='SuperCopier2 couldn''t attach to processes, this is normal if you ran it twice.'+#13#10+'Error text: ';
 lsDiskSpaceNotifyTitle:WideString='Not enough free space';
 
-lsHookEngineNoIPC:WideString='Failed to initialize the hooking engine: IPC creation failed';
-lsHookEngineNoFileMapping:WideString='Failed to initialize the hooking engine: file mapping creation failed';
-lsGlobalHookingFailed:WideString='Failed to hook processes: global hooking only works with administrator rights.';
+lsAPINoSemaphore:WideString='Failed to initialize the API: semaphore creation failed';
+lsAPINoMutex:WideString='Failed to initialize the API: mutex creation failed';
+lsAPINoFileMapping:WideString='Failed to initialize the API: file mapping creation failed';
+lsAPINoEvent:WideString='Failed to initialize the API: event creation failed';
+lsAPIAlreadyRunning:WideString='API is already running for the current session';
+
+lsShellExtCopyHere:WideString='SuperCopier copy here';
+lsShellExtMoveHere:WideString='SuperCopier move here';
+
+lsAlreadyRunningText:WideString='%s'+#13#10+'You can''t run SuperCopier 2 more than once per session';
+lsAlreadyRunningCaption:WideString='SuperCopier 2 is already running';
+
+lsUnknown:WideString='Unknown';
 
 procedure TranslateAllStrings;
+
+// /!\ Toujours ajouter les chaines à la fin et remplacer celles enlevées par des lsDummy !!!!
+const LOC_STRINGS_ARRAY:array[1..57] of PWideString=(
+  @lsCopyDisplayName,
+  @lsMoveDisplayName,
+  @lsCopyOf1,
+  @lsCopyOf2,
+  @lsConfirmCopylistAdd,
+  @lsCreatingCopyList,
+  @lsChooseDestDir,
+  @lsAll,
+  @lsFile,
+  @lsSpeed,
+  @lsRemaining,
+  @lsCopyWindowCancellingCaption,
+  @lsCopyWindowPausedCaption,
+  @lsCopyWindowWaitingCaption,
+  @lsCollisionFileData,
+  @lsRenameAction,
+  @lsDeleteAction,
+  @lsListAction,
+  @lsCopyAction,
+  @lsUpdateTimeAction,
+  @lsUpdateAttributesAction,
+  @lsUpdateSecurityAction,
+  @lsBytes,
+  @lsKBytes,
+  @lsMBytes,
+  @lsGBytes,
+  @lsChooseFolderToAdd,
+  @lsRenamingHelpCaption,
+  @lsRenamingHelpText,
+  @lsAdvancedHelpCaption,
+  @lsAdvancedHelpText,
+  @lsCollisionNotifyTitle,
+  @lsCollisionNotifyText,
+  @lsCopyErrorNotifyTitle,
+  @lsCopyErrorNotifyText,
+  @lsGenericErrorNotifyTitle,
+  @lsGenericErrorNotifyText,
+  @lsCopyEndNotifyTitle,
+  @lsCopyEndNotifyText,
+  @lsDummy,
+  @lsDummy,
+  @lsDiskSpaceNotifyTitle,
+  @lsCopyWindowCopyEndCaption,
+  @lsCopyWindowCopyEndErrorsCaption,
+  @lsDummy,
+  @lsDummy,
+  @lsDummy,
+  @lsAPINoMutex,
+  @lsAPINoFileMapping,
+  @lsAPINoEvent,
+  @lsShellExtCopyHere,
+  @lsShellExtMoveHere,
+  @lsAPIAlreadyRunning,
+  @lsAlreadyRunningText,
+  @lsAlreadyRunningCaption,
+  @lsAPINoSemaphore,
+  @lsUnknown
+);
 
 implementation
 
 procedure TranslateAllStrings;
+var i:Integer;
 begin
-  with LocEngine do
-  begin
-    TranslateString(01,lsCopyDisplayName);
-    TranslateString(02,lsMoveDisplayName);
-    TranslateString(03,lsCopyOf1);
-    TranslateString(04,lsCopyOf2);
-    TranslateString(05,lsConfirmCopylistAdd);
-    TranslateString(06,lsCreatingCopyList);
-    TranslateString(07,lsChooseDestDir);
-    TranslateString(08,lsAll);
-    TranslateString(09,lsFile);
-    TranslateString(10,lsSpeed);
-    TranslateString(11,lsRemaining);
-    TranslateString(12,lsCopyWindowCancellingCaption);
-    TranslateString(13,lsCopyWindowPausedCaption);
-    TranslateString(14,lsCopyWindowWaitingCaption);
-    TranslateString(15,lsCollisionFileData);
-    TranslateString(16,lsRenameAction);
-    TranslateString(17,lsDeleteAction);
-    TranslateString(18,lsListAction);
-    TranslateString(19,lsCopyAction);
-    TranslateString(20,lsUpdateTimeAction);
-    TranslateString(21,lsUpdateAttributesAction);
-    TranslateString(22,lsUpdateSecurityAction);
-    TranslateString(23,lsBytes);
-    TranslateString(24,lsKBytes);
-    TranslateString(25,lsMBytes);
-    TranslateString(26,lsGBytes);
-    TranslateString(27,lsChooseFolderToAdd);
-    TranslateString(28,lsRenamingHelpCaption);
-    TranslateString(29,lsRenamingHelpText);
-    TranslateString(30,lsAdvancedHelpCaption);
-    TranslateString(31,lsAdvancedHelpText);
-    TranslateString(32,lsCollisionNotifyTitle);
-    TranslateString(33,lsCollisionNotifyText);
-    TranslateString(34,lsCopyErrorNotifyTitle);
-    TranslateString(35,lsCopyErrorNotifyText);
-    TranslateString(36,lsGenericErrorNotifyTitle);
-    TranslateString(37,lsGenericErrorNotifyText);
-    TranslateString(38,lsCopyEndNotifyTitle);
-    TranslateString(39,lsCopyEndNotifyText);
-    TranslateString(40,lsHookErrorCaption);
-    TranslateString(41,lsHookErrorText);
-    TranslateString(42,lsDiskSpaceNotifyTitle);
-    TranslateString(43,lsCopyWindowCopyEndCaption);
-    TranslateString(44,lsCopyWindowCopyEndErrorsCaption);
-  end;
+  for i:=Low(LOC_STRINGS_ARRAY) to High(LOC_STRINGS_ARRAY) do
+    LocEngine.TranslateString(i,LOC_STRINGS_ARRAY[i]^);
 end;
 
 end.

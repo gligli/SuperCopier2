@@ -158,7 +158,7 @@ begin
     end;
     3:
     begin
-      Action:=claOverwrite;
+      Action:=claOverwriteIfDifferent;
       SameForNext:=True;
     end;
   end;

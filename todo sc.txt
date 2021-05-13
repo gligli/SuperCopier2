@@ -89,13 +89,7 @@ x moyen de ne pas incrémenter totalcount et totalsize quand on ajoute un fichier
 * gerer la taille de la fenetre du copier en fonction de la taille non cliente
 * btUnfold en default et concerver focus unfold/pause
 
-- pb avec always on top et opendialogs
-* ajouter choix police dans .lng
-  - ajouter ParentFont a TScPopupButton et TScProgressBar
-- caption copyform pas unicode
-- compos
-  - V pour popupbutton
-  - modif scsystray pour afficher l'icone quand bulle
+* compos
   * clic sur tbbt ki foire si on bouge la souris
   * scintillement barres de progression avec themes
     * fix temporaire avec DoubleBuffered
@@ -109,17 +103,33 @@ x moyen de ne pas incrémenter totalcount et totalsize quand on ajoute un fichier
   * ajouter option avancee pour forcer le resume
     * modif fenetre config
 ? pb % > a 100 en ajoutant des fichiers
+x se positionner sur le tab log + unfold si erreur a la fin
+  * message d'état signalant les erreurs
+* pb calcul taille dans recursion
+* bug renommage avec noms des fichiers contenant des .
+
+=== beta 1.9 ===
+
+- pb avec always on top et opendialogs
+* ajouter choix police dans .lng
+  - ajouter ParentFont a TScPopupButton et TScProgressBar
+- caption copyform pas unicode
+- compos 
+  - V pour popupbutton
+  * modif scsystray pour afficher l'icone quand bulle
+      - icone transparente qui disparait pas
 - exception "Impossible de créer le repertoire" qd fermeture fenetre copie + erreur ou annulation
 - SC2 ne se lance pas sur un compte user
   - hook non global
   - rajouter evt launch explorer sur compo systray
-? gestion des liens dfs pour espace disque restant
-- pb creation rep qd prise en charge copie apres dl d'un fichier dans une page ie dans explorer
-x se positionner sur le tab log + unfold si erreur a la fin
-  * message d'état signalant les erreurs
-* pb calcul taille dans recursion
+- attendre la fin de la copie avant de rendre la main dans SHFileOp
+* pb loc si plusieurs fenetres de copie ouvertes
+- utiliser chemin appli pour bouton readme
+- suport multisessions (ajouter nom user au nom ipc ?)
 
 === beta 2 ===
+
+? gestion des liens dfs pour espace disque restant
 
 - tris selon les colonnes
 

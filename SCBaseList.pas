@@ -31,12 +31,13 @@ type
 		procedure Put(Index: Integer; Item: TBaseItem);
 	public
     procedure SortByFileName;
+    destructor Destroy;override;
 
 		property Items[Index: Integer]: TBaseItem read Get write Put; default;
 	end;
 
 implementation
-uses SysUtils,SCCommon;
+uses SysUtils,SCCommon,SCAPI;
 
 function BLSortCompare(Item1,Item2:Pointer):Integer;forward;
 
@@ -60,6 +61,12 @@ end;
 //******************************************************************************
 //******************************************************************************
 //******************************************************************************
+
+destructor TBaseList.Destroy;
+begin
+  API.RemoveHandle(Self);
+  inherited;
+end;
 
 function TBaseList.Get(Index: Integer): TBaseItem;
 begin

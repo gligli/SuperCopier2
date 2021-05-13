@@ -1,10 +1,10 @@
 object ConfigForm: TConfigForm
-  Left = 243
-  Top = 104
+  Left = 244
+  Top = 105
   BorderStyle = bsDialog
   Caption = 'Configuration'
-  ClientHeight = 396
-  ClientWidth = 609
+  ClientHeight = 394
+  ClientWidth = 607
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,8 +18,8 @@ object ConfigForm: TConfigForm
   OnCreate = FormCreate
   OnShow = TntFormShow
   DesignSize = (
-    609
-    396)
+    607
+    394)
   PixelsPerInch = 96
   TextHeight = 13
   object lvSections: TTntListView
@@ -54,9 +54,9 @@ object ConfigForm: TConfigForm
   object pcSections: TTntPageControl
     Left = 160
     Top = 0
-    Width = 449
-    Height = 371
-    ActivePage = tsAdvanced
+    Width = 447
+    Height = 369
+    ActivePage = tsProcesses
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabHeight = 10
     TabOrder = 1
@@ -93,7 +93,7 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 0
         end
       end
@@ -408,43 +408,55 @@ object ConfigForm: TConfigForm
         Height = 44
         Caption = 'Speed limit'
         TabOrder = 1
-        object llSpeedLimitKB: TTntLabel
-          Left = 304
+        object llCustomSpeedLimit: TTntLabel
+          Left = 397
           Top = 17
           Width = 14
           Height = 13
           Caption = 'KB'
+          Enabled = False
+        end
+        object llSpeedLimit: TTntLabel
+          Left = 338
+          Top = 17
+          Width = 73
+          Height = 13
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'llSpeedLimit'
+          Enabled = False
+          Visible = False
         end
         object chSpeedLimit: TTntCheckBox
           Left = 8
           Top = 16
-          Width = 209
+          Width = 73
           Height = 17
-          Caption = 'Limit copy speed to:'
+          Caption = 'Enabled'
           TabOrder = 0
           OnClick = chSpeedLimitClick
         end
-        object cbSpeedLimit: TTntComboBox
-          Left = 216
-          Top = 14
-          Width = 81
-          Height = 21
-          DropDownCount = 20
-          ItemHeight = 13
+        object tbSpeedLimit: TScTrackBar
+          Left = 80
+          Top = 13
+          Width = 249
+          Height = 23
+          Enabled = False
+          Max = 52
           TabOrder = 1
-          Text = '1024'
+          TickMarks = tmBoth
+          TickStyle = tsNone
+          OnChange = tbSpeedLimitChange
+        end
+        object edCustomSpeedLimit: TTntEdit
+          Left = 336
+          Top = 14
+          Width = 57
+          Height = 21
+          Enabled = False
+          TabOrder = 2
+          Text = 'edCustomSpeedLimit'
           OnKeyPress = NumbersOnly
-          Items.Strings = (
-            '64'
-            '128'
-            '256'
-            '512'
-            '1024'
-            '2048'
-            '4096'
-            '8192'
-            '16384'
-            '32768')
         end
       end
       object gbCollisions: TTntGroupBox
@@ -592,21 +604,51 @@ object ConfigForm: TConfigForm
         Height = 67
         Caption = 'Attributes && security'
         TabOrder = 1
-        object chSaveAttributesOnCopy: TTntCheckBox
+        object llAttributesAndSecurityForCopies: TTntLabel
           Left = 8
+          Top = 18
+          Width = 172
+          Height = 13
+          Caption = 'When a file or folder is copied, copy:'
+        end
+        object llAttributesAndSecurityForMoves: TTntLabel
+          Left = 8
+          Top = 42
+          Width = 172
+          Height = 13
+          Caption = 'When a file or folder is moved, copy:'
+        end
+        object chSaveAttributesOnCopy: TTntCheckBox
+          Left = 200
           Top = 17
-          Width = 363
+          Width = 105
           Height = 17
-          Caption = 'Copy attributes and security when a file is copied'
+          Caption = 'Attributes'
           TabOrder = 0
         end
         object chSaveAttributesOnMove: TTntCheckBox
-          Left = 8
+          Left = 200
           Top = 41
-          Width = 364
+          Width = 105
           Height = 17
-          Caption = 'Copy attributes and security when a file is moved'
+          Caption = 'Attributes'
+          TabOrder = 2
+        end
+        object chSaveSecurityOnCopy: TTntCheckBox
+          Left = 312
+          Top = 17
+          Width = 105
+          Height = 17
+          Caption = 'Security'
           TabOrder = 1
+        end
+        object chSaveSecurityOnMove: TTntCheckBox
+          Left = 312
+          Top = 41
+          Width = 105
+          Height = 17
+          Caption = 'Security'
+          TabOrder = 3
         end
       end
       object gbDeleting: TTntGroupBox
@@ -750,16 +792,17 @@ object ConfigForm: TConfigForm
       Caption = 'tsProcesses'
       TabVisible = False
       DesignSize = (
-        441
-        363)
+        439
+        361)
       object gbHandledProcesses: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 425
+        Width = 423
         Height = 214
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Handled processes'
         TabOrder = 0
+        Visible = False
         object llHandledProcessses: TTntLabel
           Left = 8
           Top = 18
@@ -997,8 +1040,8 @@ object ConfigForm: TConfigForm
     end
   end
   object btCancel: TTntButton
-    Left = 448
-    Top = 370
+    Left = 446
+    Top = 368
     Width = 76
     Height = 25
     Anchors = [akRight, akBottom]
@@ -1008,8 +1051,8 @@ object ConfigForm: TConfigForm
     OnClick = btCancelClick
   end
   object btOk: TTntButton
-    Left = 364
-    Top = 370
+    Left = 362
+    Top = 368
     Width = 76
     Height = 25
     Anchors = [akRight, akBottom]
@@ -1019,8 +1062,8 @@ object ConfigForm: TConfigForm
     OnClick = btOkClick
   end
   object btApply: TTntButton
-    Left = 532
-    Top = 370
+    Left = 530
+    Top = 368
     Width = 76
     Height = 25
     Anchors = [akRight, akBottom]

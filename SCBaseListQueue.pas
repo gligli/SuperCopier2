@@ -27,12 +27,46 @@ type
   end;
 
   TBaseListQueue=class(TObjectQueue)
+  private
+    FLock:TRTLCriticalSection;
   public
+    constructor Create;
+    destructor Destroy;Override;
+
+    procedure Lock;
+    procedure Unlock;
+
     function Pop: TBaseListQueueItem;
     function Peek: TBaseListQueueItem;
   end;
 
 implementation
+
+{ TBaseListQueue }
+
+constructor TBaseListQueue.Create;
+begin
+  inherited;
+
+  InitializeCriticalSection(FLock);
+end;
+
+destructor TBaseListQueue.Destroy;
+begin
+  DeleteCriticalSection(FLock);
+
+  inherited;
+end;
+
+procedure TBaseListQueue.Lock;
+begin
+  EnterCriticalSection(FLock);
+end;
+
+procedure TBaseListQueue.Unlock;
+begin
+  LeaveCriticalSection(FLock);
+end;
 
 function TBaseListQueue.Pop: TBaseListQueueItem;
 begin

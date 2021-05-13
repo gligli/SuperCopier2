@@ -30,11 +30,14 @@ type
     property DisplayName:WideString read GetDisplayName;
 
     constructor Create;
+    destructor Destroy;override;
 
     procedure Cancel;virtual;abstract;
   end;
 
 implementation
+
+uses SCAPI;
 
 //******************************************************************************
 //******************************************************************************
@@ -49,6 +52,12 @@ begin
   inherited Create(True);
 
   FThreadType:=wttNone;
+end;
+
+destructor TWorkThread.Destroy;
+begin
+  API.RemoveHandle(Self);
+  inherited;
 end;
 
 end.

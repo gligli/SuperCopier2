@@ -27,20 +27,14 @@ package SCComponent;
 
 requires
   rtl,
-  vcl,
-  TntUnicodeVcl_R70,
-  vclactnband,
-  vclx,
-  dsnap,
-  dbrtl,
-  vcldb;
+  vcl;
 
 contains
   SCProgessBar in 'SCProgessBar.pas',
   ScSystray in 'ScSystray.pas',
-  SCTitleBarBt in 'SCTitleBarBt.pas',
   SCFileNameLabel in 'SCFileNameLabel.pas',
-  ScPopupButton in 'ScPopupButton.pas';
+  ScPopupButton in 'ScPopupButton.pas',
+  SCOutlinedLabel in 'SCOutlinedLabel.pas';
 
 end.
 

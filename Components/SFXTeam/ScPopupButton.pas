@@ -17,7 +17,7 @@ unit ScPopupButton;
 interface
 
 uses
-  Windows,SysUtils, Classes, Controls,TNTMenus,Messages,Types,Themes,StdCtrls,Graphics,ExtCtrls;
+  Windows,SysUtils, Classes, Controls,Menus,Messages,Types,Themes,StdCtrls,Graphics,ExtCtrls;
 
 type
 
@@ -28,13 +28,13 @@ type
   private
     { Déclarations privées }
     FItemIndex:integer;
-    FPopup:TTntPopupMenu;
+    FPopup:TPopupMenu;
     FOnClick:TClickPopupButton;
     FCaption:WideString;
     FImageIndex:Integer;
     FImageList:TImageList;
     StatusButton:TStatusButton;
-    ReleaseTimer:TTimer;
+    PopupTimer:TTimer;
   protected
     { Déclarations protégées }
     procedure Loaded;override;
@@ -43,18 +43,20 @@ type
     procedure MouseMove(Shift: TShiftState; X, Y: Integer);override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState;X, Y: Integer); override;
+    procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMFocusChanged(var Message: TCMFocusChanged); message CM_FOCUSCHANGED;
-    procedure PopupChange(Sender: TObject; Source: TTNTMenuItem; Rebuild: Boolean);
+    procedure PopupChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);
     procedure ClickPopup(Sender: TObject);
-    procedure OnReleaseTimer(Sender: TObject);
-    procedure DoPopup;
+    procedure OnPopupTimer(Sender: TObject);
+    procedure DoPopup(AWithTimer:Boolean);
+    procedure EndPopup;
     procedure DoClick(Index:integer);
     procedure KeyDown(var Key: Word; Shift: TShiftState);override;
     procedure KeyUp(var Key: Word; Shift: TShiftState);override;
     procedure SetEnabled(Value: Boolean); override;
     procedure SetItemIndex(const Value:Integer);
-    procedure SetPopup(const Value:TTntPopupMenu);
+    procedure SetPopup(const Value:TPopupMenu);
     procedure SetCaption(const Value:WideString);
     procedure SetImageIndex(const Value:Integer);
     procedure SetImageList(const Value:TImageList);
@@ -70,7 +72,7 @@ type
     property TabStop;
     property Anchors;
     property ItemIndex : Integer read FItemIndex write SetItemIndex;
-    property Popup : TTntPopupMenu read FPopup write SetPopup;
+    property Popup : TPopupMenu read FPopup write SetPopup;
     property Caption : WideString read FCaption write SetCaption;
     property ImageIndex : Integer read FImageIndex write SetImageIndex;
     property ImageList : TImageList read FImageList write SetImageList;
@@ -80,8 +82,6 @@ type
 procedure Register;
 
 implementation
-
-uses Menus;
 
 type
   TEndMenu=function:LongBool;stdcall;
@@ -112,20 +112,19 @@ begin
   StatusButton:=SBNormal;
   TabStop:=True;
 
-  // ce timer ca servir à simuler l'évènement de relachage de la souris sur le
-  // bouton lorsque le popup est ouvert
-  ReleaseTimer:=TTimer.Create(Parent);
-  ReleaseTimer.Enabled:=False;
-  ReleaseTimer.Interval:=50;
-  ReleaseTimer.OnTimer:=OnReleaseTimer;
+  // ce timer ca servir détecter si la souris a quittée la zone du bouton
+  // lorsque le popup est ouvert (pour fermer le popup après un certain temps)
+  PopupTimer:=TTimer.Create(Parent);
+  PopupTimer.Enabled:=False;
+  PopupTimer.Interval:=50;
+  PopupTimer.OnTimer:=OnPopupTimer;
 end;
 
 destructor TScPopupButton.Destroy;
 begin
   inherited;
 
-  ReleaseTimer.Free;
-  FPopup.Free;
+  PopupTimer.Free;
 end;
 
 procedure TScPopupButton.CreateParams(var Params: TCreateParams);
@@ -136,30 +135,15 @@ end;
 
 procedure TScPopupButton.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
-var PMHwnd:THandle;
 begin
   inherited;
-
-  // on ferme le popup menu
-  if Assigned(FPopup) then
-  begin
-    if (Win32MajorVersion>4) and // Win98/Me ou Win2000 et >
-       ((Win32Platform=VER_PLATFORM_WIN32_NT) or
-       ((Win32Platform=VER_PLATFORM_WIN32_WINDOWS) and (Win32MinorVersion>0))) then
-    begin
-      DynEndMenu;
-    end
-    else if (Win32MajorVersion=4) and (Win32Platform=VER_PLATFORM_WIN32_NT) then //Win NT4
-    begin
-      PMHwnd:=FindWindow('#32768',nil);
-      SendMessage(PMHwnd,WM_CLOSE,0,0);
-    end;
-  end;
 
   StatusButton:=SBNormal;
   if (Y>=0) and (Y<=Height) and (X>=0) and (X<=Width) then
   begin
     StatusButton:=SBButtonOver;
+
+    EndPopup;
 
     DoClick(ItemIndex);
   end;
@@ -174,12 +158,9 @@ begin
 
   if Button=mbLeft then
   begin
-    if Assigned(FPopup) then ReleaseTimer.Enabled:=True;
     StatusButton:=SBButtonDown;
     Invalidate;
   end;
-
-  DoPopup;
 end;
 
 procedure TScPopupButton.SetEnabled(Value: Boolean);
@@ -223,7 +204,7 @@ begin
   invalidate;
 end;
 
-procedure TScPopupButton.SetPopup(const Value: TTntPopupMenu);
+procedure TScPopupButton.SetPopup(const Value: TPopupMenu);
 begin
   if value<>FPopup then
   begin
@@ -279,7 +260,7 @@ var
   TxtRect,BtnRect:TRect;
 begin
   BtnRect:=rect(0,0,Width,Height);
-  Perform(WM_ERASEBKGND,Canvas.Handle,1);
+  Perform(WM_ERASEBKGND,Handle,1);
   if ThemeServices.ThemesEnabled then
   begin
     Case StatusButton of
@@ -325,7 +306,7 @@ begin
   begin
     BtImageIndex:=FPopup.Items[FItemIndex].ImageIndex;
     BtImageList:=FPopup.Images as TImageList;
-    BtCaption:=(FPopup.Items[FItemIndex] as TTntMenuItem).Caption;
+    BtCaption:=(FPopup.Items[FItemIndex] as TMenuItem).Caption;
   end;
 
   // Dessine l'icone
@@ -389,7 +370,7 @@ begin
 end;
 
 
-procedure TScPopupButton.PopupChange(Sender: TObject; Source: TTNTMenuItem;
+procedure TScPopupButton.PopupChange(Sender: TObject; Source: TMenuItem;
   Rebuild: Boolean);
 var
   i:integer;
@@ -419,28 +400,56 @@ var
 begin
   StatusButton:=SBNormal;
   Invalidate;
-  IdClick:=FPopup.Items.IndexOf(Sender as TTntMenuItem);
+  IdClick:=FPopup.Items.IndexOf(Sender as TMenuItem);
   DoClick(IdClick);
 end;
 
-procedure TScPopupButton.OnReleaseTimer(Sender: TObject);
-var X,Y:Word;
-begin
-  if GetAsyncKeyState(VK_LBUTTON)=0 then
+procedure TScPopupButton.OnPopupTimer(Sender: TObject);
+var PMRect:TRect;
+
+  function PointInRect(APoint:TPoint;ARect:TRect):Boolean;
   begin
-    X:=Mouse.CursorPos.X-ClientOrigin.X;
-    Y:=Mouse.CursorPos.Y-ClientOrigin.Y;
+    Result:=(APoint.X>=ARect.Left) and
+            (APoint.Y>=ARect.Top) and
+            (APoint.X<=ARect.Right) and
+            (APoint.Y<=ARect.Bottom);
+  end;
 
-    SendMessage(Handle,WM_LBUTTONUP,0,MakeLParam(X,Y));
+begin
+  GetWindowRect(FindWindow('#32768',nil),PMRect);
 
-    ReleaseTimer.Enabled:=False;
+  if not (PointInRect(ScreenToClient(Mouse.CursorPos),ClientRect) or PointInRect(Mouse.CursorPos,PMRect)) then
+    EndPopup;
+end;
+
+procedure TScPopupButton.DoPopup(AWithTimer:Boolean);
+begin
+  if Assigned(FPopup) then
+  begin
+    PopupTimer.Enabled:=AWithTimer;
+    FPopup.Popup(Self.ClientOrigin.X,Self.ClientOrigin.Y+Self.Height-1);
   end;
 end;
 
-procedure TScPopupButton.DoPopup;
+procedure TScPopupButton.EndPopup;
+var PMHwnd:THandle;
 begin
   if Assigned(FPopup) then
-    FPopup.Popup(Self.ClientOrigin.X,Self.ClientOrigin.Y+Self.Height-1);
+  begin
+    PopupTimer.Enabled:=False;
+
+    if (Win32MajorVersion>4) and // Win98/Me ou Win2000 et >
+       ((Win32Platform=VER_PLATFORM_WIN32_NT) or
+       ((Win32Platform=VER_PLATFORM_WIN32_WINDOWS) and (Win32MinorVersion>0))) then
+    begin
+      DynEndMenu;
+    end
+    else if (Win32MajorVersion=4) and (Win32Platform=VER_PLATFORM_WIN32_NT) then //Win NT4
+    begin
+      PMHwnd:=FindWindow('#32768',nil);
+      SendMessage(PMHwnd,WM_CLOSE,0,0);
+    end;
+  end;
 end;
 
 procedure TScPopupButton.DoClick(Index:Integer);
@@ -453,12 +462,17 @@ procedure TScPopupButton.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited;
   if Key=VK_RETURN then DoClick(ItemIndex);
-  if Key=VK_SPACE then DoPopup;
+  if Key=VK_SPACE then DoPopup(False);
 end;
 
 procedure TScPopupButton.KeyUp(var Key: Word; Shift: TShiftState);
 begin
   inherited;
+end;
+
+procedure TScPopupButton.CMMouseEnter(var Message: TMessage);
+begin
+  if not (csDesigning in ComponentState) then DoPopup(True);
 end;
 
 initialization
