@@ -106,14 +106,19 @@ type
     cbConfigLocation: TTntComboBox;
     odLog: TTntOpenDialog;
     odProcesses: TTntOpenDialog;
-    btProgressBorder: TTntButton;
     llProgressBorder: TTntLabel;
     ggProgress: TSCProgessBar;
     cdProgress: TColorDialog;
     btRenamingHelp: TTntButton;
     btAdvancedHelp: TTntButton;
-    TntLabel1: TTntLabel;
+    llMinimizedEventHandling: TTntLabel;
     cbMinimizedEventHandling: TTntComboBox;
+    btApply: TTntButton;
+    chFailSafeCopier: TTntCheckBox;
+    btProgressBorder: TTntButton;
+    btProgressOutline: TTntButton;
+    btProgressText: TTntButton;
+    TntLabel1: TTntLabel;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure lvSectionsChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
@@ -137,6 +142,10 @@ type
     procedure btProgressBG2Click(Sender: TObject);
     procedure btProgressBorderClick(Sender: TObject);
     procedure btAdvancedHelpClick(Sender: TObject);
+    procedure cbMinimizeClick(Sender: TObject);
+    procedure btApplyClick(Sender: TObject);
+    procedure btProgressTextClick(Sender: TObject);
+    procedure btProgressOutlineClick(Sender: TObject);
   private
     { Private declarations }
 
@@ -154,7 +163,7 @@ implementation
 
 {$R *.dfm}
 
-uses SCConfig,SCWin32,SCLocStrings,TntSysutils, Math, SCCommon;
+uses SCConfig,SCWin32,SCLocStrings,TntSysutils, Math, SCCommon, SCMainForm;
 
 //******************************************************************************
 // UpdateControlsState : fixe l'état d'activation des controles
@@ -167,6 +176,9 @@ begin
   edErrorLogFileName.Enabled:=chErrorLogAutoSave.Checked;
   btELFNBrowse.Enabled:=chErrorLogAutoSave.Checked and (cbErrorLogAutoSaveMode.ItemIndex=2);
   btRemoveProcess.Enabled:=lvHandledProcesses.Items.Count>0;
+  llMinimizedEventHandling.Enabled:=cbMinimize.ItemIndex=0;
+  cbMinimizedEventHandling.Enabled:=cbMinimize.ItemIndex=0;
+  chFailSafeCopier.Enabled:=Win32Platform=VER_PLATFORM_WIN32_NT;
 end;
 
 //******************************************************************************
@@ -194,6 +206,10 @@ begin
     ggProgress.FrontColor1:=ProgressForegroundColor1;
     ggProgress.FrontColor2:=ProgressForegroundColor2;
     ggProgress.BorderColor:=ProgressBorderColor;
+    ggProgress.FontTxt.Color:=ProgressTextColor;
+    ggProgress.FontProgress.Color:=ProgressTextColor;
+    ggProgress.FontProgressColor:=ProgressOutlineColor;
+    ggProgress.FontTxtColor:=ProgressOutlineColor;
     //tsCWDefaults
     with DefaultCopyWindowConfig do
     begin
@@ -238,6 +254,7 @@ begin
     edCopySpeedAveragingInterval.Text:=IntToStr(CopySpeedAveragingInterval);
     edCopyThrottleInterval.Text:=IntToStr(CopyThrottleInterval);
     chFastFreeSpaceCheck.Checked:=FastFreeSpaceCheck;
+    chFailSafeCopier.Checked:=FailSafeCopier;
   end;
 end;
 
@@ -265,6 +282,8 @@ begin
     ProgressForegroundColor1:=ggProgress.FrontColor1;
     ProgressForegroundColor2:=ggProgress.FrontColor2;
     ProgressBorderColor:=ggProgress.BorderColor;
+    ProgressTextColor:=ggProgress.FontTxt.Color;
+    ProgressOutlineColor:=ggProgress.FontTxtColor;
     //tsCWDefaults
     with DefaultCopyWindowConfig do
     begin
@@ -304,6 +323,7 @@ begin
     CopySpeedAveragingInterval:=StrToIntDef(edCopySpeedAveragingInterval.Text,CONFIG_DEFAULT_VALUES.CopySpeedAveragingInterval);
     CopyThrottleInterval:=StrToIntDef(edCopyThrottleInterval.Text,CONFIG_DEFAULT_VALUES.CopyThrottleInterval);
     FastFreeSpaceCheck:=chFastFreeSpaceCheck.Checked;
+    FailSafeCopier:=chFailSafeCopier.Checked;
   end;
 end;
 
@@ -327,11 +347,16 @@ end;
 
 procedure TConfigForm.btOkClick(Sender: TObject);
 begin
+  btApply.Click;
+  Close;
+end;
+
+procedure TConfigForm.btApplyClick(Sender: TObject);
+begin
   UpdateConfig;
   CloseConfig;
   OpenConfig;
   ApplyConfig;
-  Close;
 end;
 
 procedure TConfigForm.chSpeedLimitClick(Sender: TObject);
@@ -354,6 +379,11 @@ begin
   UpdateControlsState;
 end;
 
+procedure TConfigForm.cbMinimizeClick(Sender: TObject);
+begin
+  UpdateControlsState;
+end;
+
 procedure TConfigForm.TntFormCreate(Sender: TObject);
 begin
   GetConfig;
@@ -367,6 +397,9 @@ end;
 
 procedure TConfigForm.btELFNBrowseClick(Sender: TObject);
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   if odLog.Execute then
   begin
     edErrorLogFileName.Text:=odLog.FileName;
@@ -375,6 +408,9 @@ end;
 
 procedure TConfigForm.btAddProcessClick(Sender: TObject);
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   if odProcesses.Execute then
   begin
     lvHandledProcesses.AddItem(WideExtractFileName(odProcesses.FileName),nil);
@@ -409,30 +445,45 @@ end;
 
 procedure TConfigForm.btProgressFG1Click(Sender: TObject);
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   cdProgress.Color:=ggProgress.FrontColor1;
   if cdProgress.Execute then ggProgress.FrontColor1:=cdProgress.Color;
 end;
 
 procedure TConfigForm.bgProgressFG2Click(Sender: TObject);
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   cdProgress.Color:=ggProgress.FrontColor2;
   if cdProgress.Execute then ggProgress.FrontColor2:=cdProgress.Color;
 end;
 
 procedure TConfigForm.btProgressBG1Click(Sender: TObject);
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   cdProgress.Color:=ggProgress.BackColor1;
   if cdProgress.Execute then ggProgress.BackColor1:=cdProgress.Color;
 end;
 
 procedure TConfigForm.btProgressBG2Click(Sender: TObject);
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   cdProgress.Color:=ggProgress.BackColor2;
   if cdProgress.Execute then ggProgress.BackColor2:=cdProgress.Color;
 end;
 
 procedure TConfigForm.btProgressBorderClick(Sender: TObject);
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   cdProgress.Color:=ggProgress.BorderColor;
   if cdProgress.Execute then ggProgress.BorderColor:=cdProgress.Color;
 end;
@@ -440,6 +491,34 @@ end;
 procedure TConfigForm.btAdvancedHelpClick(Sender: TObject);
 begin
   MessageBox(Handle,lsAdvancedHelpText,lsAdvancedHelpCaption,0);
+end;
+
+procedure TConfigForm.btProgressTextClick(Sender: TObject);
+begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
+  cdProgress.Color:=ggProgress.FontTxt.Color;
+  if cdProgress.Execute then
+  begin
+    ggProgress.FontTxt.Color:=cdProgress.Color;
+    ggProgress.FontProgress.Color:=cdProgress.Color;
+    ggProgress.Refresh;
+  end;
+end;
+
+procedure TConfigForm.btProgressOutlineClick(Sender: TObject);
+begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
+  cdProgress.Color:=ggProgress.FontTxtColor;
+  if cdProgress.Execute then
+  begin
+    ggProgress.FontTxtColor:=cdProgress.Color;
+    ggProgress.FontProgressColor:=cdProgress.Color;
+    ggProgress.Refresh;
+  end;
 end;
 
 end.

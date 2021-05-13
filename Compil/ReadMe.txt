@@ -1,0 +1,58 @@
+SuperCopier 2 beta 1
+====================
+
+Site web:
+  http://supercopier.sfxteam.org
+
+E-Mail:
+  supercopier@sfxteam.org (mettez de préférence le mot 'SuperCopier' dans l'objet de l'e-mail)
+
+Staff:
+  GliGli: Code principal,
+  Guimli: Outil de traduction,
+  Yogi: Copieur NT Originel,
+  ZeuS: Composants graphiques.
+
+Remerciements:
+  TntWare http://www.tntware.com/ (composants unicode),
+  Tal Sella http://www.virtualplastic.net/scrow/ (icônes),
+  Mathias Rauen http://www.madshi.net/ (bibliothèque de hook).
+
+Description:
+============
+
+SuperCopier remplace le système de copie de fichiers de l'explorateur de windows 
+en y ajoutant des améliorations:
+    - Possibilité de reprendre les transferts
+    - Réglage du taux de transfert
+    - Plus de bugs si l'on copie plus de 2 Go de fichiers (Vous pouvez copier jusqu'à
+      4 To de fichiers, je pense que ça devrait suffire ;)
+    - Calcul du taux de transfert
+    - Meilleur système de visualisation	
+    - Un peu plus rapide
+    - Listes de copie modifiables à volonté pendant la copie
+    - Log des erreurs
+    - ...
+    
+Compatibilité: Windows 95/98/Millenium/NT4/2000/XP/2003Server
+
+Historique:
+===========
+
+- v2 beta 1:
+    Réécriture complète de l'application.
+    ... Donc plein de choses nouvelles mais c'est trop long à énumérer :)
+
+A venir:
+========
+  Choix de la langue de l'interface
+  Prise en charge des suppressions et des déplacements sur un même volume
+  Outil en ligne de commande
+
+A propos de l'auteur:
+=====================
+  Je (GliGli) suis actuellement à la recherche d'un Job d'analyste programmeur sur Lyon (69,France).
+  Je connais particulièrement bien le Delphi (SuperCopier est développé en Delphi), si vous êtes
+  intéressé, envoyez moi un e-mail à f.guilhaume@free.fr .
+  
+  

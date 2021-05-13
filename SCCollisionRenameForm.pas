@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
-  Dialogs, StdCtrls, TntStdCtrls;
+  Dialogs, StdCtrls, TntStdCtrls, ScPopupButton;
 
 type
   TCollisionRenameForm = class(TTntForm)
@@ -14,10 +14,12 @@ type
     llOriginalName: TTntLabel;
     llNewNameTitle: TTntLabel;
     edNewName: TTntEdit;
-    btRename: TTntButton;
-    btCancel: TTntButton;
+    btCancel: TScPopupButton;
+    btRename: TScPopupButton;
     procedure edNewNameKeyPress(Sender: TObject; var Key: Char);
     procedure edNewNameChange(Sender: TObject);
+    procedure btCancelClick(Sender: TObject; ItemIndex: Integer);
+    procedure btRenameClick(Sender: TObject; ItemIndex: Integer);
   private
     { Déclarations privées }
   public
@@ -42,6 +44,18 @@ end;
 procedure TCollisionRenameForm.edNewNameChange(Sender: TObject);
 begin
   btRename.Enabled:=TrimRight(edNewName.Text)<>llOriginalName.Caption;
+end;
+
+procedure TCollisionRenameForm.btCancelClick(Sender: TObject;
+  ItemIndex: Integer);
+begin
+  ModalResult:=mrCancel;
+end;
+
+procedure TCollisionRenameForm.btRenameClick(Sender: TObject;
+  ItemIndex: Integer);
+begin
+  ModalResult:=mrOk;
 end;
 
 end.

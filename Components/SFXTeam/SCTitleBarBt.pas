@@ -30,6 +30,7 @@ type
     { Déclarations publiques }
     constructor Create(AOwner : TComponent); override;
     destructor Destroy; override;
+    procedure Refresh;
   published
     { Déclarations publiées }
     property OnClick : TNotifyEvent Read FOnClick Write FOnClick;
@@ -54,7 +55,7 @@ begin
     raise Exception.Create('Le parent d''un SCTitleBarBt doit être une Form');
   inherited;
   NewWndProc := MakeObjectInstance(WMEvent);
-  OldWndProc := pointer(SetWindowLong((AOwner as TForm).Handle, gwl_WndProc, longint(NewWndProc)));
+  OldWndProc := pointer(SetWindowLong((Owner as Tform).Handle, gwl_WndProc, longint(NewWndProc)));
   CalculZoneBt;
   BtStatus:=bsNormal;
 end;
@@ -145,9 +146,7 @@ end;
 //---- Dessin du bouton
 procedure TSCTitleBarBt.DrawTitleBarBt;
 var
-  bmp,bmp2:Tbitmap;
   Details: TThemedElementDetails;
-//  Button:TThemedWindow;
   DC:HDC;
 begin
   DC:= GetWindowDC((Owner as Tform).Handle);
@@ -297,6 +296,15 @@ begin
    else
     msg.Result := CallWindowProc(OldWndProc, (Owner as TForm).Handle, msg.Msg, msg.wParam, msg.lParam);
   end;
+end;
+
+
+procedure TSCTitleBarBt.Refresh;
+begin
+  NewWndProc := MakeObjectInstance(WMEvent);
+  OldWndProc := pointer(SetWindowLong((Owner as Tform).Handle, GWL_WNDPROC, longint(NewWndProc)));
+  CalculZoneBt;
+  DrawTitleBarBt;
 end;
 
 end.

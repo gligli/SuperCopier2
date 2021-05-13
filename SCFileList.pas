@@ -32,6 +32,7 @@ type
     function SrcDelete:Boolean;
     function DestDelete:Boolean;
     function DestCopyAttributes:boolean;
+    function DestCopySecurity:boolean;
     function DestClearAttributes:boolean;
 	end;
 
@@ -197,6 +198,22 @@ var Attr:Cardinal;
 
 begin
   DestCopyAttributes_;
+  SetLastError(ErrCode);
+end;
+
+function TFileItem.DestCopySecurity:boolean;
+var ErrCode:Integer;
+
+  //HACK: la gestion interne de l'unicode de delphi pourrit le code d'erreur win32
+  //      lors du retour d'une fonction, ceci permets de le conserver
+  procedure DestCopySecurity_;
+  begin
+    Result:=CopySecurity(SrcFullName,DestFullName);
+    ErrCode:=GetLastError;
+  end;
+
+begin
+  DestCopySecurity_;
   SetLastError(ErrCode);
 end;
 

@@ -23,6 +23,7 @@ type
     procedure SaveToStream(TheStream:TStream);
     procedure LoadFromStream(TheStream:TStream;Version:integer;BaseDirListIndex:Integer);
 		procedure DestCopyAge;
+		function DestCopySecurity:boolean;
 		procedure VerifyOrCreate;
     function SrcDelete:Boolean;
 	end;
@@ -121,6 +122,22 @@ begin
 	end;
 end;
 
+function TDirItem.DestCopySecurity:boolean;
+var ErrCode:Integer;
+
+  //HACK: la gestion interne de l'unicode de delphi pourrit le code d'erreur win32
+  //      lors du retour d'une fonction, ceci permets de le conserver
+  procedure DestCopySecurity_;
+  begin
+    Result:=CopySecurity(SrcPath,Destpath);
+    ErrCode:=GetLastError;
+  end;
+
+begin
+  DestCopySecurity_;
+  SetLastError(ErrCode);
+end;
+
 procedure TDirItem.VerifyOrCreate;
 begin
 	if Created then exit;
@@ -129,8 +146,9 @@ begin
 
 	Created:=SCWin32.CreateDirectory(PWideChar(DestPath),nil) or (GetLastError=ERROR_ALREADY_EXISTS);
 
-  // nouveau répertoire créé -> on recopie sa date de modif
+  // nouveau répertoire créé -> on recopie sa date de modif et sa sécurité
   DestCopyAge;
+  DestCopySecurity;
 end;
 
 function TDirItem.SrcDelete:Boolean;

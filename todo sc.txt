@@ -44,18 +44,31 @@
     * erreurs
     * collisions
     * fin de copie
+* startwithwindows
+* cancel
+* od passe en arriere plan a la 2eme ouverture
+* boutons de la copyform repassent enabled avant la fermeture
+* WideUnbufferedCopier
+  * overlapped
+  * droits ntfs
+* copier peut po copier les fichiers de 0 octets
+* pb retour erreur dans copysecurity   1307
+* cancel marche po
+* config
+* installeur
 
-- startwithwindows
+*? icones
+- plantage quand timeout au quit
 
-- WideUnbufferedCopier
-  - overlapped
-  - droits ntfs
-
-- changement taille buffer quand copie vers mm dur
-- icones
-
+- compos
+  - dbl click sur le systray
+  - perf de la progress
+  - focus qui s'efface du bouton
+  - tbbt qui s'efface (pb de taille du caption)
+  - leak bitmap sur systray
 === beta 1 ===
 
+- changement taille buffer quand copie vers mm dur
 - multilangues
 ? supression/déplacement
 

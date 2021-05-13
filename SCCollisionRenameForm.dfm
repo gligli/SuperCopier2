@@ -1,9 +1,9 @@
 object CollisionRenameForm: TCollisionRenameForm
   Left = 385
   Top = 102
-  BorderStyle = bsDialog
+  BorderStyle = bsToolWindow
   Caption = 'Custom rename'
-  ClientHeight = 150
+  ClientHeight = 147
   ClientWidth = 400
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -66,25 +66,30 @@ object CollisionRenameForm: TCollisionRenameForm
     OnChange = edNewNameChange
     OnKeyPress = edNewNameKeyPress
   end
-  object btRename: TTntButton
-    Left = 240
-    Top = 120
-    Width = 75
-    Height = 25
-    Caption = 'btRename'
-    Default = True
-    Enabled = False
-    ModalResult = 1
-    TabOrder = 3
-  end
-  object btCancel: TTntButton
+  object btCancel: TScPopupButton
     Left = 320
     Top = 120
     Width = 75
     Height = 25
-    Cancel = True
-    Caption = 'btCancel'
-    ModalResult = 2
     TabOrder = 4
+    TabStop = True
+    ItemIndex = 0
+    Caption = 'Cancel'
+    ImageIndex = 6
+    ImageList = MainForm.ilGlobal
+    OnClick = btCancelClick
+  end
+  object btRename: TScPopupButton
+    Left = 240
+    Top = 120
+    Width = 75
+    Height = 25
+    TabOrder = 3
+    TabStop = True
+    ItemIndex = 0
+    Caption = 'Rename'
+    ImageIndex = 20
+    ImageList = MainForm.ilGlobal
+    OnClick = btRenameClick
   end
 end

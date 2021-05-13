@@ -1,24 +1,27 @@
 object AboutForm: TAboutForm
-  Left = 202
-  Top = 99
-  Width = 345
-  Height = 507
-  Caption = 'AboutForm'
-  Color = clBtnFace
+  Left = 290
+  Top = 97
+  BorderStyle = bsToolWindow
+  Caption = 'About SuperCopier'
+  ClientHeight = 430
+  ClientWidth = 296
+  Color = clBlack
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
+  Position = poDesktopCenter
   OnCloseQuery = TntFormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object imLogo: TImage
-    Left = 8
-    Top = 8
+    Left = 20
+    Top = 136
     Width = 256
     Height = 256
     Cursor = crHelp
@@ -1053,5 +1056,148 @@ object AboutForm: TAboutForm
       D33D33BE8E53333BBE6E7B76E46666616666666166E4E6E666666673DDDD3724
       6666}
     OnClick = imLogoClick
+  end
+  object llName: TTntLabel
+    Left = 8
+    Top = 8
+    Width = 101
+    Height = 13
+    Caption = 'SuperCopier 2 Beta 1'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object llStaffTitle: TTntLabel
+    Left = 8
+    Top = 40
+    Width = 25
+    Height = 13
+    Caption = 'Staff:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object llStaff1: TTntLabel
+    Left = 16
+    Top = 56
+    Width = 210
+    Height = 13
+    Caption = 'GliGli: Main code, Guimli: Translation engine,'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object llURL: TTntLabel
+    Left = 144
+    Top = 8
+    Width = 143
+    Height = 13
+    Cursor = crHandPoint
+    Caption = 'http://supercopier.sfxteam.org'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = 14320519
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    OnClick = llURLClick
+  end
+  object llThanksTitle: TTntLabel
+    Left = 8
+    Top = 88
+    Width = 85
+    Height = 13
+    Caption = 'Special thanks to:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object llThanks1: TTntLabel
+    Left = 16
+    Top = 104
+    Width = 265
+    Height = 26
+    AutoSize = False
+    Caption = 'TntWare (unicode components), Tal Sella (icons),'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    WordWrap = True
+  end
+  object llEmail: TTntLabel
+    Left = 144
+    Top = 24
+    Width = 120
+    Height = 13
+    Cursor = crHandPoint
+    Caption = 'supercopier@sfxteam.org'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = 14320519
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    OnClick = llEmailClick
+  end
+  object llStaff2: TTntLabel
+    Left = 16
+    Top = 72
+    Width = 259
+    Height = 13
+    Caption = 'Yogi: Original NT copier, ZeuS: Graphical components.'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object llThanks2: TLabel
+    Left = 16
+    Top = 120
+    Width = 152
+    Height = 13
+    Caption = 'Mathias Rauen (hooking library).'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object btOk: TTntButton
+    Left = 216
+    Top = 399
+    Width = 75
+    Height = 25
+    Cancel = True
+    Caption = 'Ok'
+    Default = True
+    TabOrder = 0
+    OnClick = btOkClick
+  end
+  object btReadme: TTntButton
+    Left = 5
+    Top = 399
+    Width = 75
+    Height = 25
+    Caption = 'ReadMe.txt'
+    TabOrder = 1
+    OnClick = btReadmeClick
   end
 end

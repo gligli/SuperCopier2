@@ -16,6 +16,8 @@ type
     property DisplayName:WideString read GetDisplayName;
 
     constructor Create;
+
+    procedure Cancel;virtual;abstract;
   end;
 
 implementation

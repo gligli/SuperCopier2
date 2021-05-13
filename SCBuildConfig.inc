@@ -1,1 +1,1 @@
-{$DEFINE DEBUG}
+//{$DEFINE DEBUG}

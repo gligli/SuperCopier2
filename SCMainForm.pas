@@ -5,7 +5,11 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics,  TntForms,
   Dialogs, StdCtrls,filectrl,tntsysutils,TntStdCtrls,ShellApi, Controls,
-  ComCtrls, TntComCtrls, XPMan, ScSystray, Menus, TntMenus, ImgList;
+  ComCtrls, TntComCtrls, XPMan, ScSystray, Menus, TntMenus, ImgList,
+  Buttons, TntButtons,SCConfigShared;
+
+const
+  CANCEL_TIMEOUT=5000; //ms
 
 type
   TMainForm = class(TTntForm)
@@ -25,7 +29,8 @@ type
     miNoThreadList: TTntMenuItem;
     miDeactivate: TTntMenuItem;
     ilGlobal: TImageList;
-    TntButton1: TTntButton;
+    miCancelAll: TTntMenuItem;
+    miCancelThread: TTntMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure miConfigClick(Sender: TObject);
@@ -35,8 +40,11 @@ type
     procedure miExitClick(Sender: TObject);
     procedure miThreadListClick(Sender: TObject);
     procedure miActivateClick(Sender: TObject);
+    procedure miCancelAllClick(Sender: TObject);
+    procedure miCancelThreadClick(Sender: TObject);
   private
     { Déclarations privées }
+    procedure OpenDialog(var AMsg:TMessage); message WM_OPENDIALOG;
   public
     { Déclarations publiques }
   end;
@@ -47,7 +55,7 @@ var
 
 implementation
 uses SCConfig,SCCommon,SCWin32,SCCopyThread,SCBaseList,SCFileList,SCDirList,SCHookShared,SCWorkThreadList,madCodeHook,
-  Forms,SCConfigForm,SCAboutForm;
+  Forms,SCConfigForm,SCAboutForm,SCLocStrings;
 {$R *.dfm}
 
 //******************************************************************************
@@ -110,9 +118,12 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  Caption:=SC2_MAINFORM_CAPTION;
+
   Windows.SetParent(Handle,THandle(HWND_MESSAGE)); // cacher la form
 
   Systray.Hint:='SuperCopier 2';
+  Systray.Icone:=Application.Icon;
 
   OpenConfig;
 
@@ -125,7 +136,7 @@ begin
   if not InjectLibrary(ALL_SESSIONS and not CURRENT_PROCESS,DLL_NAME) or
      not CreateIpcQueue(IPC_NAME,HookCallback) then
   begin
-    ShowMessage('hook foiré');
+    SCWin32.MessageBox(Handle,lsHookErrorText,lsHookErrorCaption,MB_OK or MB_ICONERROR);
     Application.Terminate;
   end;
 end;
@@ -133,6 +144,8 @@ end;
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose:=True;
+
+  WorkThreadList.CancelAllAndWaitTermination(CANCEL_TIMEOUT);
 
   DestroyIpcQueue(IPC_NAME);
   UninjectLibrary(ALL_SESSIONS,DLL_NAME);
@@ -185,14 +198,21 @@ end;
 
 procedure TMainForm.miThreadListClick(Sender: TObject);
 var i:Integer;
-    MenuItem:TMenuItem;
+    MenuItem,CancelSubItem:TMenuItem;
 begin
   for i:=0 to WorkThreadList.Count-1 do
   begin
     MenuItem:=TMenuItem.Create(pmSystray);
     MenuItem.Caption:=WorkThreadList[i].DisplayName;
+    MenuItem.ImageIndex:=miThreadList.ImageIndex;
     MenuItem.Tag:=i;
     miThreadList.Add(MenuItem);
+
+    CancelSubItem:=TMenuItem.Create(pmSystray);
+    CancelSubItem.Caption:=miCancelThread.Caption;
+    CancelSubItem.OnClick:=miCancelThread.OnClick;
+    CancelSubItem.ImageIndex:=miCancelThread.ImageIndex;
+    MenuItem.Add(CancelSubItem);
   end;
 
   // enlever les anciens items
@@ -205,6 +225,53 @@ begin
 
   miActivate.Visible:=not CopyHandlingActive;
   miDeactivate.Visible:=CopyHandlingActive;
+end;
+
+procedure TMainForm.miCancelAllClick(Sender: TObject);
+begin
+  WorkThreadList.CancelAllAndWaitTermination(CANCEL_TIMEOUT);
+end;
+
+procedure TMainForm.miCancelThreadClick(Sender: TObject);
+begin
+  WorkThreadList[(Sender as TMenuItem).Tag].Cancel;
+end;
+
+//******************************************************************************
+// OpenDialog: gère les messages envoyés par SC2Config
+//******************************************************************************
+procedure TMainForm.OpenDialog(var AMsg:TMessage);
+var APoint: TPoint;
+begin
+  case AMsg.WParam of
+    OD_CONFIG:
+    begin
+      miConfig.Click;
+    end;
+    OD_ABOUT:
+    begin
+      miAbout.Click;
+    end;
+    OD_QUIT:
+    begin
+      miExit.Click;
+    end;
+    OD_ONOFF:
+    begin
+      miActivate.Click;
+    end;
+    OD_SHOWMENU:
+    begin
+      GetCursorPos(APoint);
+      Application.ProcessMessages;
+      SetForegroundWindow(Handle);
+
+      pmSystray.PopupComponent := Self;
+      pmSystray.Popup(APoint.X, APoint.Y);
+
+      PostMessage(Handle, WM_NULL, 0, 0);
+    end;
+  end;
 end;
 
 end.

@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls,TntStdCtrls, ComCtrls, TntComCtrls, Controls,
   ExtCtrls, TntExtCtrls, Spin, Menus, TntMenus,SCFilelist,ScBaseList,ShellApi,
   TntDialogs,TntClasses,SCCommon, SCProgessBar, SCTitleBarBt, ScSystray,
-  SCFileNameLabel;
+  SCFileNameLabel, Buttons, TntButtons, ToolWin, ScPopupButton;
 
 const
   WIDTH_DPI_MULTIPLIER=408/96;
@@ -20,9 +20,6 @@ type
   TCopyForm = class(TTntForm)
     llFile: TTntLabel;
     llAll: TTntLabel;
-    btCancel: TTntButton;
-    btSkip: TTntButton;
-    btPause: TTntButton;
     llSpeed: TTntLabel;
     llFromTitle: TTntLabel;
     llToTitle: TTntLabel;
@@ -31,8 +28,6 @@ type
     tsErrors: TTntTabSheet;
     tsOptions: TTntTabSheet;
     lvFileList: TTntListView;
-    llAllRemaining: TTntLabel;
-    llFileRemaining: TTntLabel;
     lvErrorList: TTntListView;
     pmFileContext: TTntPopupMenu;
     miTop: TTntMenuItem;
@@ -66,7 +61,6 @@ type
     llCopyEnd: TTntLabel;
     cbCopyEnd: TTntComboBox;
     sdErrorLog: TTntSaveDialog;
-    btUnfold: TTntButton;
     btSaveDefaultCfg: TTntButton;
     odFileAdd: TTntOpenDialog;
     pmFileAdd: TTntPopupMenu;
@@ -77,23 +71,29 @@ type
     btTitleBar: TSCTitleBarBt;
     Systray: TScSystray;
     tiSystray: TTimer;
-    TntButton1: TTntButton;
-    btFileTop: TTntButton;
-    btFileUp: TTntButton;
-    btFileBottom: TTntButton;
-    btFileDown: TTntButton;
-    btFileAdd: TTntButton;
-    btFileRemove: TTntButton;
-    btFileSave: TTntButton;
-    btFileLoad: TTntButton;
-    btErrorClear: TTntButton;
-    btErrorSaveLog: TTntButton;
     llTo: TSCFileNameLabel;
     llFrom: TSCFileNameLabel;
+    btFileTop: TTntSpeedButton;
+    btFileUp: TTntSpeedButton;
+    btFileDown: TTntSpeedButton;
+    btFileBottom: TTntSpeedButton;
+    btFileAdd: TTntSpeedButton;
+    btFileRemove: TTntSpeedButton;
+    btFileSave: TTntSpeedButton;
+    btFileLoad: TTntSpeedButton;
+    btErrorClear: TTntSpeedButton;
+    btErrorSaveLog: TTntSpeedButton;
+    btCancel: TScPopupButton;
+    btSkip: TScPopupButton;
+    btPause: TScPopupButton;
+    btResume: TScPopupButton;
+    btUnfold: TScPopupButton;
+    btFold: TScPopupButton;
+    pmSystray: TTntPopupMenu;
+    miStCancel: TTntMenuItem;
+    miStPause: TTntMenuItem;
+    miStResume: TTntMenuItem;
     procedure FormCreate(Sender: TObject);
-    procedure btPauseClick(Sender: TObject);
-    procedure btSkipClick(Sender: TObject);
-    procedure btCancelClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure chSpeedLimitClick(Sender: TObject);
     procedure lvFileListData(Sender: TObject; Item: TListItem);
@@ -119,15 +119,20 @@ type
     procedure cbCopyErrorChange(Sender: TObject);
     procedure btErrorSaveLogClick(Sender: TObject);
     procedure pcPagesChange(Sender: TObject);
-    procedure btUnfoldClick(Sender: TObject);
     procedure btSaveDefaultCfgClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btFileAddClick(Sender: TObject);
     procedure miAddFilesClick(Sender: TObject);
     procedure miAddFolderClick(Sender: TObject);
-    procedure btTitleBarClick(Sender: TObject);
     procedure SystrayMouseDown(Sender: TObject);
     procedure tiSystrayTimer(Sender: TObject);
+    procedure btCancelClick(Sender: TObject; ItemIndex: Integer);
+    procedure btSkipClick(Sender: TObject; ItemIndex: Integer);
+    procedure btPauseClick(Sender: TObject; ItemIndex: Integer);
+    procedure btUnfoldClick(Sender: TObject; ItemIndex: Integer);
+    procedure btTitleBarClick(Sender: TObject);
+    procedure miStPauseClick(Sender: TObject);
+    procedure miStCancelClick(Sender: TObject);
   private
     { Déclarations privées }
     SystrayBmp:TBitmap;
@@ -167,7 +172,8 @@ var
 
 implementation
 
-uses DateUtils,SCLocStrings,SCCopyThread, SCCopier,SCWin32,SCConfig, StrUtils,TntSysutils;
+uses DateUtils,SCLocStrings,SCCopyThread, SCCopier,SCWin32,SCConfig, StrUtils,TntSysutils,
+  SCMainForm, ImgList;
 
 var DestIndex:Integer;
 
@@ -326,31 +332,47 @@ begin
     cwsWaiting,
     cwsRecursing:
     begin
+      btPause.Visible:=True;
+      btResume.Visible:=False;
       btPause.Enabled:=False;
+      btResume.Enabled:=False;
       btSkip.Enabled:=False;
       btCancel.Enabled:=True;
     end;
     cwsCopying:
     begin
+      btPause.Visible:=True;
+      btResume.Visible:=False;
       btPause.Enabled:=True;
+      btResume.Enabled:=True;
       btSkip.Enabled:=True;
       btCancel.Enabled:=True;
     end;
     cwsPaused:
     begin
-      llSpeed.Caption:='Paused';
-
+      btPause.Visible:=False;
+      btResume.Visible:=True;
       btPause.Enabled:=True;
+      btResume.Enabled:=True;
       btSkip.Enabled:=True;
       btCancel.Enabled:=True;
     end;
+    cwsCancelling,
     cwsWaitingActionResult:
     begin
       btPause.Enabled:=False;
+      btResume.Enabled:=False;
       btSkip.Enabled:=False;
       btCancel.Enabled:=False;
     end;
   end;
+
+  // menu systray
+  miStPause.Enabled:=btPause.Enabled;
+  miStPause.Visible:=btPause.Visible;
+  miStResume.Enabled:=btResume.Enabled;
+  miStResume.Visible:=btResume.Visible;
+  miStCancel.Enabled:=btCancel.Enabled;
 end;
 
 //******************************************************************************
@@ -383,6 +405,8 @@ begin
     Constraints.MaxHeight:=0;
 
     Height:=UnfoldedHeight;
+    btUnfold.Visible:=False;
+    btFold.Visible:=True;
   end
   else
   begin
@@ -392,6 +416,8 @@ begin
     Constraints.MaxHeight:=Constraints.MinHeight;
 
     Height:=Constraints.MinHeight;
+    btUnfold.Visible:=True;
+    btFold.Visible:=False;
   end;
 end;
 
@@ -438,32 +464,39 @@ var Log:TStringList;
 begin
   Log:=TStringList.Create;
   try
-    // entete
-    Log.Add(Format('*** %s: %s ***',[DateToStr(Date),TCopyThread(CopyThread).DisplayName]));
-
-    // liste des erreurs
-    for i:=0 to lvErrorList.Items.Count-1 do
-      with lvErrorList.Items[i] do
-      begin
-        Log.Add(Format('%s %s %s : %s',[Caption,SubItems[0],SubItems[1],SubItems[2]]));
-      end;
-
-    // on crée le fichier si il n'existe pas et on l'ouvre si il existe
-    if WideFileExists(FileName) then
-      FS:=TFileStream.Create(FileName,fmOpenReadWrite)
-    else
-      FS:=TFileStream.Create(FileName,fmCreate);
-
     try
-      // on se place a la fin du fichier
-      FS.Seek(0,soEnd);
+      // entete
+      Log.Add(Format('*** %s: %s ***',[DateToStr(Date),TCopyThread(CopyThread).DisplayName]));
 
-      Log.SaveToStream(FS);
+      // liste des erreurs
+      for i:=0 to lvErrorList.Items.Count-1 do
+        with lvErrorList.Items[i] do
+        begin
+          Log.Add(Format('%s %s %s : %s',[Caption,SubItems[0],SubItems[1],SubItems[2]]));
+        end;
+
+      // on s'assure sue le rep du log existe
+      WideForceDirectories(WideExtractFilePath(FileName));
+
+      // on crée le fichier si il n'existe pas et on l'ouvre si il existe
+      if WideFileExists(FileName) then
+        FS:=TFileStream.Create(FileName,fmOpenReadWrite)
+      else
+        FS:=TFileStream.Create(FileName,fmCreate);
+
+      try
+        // on se place a la fin du fichier
+        FS.Seek(0,soEnd);
+
+        Log.SaveToStream(FS);
+      finally
+        FS.Free;
+      end;
     finally
-      FS.Free;
+      Log.Free;
     end;
-  finally
-    Log.Free;
+  except
+    on E:Exception do SCWin32.MessageBox(Handle,E.Message,Caption,MB_ICONERROR);
   end;
 end;
 
@@ -508,16 +541,39 @@ begin
   // chargement apparence des progress
   with Config.Values do
   begin
+    ggFile.FontTxt.Color:=ProgressTextColor;
+    ggFile.FontProgress.Color:=ProgressTextColor;
+    ggFile.FontTxtColor:=ProgressOutlineColor;
+    ggFile.FontProgressColor:=ProgressOutlineColor;
     ggFile.FrontColor1:=ProgressForegroundColor1;
     ggFile.FrontColor2:=ProgressForegroundColor2;
     ggFile.BackColor1:=ProgressBackgroundColor1;
     ggFile.BackColor2:=ProgressBackgroundColor2;
     ggFile.BorderColor:=ProgressBorderColor;
+    ggAll.FontTxt.Color:=ProgressTextColor;
+    ggAll.FontProgress.Color:=ProgressTextColor;
+    ggAll.FontTxtColor:=ProgressOutlineColor;
+    ggAll.FontProgressColor:=ProgressOutlineColor;
     ggAll.FrontColor1:=ProgressForegroundColor1;
     ggAll.FrontColor2:=ProgressForegroundColor2;
     ggAll.BackColor1:=ProgressBackgroundColor1;
     ggAll.BackColor2:=ProgressBackgroundColor2;
     ggAll.BorderColor:=ProgressBorderColor;
+  end;
+
+  // chargement des glyphs des boutons
+  with MainForm.ilGlobal do
+  begin
+    GetBitmap(12,btFileTop.Glyph);
+    GetBitmap(10,btFileUp.Glyph);
+    GetBitmap(11,btFileDown.Glyph);
+    GetBitmap(13,btFileBottom.Glyph);
+    GetBitmap(14,btFileAdd.Glyph);
+    GetBitmap(15,btFileRemove.Glyph);
+    GetBitmap(17,btFileLoad.Glyph);
+    GetBitmap(16,btFileSave.Glyph);
+    GetBitmap(18,btErrorClear.Glyph);
+    GetBitmap(16,btErrorSaveLog.Glyph);
   end;
 
   // si on ne minimise pas dans le systray, afficher un tab dans la
@@ -550,39 +606,11 @@ begin
 
   // accepter le drag & drop
   DragAcceptFiles(Handle,True);
-end;
 
-procedure TCopyForm.btPauseClick(Sender: TObject);
-begin
-  // ne pas perturber les autres actions
-  if Action=cwaPause then
-  begin
-    Action:=cwaNone;
-  end
-  else
-  begin
-    if Action=cwaNone then
-    begin
-      Action:=cwaPause;
-    end;
-  end;
-end;
+  // réafficher le bouton de titre (qui disparait qunad on change les params de la form)
+  btTitleBar.Refresh;
 
-procedure TCopyForm.btSkipClick(Sender: TObject);
-begin
-  Action:=cwaSkip;
-  State:=cwsWaitingActionResult;
-end;
-
-procedure TCopyForm.btCancelClick(Sender: TObject);
-begin
-  Action:=cwaCancel;
-  State:=cwsWaitingActionResult;
-end;
-
-procedure TCopyForm.btUnfoldClick(Sender: TObject);
-begin
-  Unfolded:=not Unfolded;
+  pcPages.ActivePage:=tsCopyList;
 end;
 
 procedure TCopyForm.btSaveDefaultCfgClick(Sender: TObject);
@@ -592,8 +620,7 @@ end;
 
 procedure TCopyForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  Action:=cwaCancel;
-  State:=cwsWaitingActionResult;
+  btCancelClick(nil,0);
 
   CanClose:=False;
 end;
@@ -651,6 +678,9 @@ end;
 
 procedure TCopyForm.btErrorSaveLogClick(Sender: TObject);
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   sdErrorLog.InitialDir:=TCopyThread(CopyThread).DefaultDir;
   sdErrorLog.FileName:=WideExtractFileName(Config.Values.ErrorLogFileName);
 
@@ -708,6 +738,9 @@ end;
 procedure TCopyForm.btFileSaveClick(Sender: TObject);
 var FS:TTntFileStream;
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   if sdCopyList.Execute then
   begin
     try
@@ -731,6 +764,9 @@ end;
 procedure TCopyForm.btFileLoadClick(Sender: TObject);
 var FS:TTntFileStream;
 begin
+  // HACK: l'OpenDialog/SaveDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   if odCopyList.Execute then
   begin
     try
@@ -818,6 +854,9 @@ procedure TCopyForm.miAddFilesClick(Sender: TObject);
 var i:integer;
 		BaseItem:TBaseItem;
 begin
+  // HACK: l'OpenDialog a comme parent la form principale et il altère son état lorsqu'il est exécuté
+  Windows.SetParent(MainForm.Handle,THandle(HWND_MESSAGE));
+
   if odFileAdd.Execute then
   begin
     if Assigned(NewBaseList) then NewBaseList.Free;
@@ -851,6 +890,101 @@ begin
 
     OpenNewFilesMenu;
   end;
+end;
+
+
+procedure TCopyForm.SystrayMouseDown(Sender: TObject);
+begin
+  Minimized:=False;
+end;
+
+procedure TCopyForm.tiSystrayTimer(Sender: TObject);
+var PrgHeight,PrgPercent:integer;
+begin
+  if Minimized and Systray.Visible then
+  begin
+    // dessin de la mini-progressbar
+    PrgPercent:=Round( (ggAll.Position / ggAll.Max) * 100 );
+    PrgHeight:=16 - Round( (ggAll.Position / ggAll.Max) * 16 );
+
+    with SystrayBmp.Canvas do
+    begin
+      Brush.Color:=Config.Values.ProgressBackgroundColor1;
+      Brush.Style:=bsSolid;
+      FillRect(ClipRect);
+      Brush.Color:=Config.Values.ProgressForegroundColor1;
+      FillRect(Rect(0,PrgHeight,16,16));
+
+      Brush.Style:=bsClear;
+      if State<>cwsPaused then
+      begin
+        if PrgPercent<100 then
+          TextOut(1,0,PaddedIntToStr(PrgPercent,2))
+        else
+          TextOut(3,0,':-)');
+      end
+      else
+      begin
+        MainForm.ilGlobal.GetBitmap(27,SystrayBmp);
+      end;
+    end;
+
+    Systray.Bitmap:=SystrayBmp;
+
+    //hint
+    Systray.Hint:=Caption+#13+llSpeed.Caption;
+  end;
+end;
+
+procedure TCopyForm.btCancelClick(Sender: TObject; ItemIndex: Integer);
+begin
+  Caption:=WideFormat(lsCopyWindowCancellingCaption,[TCopyThread(CopyThread).DisplayName]);
+  
+  Action:=cwaCancel;
+  State:=cwsWaitingActionResult;
+end;
+
+procedure TCopyForm.btSkipClick(Sender: TObject;
+  ItemIndex: Integer);
+begin
+  Action:=cwaSkip;
+  State:=cwsWaitingActionResult;
+end;
+
+procedure TCopyForm.btPauseClick(Sender: TObject; ItemIndex: Integer);
+begin
+  // ne pas perturber les autres actions
+  if Action=cwaPause then
+  begin
+    Action:=cwaNone;
+  end
+  else
+  begin
+    if Action=cwaNone then
+    begin
+      Action:=cwaPause;
+    end;
+  end;
+end;
+
+procedure TCopyForm.btUnfoldClick(Sender: TObject; ItemIndex: Integer);
+begin
+  Unfolded:=not Unfolded;
+end;
+
+procedure TCopyForm.btTitleBarClick(Sender: TObject);
+begin
+  Minimized:=True;
+end;
+
+procedure TCopyForm.miStPauseClick(Sender: TObject);
+begin
+  btPauseClick(nil,0);
+end;
+
+procedure TCopyForm.miStCancelClick(Sender: TObject);
+begin
+  btCancelClick(nil,0);
 end;
 
 //*******************************************************************************
@@ -889,46 +1023,4 @@ begin
     Screen.Cursor:=crDefault;
   end;
 end;
-
-procedure TCopyForm.btTitleBarClick(Sender: TObject);
-begin
-  Minimized:=True;
-end;
-
-procedure TCopyForm.SystrayMouseDown(Sender: TObject);
-begin
-  Minimized:=False;
-end;
-
-procedure TCopyForm.tiSystrayTimer(Sender: TObject);
-var PrgHeight,PrgPercent:integer;
-begin
-  if Minimized and Systray.Visible then
-  begin
-    // dessin de la mini-progressbar
-    PrgPercent:=Round( (ggAll.Position / ggAll.Max) * 100 );
-    PrgHeight:=16 - Round( (ggAll.Position / ggAll.Max) * 16 );
-
-    with SystrayBmp.Canvas do
-    begin
-      Brush.Color:=Config.Values.ProgressBackgroundColor1;
-      Brush.Style:=bsSolid;
-      FillRect(ClipRect);
-      Brush.Color:=Config.Values.ProgressForegroundColor1;
-      FillRect(Rect(0,PrgHeight,16,16));
-
-      Brush.Style:=bsClear;
-      if PrgPercent<100 then
-        TextOut(1,0,PaddedIntToStr(PrgPercent,2))
-      else
-        TextOut(3,0,':-)');
-    end;
-
-    Systray.Bitmap:=SystrayBmp;
-
-    //hint
-    Systray.Hint:=Caption+#13+llSpeed.Caption;
-  end;
-end;
-
 end.

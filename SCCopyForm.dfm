@@ -1,10 +1,10 @@
 object CopyForm: TCopyForm
-  Left = 236
-  Top = 106
+  Left = 388
+  Top = 101
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = 'CopyForm'
-  ClientHeight = 405
+  ClientHeight = 397
   ClientWidth = 400
   Color = clBtnFace
   Constraints.MinHeight = 169
@@ -21,7 +21,7 @@ object CopyForm: TCopyForm
   OnDestroy = FormDestroy
   DesignSize = (
     400
-    405)
+    397)
   PixelsPerInch = 96
   TextHeight = 13
   object ggAll: TSCProgessBar
@@ -35,6 +35,18 @@ object CopyForm: TCopyForm
     FrontColor2 = clBlue
     BackColor1 = clGray
     BackColor2 = clWhite
+    FontProgress.Charset = DEFAULT_CHARSET
+    FontProgress.Color = clWhite
+    FontProgress.Height = -11
+    FontProgress.Name = 'MS Sans Serif'
+    FontProgress.Style = [fsBold]
+    FontProgressColor = clBlack
+    FontTxt.Charset = DEFAULT_CHARSET
+    FontTxt.Color = clWhite
+    FontTxt.Height = -11
+    FontTxt.Name = 'MS Sans Serif'
+    FontTxt.Style = []
+    FontTxtColor = clBlack
     Max = 100
   end
   object llFile: TTntLabel
@@ -78,22 +90,6 @@ object CopyForm: TCopyForm
     Height = 13
     Caption = 'To:'
   end
-  object llAllRemaining: TTntLabel
-    Left = 288
-    Top = 50
-    Width = 105
-    Height = 13
-    Anchors = [akTop, akRight]
-    AutoSize = False
-    Caption = 'llAllRemaining'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clRed
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    Transparent = True
-  end
   object ggFile: TSCProgessBar
     Left = 8
     Top = 88
@@ -105,23 +101,19 @@ object CopyForm: TCopyForm
     FrontColor2 = clBlue
     BackColor1 = clGray
     BackColor2 = clWhite
+    FontProgress.Charset = DEFAULT_CHARSET
+    FontProgress.Color = clWhite
+    FontProgress.Height = -11
+    FontProgress.Name = 'MS Sans Serif'
+    FontProgress.Style = [fsBold]
+    FontProgressColor = clBlack
+    FontTxt.Charset = DEFAULT_CHARSET
+    FontTxt.Color = clWhite
+    FontTxt.Height = -11
+    FontTxt.Name = 'MS Sans Serif'
+    FontTxt.Style = []
+    FontTxtColor = clBlack
     Max = 100
-  end
-  object llFileRemaining: TTntLabel
-    Left = 289
-    Top = 90
-    Width = 104
-    Height = 13
-    Anchors = [akTop, akRight]
-    AutoSize = False
-    Caption = 'llFileRemaining'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clRed
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    Transparent = True
   end
   object llTo: TSCFileNameLabel
     Left = 40
@@ -137,59 +129,120 @@ object CopyForm: TCopyForm
     Top = 0
     Width = 353
     Height = 13
+    Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llFrom'
-  end
-  object btCancel: TTntButton
-    Left = 330
-    Top = 116
-    Width = 65
-    Height = 25
-    Anchors = [akTop, akRight]
-    Caption = 'btCancel'
-    TabOrder = 0
-    OnClick = btCancelClick
-  end
-  object btSkip: TTntButton
-    Left = 258
-    Top = 116
-    Width = 65
-    Height = 25
-    Anchors = [akTop, akRight]
-    Caption = 'btSkip'
-    TabOrder = 1
-    OnClick = btSkipClick
-  end
-  object btPause: TTntButton
-    Left = 186
-    Top = 116
-    Width = 65
-    Height = 25
-    Anchors = [akTop, akRight]
-    Caption = 'btPause'
-    TabOrder = 2
-    OnClick = btPauseClick
   end
   object pcPages: TTntPageControl
     Left = -1
     Top = 150
     Width = 404
-    Height = 259
+    Height = 251
     ActivePage = tsCopyList
     Anchors = [akLeft, akTop, akRight, akBottom]
+    Images = MainForm.ilGlobal
     MultiLine = True
-    TabOrder = 3
+    TabOrder = 1
     OnChange = pcPagesChange
     object tsCopyList: TTntTabSheet
       Caption = 'Copy list'
+      ImageIndex = 8
       DesignSize = (
         396
-        231)
+        222)
+      object btFileTop: TTntSpeedButton
+        Left = 0
+        Top = 0
+        Width = 25
+        Height = 25
+        Hint = 'Move files to top'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btFileTopClick
+      end
+      object btFileUp: TTntSpeedButton
+        Left = 0
+        Top = 28
+        Width = 25
+        Height = 25
+        Hint = 'Move files up'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btFileUpClick
+      end
+      object btFileDown: TTntSpeedButton
+        Left = 0
+        Top = 56
+        Width = 25
+        Height = 25
+        Hint = 'Move files down'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btFileDownClick
+      end
+      object btFileBottom: TTntSpeedButton
+        Left = 0
+        Top = 84
+        Width = 25
+        Height = 25
+        Hint = 'Move files to bottom'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btFileBottomClick
+      end
+      object btFileAdd: TTntSpeedButton
+        Left = 0
+        Top = 117
+        Width = 25
+        Height = 25
+        Hint = 'Add files'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btFileAddClick
+      end
+      object btFileRemove: TTntSpeedButton
+        Left = 0
+        Top = 145
+        Width = 25
+        Height = 25
+        Hint = 'Remove files'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btFileRemoveClick
+      end
+      object btFileSave: TTntSpeedButton
+        Left = 0
+        Top = 178
+        Width = 25
+        Height = 25
+        Hint = 'Save copy list'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btFileSaveClick
+      end
+      object btFileLoad: TTntSpeedButton
+        Left = 0
+        Top = 206
+        Width = 25
+        Height = 25
+        Hint = 'Load copy list'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btFileLoadClick
+      end
       object lvFileList: TTntListView
         Left = 25
         Top = 0
         Width = 371
-        Height = 230
+        Height = 221
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -224,103 +277,46 @@ object CopyForm: TCopyForm
         ViewStyle = vsReport
         OnData = lvFileListData
       end
-      object btFileTop: TTntButton
-        Left = 0
-        Top = 0
-        Width = 25
-        Height = 25
-        Caption = 'T'
-        TabOrder = 1
-        TabStop = False
-        OnClick = btFileTopClick
-      end
-      object btFileUp: TTntButton
-        Left = 0
-        Top = 28
-        Width = 25
-        Height = 25
-        Caption = 'U'
-        TabOrder = 2
-        TabStop = False
-        OnClick = btFileUpClick
-      end
-      object btFileBottom: TTntButton
-        Left = 0
-        Top = 84
-        Width = 25
-        Height = 25
-        Caption = 'B'
-        TabOrder = 3
-        TabStop = False
-        OnClick = btFileBottomClick
-      end
-      object btFileDown: TTntButton
-        Left = 0
-        Top = 56
-        Width = 25
-        Height = 25
-        Caption = 'D'
-        TabOrder = 4
-        TabStop = False
-        OnClick = btFileDownClick
-      end
-      object btFileAdd: TTntButton
-        Left = 0
-        Top = 116
-        Width = 25
-        Height = 24
-        Caption = 'A'
-        TabOrder = 5
-        TabStop = False
-        OnClick = btFileAddClick
-      end
-      object btFileRemove: TTntButton
-        Left = 0
-        Top = 144
-        Width = 25
-        Height = 25
-        Caption = 'R'
-        TabOrder = 6
-        TabStop = False
-        OnClick = btFileRemoveClick
-      end
-      object btFileSave: TTntButton
-        Left = 0
-        Top = 177
-        Width = 25
-        Height = 25
-        Caption = 'S'
-        TabOrder = 7
-        TabStop = False
-        OnClick = btFileSaveClick
-      end
-      object btFileLoad: TTntButton
-        Left = 0
-        Top = 206
-        Width = 25
-        Height = 25
-        Caption = 'L'
-        TabOrder = 8
-        TabStop = False
-        OnClick = btFileLoadClick
-      end
     end
     object tsErrors: TTntTabSheet
-      Caption = 'Errors'
+      Caption = 'Error log'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = []
+      ImageIndex = 9
       ParentFont = False
       DesignSize = (
         396
-        231)
+        222)
+      object btErrorClear: TTntSpeedButton
+        Left = 0
+        Top = 0
+        Width = 25
+        Height = 25
+        Hint = 'Clear log'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btErrorClearClick
+      end
+      object btErrorSaveLog: TTntSpeedButton
+        Left = 0
+        Top = 28
+        Width = 25
+        Height = 25
+        Hint = 'Save log'
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btErrorSaveLogClick
+      end
       object lvErrorList: TTntListView
         Left = 25
         Top = 0
         Width = 371
-        Height = 230
+        Height = 220
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -331,6 +327,7 @@ object CopyForm: TCopyForm
           end
           item
             Caption = 'Action'
+            Width = 75
           end
           item
             Caption = 'Target'
@@ -355,32 +352,13 @@ object CopyForm: TCopyForm
         ViewStyle = vsReport
         OnData = lvFileListData
       end
-      object btErrorClear: TTntButton
-        Left = 0
-        Top = 0
-        Width = 25
-        Height = 25
-        Caption = 'C'
-        TabOrder = 1
-        TabStop = False
-        OnClick = btErrorClearClick
-      end
-      object btErrorSaveLog: TTntButton
-        Left = 0
-        Top = 28
-        Width = 25
-        Height = 25
-        Caption = 'S'
-        TabOrder = 2
-        TabStop = False
-        OnClick = btErrorSaveLogClick
-      end
     end
     object tsOptions: TTntTabSheet
       Caption = 'Options'
+      ImageIndex = 4
       DesignSize = (
         396
-        231)
+        222)
       object gbSpeedLimit: TTntGroupBox
         Left = 8
         Top = 51
@@ -629,51 +607,123 @@ object CopyForm: TCopyForm
         Width = 116
         Height = 25
         Anchors = [akTop, akRight]
-        Caption = 'btSaveDefaultCfg'
+        Caption = 'Set as default'
         TabOrder = 4
         OnClick = btSaveDefaultCfgClick
       end
     end
   end
-  object btUnfold: TTntButton
-    Left = 114
+  object btCancel: TScPopupButton
+    Left = 329
     Top = 116
     Width = 65
     Height = 25
+    TabOrder = 0
+    TabStop = True
     Anchors = [akTop, akRight]
-    Caption = 'btUnfold'
+    ItemIndex = 0
+    Caption = 'Cancel'
+    ImageIndex = 6
+    ImageList = MainForm.ilGlobal
+    OnClick = btCancelClick
+  end
+  object btSkip: TScPopupButton
+    Left = 257
+    Top = 116
+    Width = 65
+    Height = 25
+    TabOrder = 6
+    TabStop = True
+    Anchors = [akTop, akRight]
+    ItemIndex = 0
+    Caption = 'Skip'
+    ImageIndex = 19
+    ImageList = MainForm.ilGlobal
+    OnClick = btSkipClick
+  end
+  object btPause: TScPopupButton
+    Left = 185
+    Top = 116
+    Width = 65
+    Height = 25
     TabOrder = 4
+    TabStop = True
+    Anchors = [akTop, akRight]
+    ItemIndex = 0
+    Caption = 'Pause'
+    ImageIndex = 25
+    ImageList = MainForm.ilGlobal
+    OnClick = btPauseClick
+  end
+  object btResume: TScPopupButton
+    Left = 185
+    Top = 116
+    Width = 65
+    Height = 25
+    TabOrder = 5
+    TabStop = True
+    Anchors = [akTop, akRight]
+    ItemIndex = 0
+    Caption = 'Resume'
+    ImageIndex = 26
+    ImageList = MainForm.ilGlobal
+    OnClick = btPauseClick
+  end
+  object btUnfold: TScPopupButton
+    Left = 113
+    Top = 116
+    Width = 65
+    Height = 25
+    TabOrder = 3
+    TabStop = True
+    Anchors = [akTop, akRight]
+    ItemIndex = 0
+    Caption = 'Unfold'
+    ImageIndex = 24
+    ImageList = MainForm.ilGlobal
     OnClick = btUnfoldClick
   end
-  object TntButton1: TTntButton
-    Left = 88
-    Top = 112
-    Width = 17
+  object btFold: TScPopupButton
+    Left = 113
+    Top = 116
+    Width = 65
     Height = 25
-    Caption = 'TntButton1'
-    TabOrder = 5
-    OnClick = btTitleBarClick
+    TabOrder = 2
+    TabStop = True
+    Anchors = [akTop, akRight]
+    ItemIndex = 0
+    Caption = 'Fold up'
+    ImageIndex = 23
+    ImageList = MainForm.ilGlobal
+    OnClick = btUnfoldClick
   end
   object pmFileContext: TTntPopupMenu
+    AutoHotkeys = maManual
+    Images = MainForm.ilGlobal
+    TrackButton = tbLeftButton
     Left = 204
-    Top = 6
+    Top = 334
     object miTop: TTntMenuItem
       Caption = 'Top'
+      ImageIndex = 12
       ShortCut = 16468
       OnClick = btFileTopClick
     end
     object miUp: TTntMenuItem
       Caption = 'Up'
+      ImageIndex = 10
       ShortCut = 16469
       OnClick = btFileUpClick
     end
     object miDown: TTntMenuItem
       Caption = 'Down'
+      ImageIndex = 11
       ShortCut = 16452
       OnClick = btFileDownClick
     end
     object miBottom: TTntMenuItem
       Caption = 'Bottom'
+      ImageIndex = 13
       ShortCut = 16450
       OnClick = btFileBottomClick
     end
@@ -682,6 +732,7 @@ object CopyForm: TCopyForm
     end
     object miRemove: TTntMenuItem
       Caption = 'Remove'
+      ImageIndex = 15
       ShortCut = 46
       OnClick = btFileRemoveClick
     end
@@ -700,8 +751,10 @@ object CopyForm: TCopyForm
     end
   end
   object pmNewFiles: TTntPopupMenu
+    AutoHotkeys = maManual
+    TrackButton = tbLeftButton
     Left = 236
-    Top = 6
+    Top = 334
     object miDefaultDest: TTntMenuItem
       Caption = 'Use default destination folder ()'
       Default = True
@@ -728,31 +781,33 @@ object CopyForm: TCopyForm
     Filter = 'SuperCopier2 Copy List (*.scl)|*.scl'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
     Left = 300
-    Top = 6
+    Top = 334
   end
   object sdCopyList: TTntSaveDialog
     DefaultExt = 'scl'
     Filter = 'SuperCopier2 Copy List (*.scl)|*.scl'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 332
-    Top = 6
+    Top = 334
   end
   object sdErrorLog: TTntSaveDialog
     DefaultExt = 'txt'
     FileName = 'errorlog.txt'
     Filter = 'Text files (*.txt)|*.txt'
     Left = 364
-    Top = 6
+    Top = 334
   end
   object odFileAdd: TTntOpenDialog
     Filter = 'Any file (*.*)'
     Options = [ofHideReadOnly, ofAllowMultiSelect, ofPathMustExist, ofFileMustExist, ofShareAware, ofEnableSizing]
     Left = 268
-    Top = 6
+    Top = 334
   end
   object pmFileAdd: TTntPopupMenu
+    AutoHotkeys = maManual
+    TrackButton = tbLeftButton
     Left = 172
-    Top = 6
+    Top = 334
     object miAddFiles: TTntMenuItem
       Caption = 'Add files...'
       OnClick = miAddFilesClick
@@ -764,19 +819,42 @@ object CopyForm: TCopyForm
   end
   object btTitleBar: TSCTitleBarBt
     OnClick = btTitleBarClick
-    Left = 139
-    Top = 6
+    Left = 107
+    Top = 334
   end
   object Systray: TScSystray
+    Popup = pmSystray
     Visible = False
     OnMouseDown = SystrayMouseDown
-    Left = 107
-    Top = 6
+    Left = 75
+    Top = 334
   end
   object tiSystray: TTimer
     Interval = 500
     OnTimer = tiSystrayTimer
-    Left = 75
-    Top = 6
+    Left = 43
+    Top = 334
+  end
+  object pmSystray: TTntPopupMenu
+    AutoHotkeys = maManual
+    Images = MainForm.ilGlobal
+    TrackButton = tbLeftButton
+    Left = 140
+    Top = 334
+    object miStResume: TTntMenuItem
+      Caption = 'Resume'
+      ImageIndex = 26
+      OnClick = miStPauseClick
+    end
+    object miStPause: TTntMenuItem
+      Caption = 'Pause'
+      ImageIndex = 25
+      OnClick = miStPauseClick
+    end
+    object miStCancel: TTntMenuItem
+      Caption = 'Cancel'
+      ImageIndex = 6
+      OnClick = miStCancelClick
+    end
   end
 end

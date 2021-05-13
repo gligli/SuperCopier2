@@ -5,20 +5,20 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
   Dialogs, StdCtrls, TntStdCtrls, ComCtrls, TntComCtrls, ExtCtrls,
-  TntExtCtrls,SCCommon;
+  TntExtCtrls,SCCommon, ScPopupButton;
 
 type
   TDiskSpaceForm = class(TTntForm)
     llDiskSpaceText1: TTntLabel;
     lvDiskSpace: TTntListView;
     llDiskSpaceText2: TTntLabel;
-    btCancel: TTntButton;
-    btForce: TTntButton;
     imIcon: TTntImage;
+    btCancel: TScPopupButton;
+    btForce: TScPopupButton;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure btForceClick(Sender: TObject);
-    procedure btCancelClick(Sender: TObject);
+    procedure btForceClick(Sender: TObject; ItemIndex: Integer);
+    procedure btCancelClick(Sender: TObject; ItemIndex: Integer);
   private
     { Déclarations privées }
     procedure DisableButtons;
@@ -54,13 +54,14 @@ begin
   DisableButtons;
 end;
 
-procedure TDiskSpaceForm.btForceClick(Sender: TObject);
+procedure TDiskSpaceForm.btForceClick(Sender: TObject; ItemIndex: Integer);
 begin
   Action:=dsaForce;
   DisableButtons;
 end;
 
-procedure TDiskSpaceForm.btCancelClick(Sender: TObject);
+procedure TDiskSpaceForm.btCancelClick(Sender: TObject;
+  ItemIndex: Integer);
 begin
   Action:=dsaCancel;
   DisableButtons;

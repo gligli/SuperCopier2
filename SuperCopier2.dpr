@@ -28,7 +28,10 @@ uses
   SCCollisionRenameForm in 'SCCollisionRenameForm.pas' {CollisionRenameForm},
   SCCopyErrorForm in 'SCCopyErrorForm.pas' {CopyErrorForm},
   SCConfigForm in 'SCConfigForm.pas' {ConfigForm},
-  SCAboutForm in 'SCAboutForm.pas' {AboutForm};
+  SCAboutForm in 'SCAboutForm.pas' {AboutForm},
+  SCWideUnbufferedCopier in 'SCWideUnbufferedCopier.pas',
+  SCAnsiBufferedCopier in 'SCAnsiBufferedCopier.pas',
+  SCConfigShared in 'SCConfigShared.pas';
 
 {$R *.res}
 

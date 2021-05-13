@@ -45,7 +45,10 @@ type
     ProgressBackgroundColor1:TColor;
     ProgressBackgroundColor2:TColor;
     ProgressBorderColor:TColor;
+    ProgressTextColor:TColor;
+    ProgressOutlineColor:TColor;
     MinimizedEventHandling:TMinimizedEventHandling;
+    FailSafeCopier:Boolean;
   end;
 
   TConfig=class
@@ -162,11 +165,14 @@ const
     ProgressBackgroundColor1:clGray;
     ProgressBackgroundColor2:clWhite;
     ProgressBorderColor:clBlack;
+    ProgressTextColor:clWhite;
+    ProgressOutlineColor:clBlack;
     MinimizedEventHandling:mehShowBalloon;
+    FailSafeCopier:False;
   );
 
   CONFIG_REGISTRY_KEY='Software\SFX TEAM\SuperCopier2';
-
+  AUTORUN_REGISTRY_KEY='\Software\Microsoft\Windows\CurrentVersion\Run';
 var
   Config:TConfig;
   ConfigLocation:TConfigLocation;
@@ -183,6 +189,7 @@ uses SysUtils, StrUtils,TntForms,TntSysutils,SCWin32,SCMainForm;
 //******************************************************************************
 procedure OpenConfig;
 var IniFileName:WideString;
+    Reg:TRegistry;
 begin
   IniFileName:=ChangeFileExt(TntApplication.ExeName,'.ini');
 
@@ -198,6 +205,17 @@ begin
   end;
 
   Config.LoadConfig;
+
+	//lecture de l'état de l'autorun
+  Reg:=TRegistry.Create;
+  try
+    Reg.RootKey := HKEY_CURRENT_USER;
+    if Reg.OpenKey(AUTORUN_REGISTRY_KEY, True) then
+      Config.Values.StartWithWindows:=Reg.ValueExists(WideExtractFileName(TntApplication.ExeName));
+  finally
+    Reg.CloseKey;
+    Reg.Free;
+  end;
 end;
 
 //******************************************************************************
@@ -206,7 +224,24 @@ end;
 procedure CloseConfig;
 var IniFileName:WideString;
     NewConfig:TConfig;
+    Reg:TRegistry;
 begin
+  //mise en place de l'autorun
+  Reg:=TRegistry.Create;
+  try
+    Reg.RootKey := HKEY_CURRENT_USER;
+    if Reg.OpenKey(AUTORUN_REGISTRY_KEY, True) then
+    begin
+      if Config.Values.StartWithWindows then
+        Reg.WriteString(WideExtractFileName(TntApplication.ExeName),TntApplication.ExeName)
+      else
+        Reg.DeleteValue(WideExtractFileName(TntApplication.ExeName));
+    end;
+  finally
+    Reg.CloseKey;
+    Reg.Free;
+  end;
+
   if (ConfigLocation=clRegistry) and (Config is TIniConfig) then
   begin
     Config.DeleteData;
@@ -307,7 +342,6 @@ begin
       CopyWindowHeight:=ReadInteger('CopyWindowHeight');
       CopyWindowUnfolded:=ReadBoolean('CopyWindowUnfolded');
 
-      StartWithWindows:=ReadBoolean('StartWithWindows');
       ActivateOnStart:=ReadBoolean('ActivateOnStart');
       TrayIcon:=ReadBoolean('TrayIcon');
       MinimizeToTray:=ReadBoolean('MinimizeToTray');
@@ -318,7 +352,10 @@ begin
       ProgressBackgroundColor1:=StringToColor(ReadString('ProgressBackgroundColor1'));
       ProgressBackgroundColor2:=StringToColor(ReadString('ProgressBackgroundColor2'));
       ProgressBorderColor:=StringToColor(ReadString('ProgressBorderColor'));
+      ProgressTextColor:=StringToColor(ReadString('ProgressTextColor'));
+      ProgressOutlineColor:=StringToColor(ReadString('ProgressOutlineColor'));
       MinimizedEventHandling:=TMinimizedEventHandling(ReadInteger('MinimizedEventHandling'));
+      FailSafeCopier:=ReadBoolean('FailSafeCopier');
     except
       LoadDefaultConfig;
     end;
@@ -364,7 +401,6 @@ begin
     WriteInteger('CopyWindowHeight',CopyWindowHeight);
     WriteBoolean('CopyWindowUnfolded',CopyWindowUnfolded);
 
-    WriteBoolean('StartWithWindows',StartWithWindows);
     WriteBoolean('ActivateOnStart',ActivateOnStart);
     WriteBoolean('TrayIcon',TrayIcon);
     WriteBoolean('MinimizeToTray',MinimizeToTray);
@@ -375,7 +411,10 @@ begin
     WriteString('ProgressBackgroundColor1',ColorToString(ProgressBackgroundColor1));
     WriteString('ProgressBackgroundColor2',ColorToString(ProgressBackgroundColor2));
     WriteString('ProgressBorderColor',ColorToString(ProgressBorderColor));
+    WriteString('ProgressTextColor',ColorToString(ProgressTextColor));
+    WriteString('ProgressOutlineColor',ColorToString(ProgressOutlineColor));
     WriteInteger('MinimizedEventHandling',Integer(MinimizedEventHandling));
+    WriteBoolean('FailSafeCopier',FailSafeCopier);
   end;
 end;
 

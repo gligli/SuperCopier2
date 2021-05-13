@@ -13,8 +13,11 @@ lsCreatingCopyList:WideString='Creating copy list, current folder:';
 lsChooseDestDir:WideString='Choose destination folder';
 lsAll:WideString='File %d/%d, Total: %s';
 lsFile:WideString='%s, %s';
-lsSpeed:WideString='%d KB/Sec';
+lsSpeed:WideString='%n KB/Sec';
 lsRemaining:WideString='%s Remaining';
+lsCopyWindowCancellingCaption:WideString='Cancelling - %s';
+lsCopyWindowPausedCaption:WideString='Paused - %s';
+lsCopyWindowWaitingCaption:WideString='Waiting - %s';
 
 lsCollisionFileData:WideString='%s, Modified: %s';
 
@@ -24,6 +27,7 @@ lsListAction:WideString='Listing';
 lsCopyAction:WideString='Copying';
 lsUpdateTimeAction:WideString='Updating time';
 lsUpdateAttributesAction:WideString='Updating attributes';
+lsUpdateSecurityAction:WideString='Updating security';
 
 lsBytes:WideString='Bytes';
 lsKBytes:WideString='KB';
@@ -55,6 +59,11 @@ lsCopyErrorNotifyTitle:WideString='There was a copy error';
 lsCopyErrorNotifyText:WideString='%s'+#13#10+'Filename: %s'+#13#10+'Error: %s';
 lsGenericErrorNotifyTitle:WideString='There was a non blocking error';
 lsGenericErrorNotifyText:WideString='%s'+#13#10+'Action: %s'+#13#10+'Target: %s'+#13#10+'Error: %s';
+lsCopyEndNotifyTitle:WideString='Copy end';
+lsCopyEndNotifyText:WideString='%s'+#13#10+'End speed: %s';
+
+lsHookErrorCaption:WideString='SuperCopier2 can''t run';
+lsHookErrorText:WideString='SuperCopier2 couldn''t attach to processes, this is normal if you ran it twice.';
 
 implementation
 end.

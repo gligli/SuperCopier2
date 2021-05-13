@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
-  Dialogs, ExtCtrls;
+  Dialogs, ExtCtrls, StdCtrls, TntStdCtrls,ShellApi;
 
 const
   COSTAB_LENGTH=2048;
@@ -12,10 +12,25 @@ const
 type
   TAboutForm = class(TTntForm)
     imLogo: TImage;
+    llName: TTntLabel;
+    llStaffTitle: TTntLabel;
+    llStaff1: TTntLabel;
+    llURL: TTntLabel;
+    btOk: TTntButton;
+    llThanksTitle: TTntLabel;
+    llThanks1: TTntLabel;
+    llEmail: TTntLabel;
+    llStaff2: TTntLabel;
+    llThanks2: TLabel;
+    btReadme: TTntButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure imLogoClick(Sender: TObject);
     procedure TntFormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure btOkClick(Sender: TObject);
+    procedure llURLClick(Sender: TObject);
+    procedure llEmailClick(Sender: TObject);
+    procedure btReadmeClick(Sender: TObject);
   private
     { Déclarations privées }
   public
@@ -110,7 +125,7 @@ begin
 
 	// on calule les offsets pour la ligne du haut et du bas
 	n :=(CosTab[t            shr 1 and (COSTAB_LENGTH-1)]-128);
-	n2:=(CosTab[Round(t/1.1) shr 1 and (COSTAB_LENGTH-1)]-128); //
+	n2:=(CosTab[Round(t/1.1) shr 1 and (COSTAB_LENGTH-1)]-128);
 
 	for y:=0 to 255 do
 	begin
@@ -129,6 +144,26 @@ begin
 		TexLine(x3,x4);
 		TexLine(x4,x1);
 	end;
+end;
+
+procedure TAboutForm.btOkClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TAboutForm.llURLClick(Sender: TObject);
+begin
+  ShellExecute(Handle,'open',PChar(String(llURL.Caption)),'','',SW_SHOW);
+end;
+
+procedure TAboutForm.llEmailClick(Sender: TObject);
+begin
+  ShellExecute(Handle,'open',PChar(String('mailto:'+llEmail.Caption+'?subject='+llName.Caption)),'','',SW_SHOW);
+end;
+
+procedure TAboutForm.btReadmeClick(Sender: TObject);
+begin
+  ShellExecute(Handle,'open','ReadMe.txt','','',SW_SHOW);
 end;
 
 end.

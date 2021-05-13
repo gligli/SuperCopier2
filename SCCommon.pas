@@ -13,14 +13,14 @@ type
   TBaselistAddMode=(amDefaultDir,amSpecifyDest,amPromptForDest,amPromptForDestAndSetDefault);
 
   TCopyListHandlingMode=(chmNever,chmAlways,chmSameSource,chmSameDestination,chmSameSourceAndDestination,chmSameSourceorDestination);
-  
+
   TCopyAction=(cpaNextFile,cpaRetry,cpaCancel);
   TCollisionAction=(claNone,claCancel,claSkip,claResume,claOverwrite,claOverwriteIfDifferent,claRenameNew,claRenameOld);
   TCopyErrorAction=(ceaNone,ceaCancel,ceaSkip,ceaRetry,ceaEndOfList);
   TDiskSpaceAction=(dsaNone,dsaCancel,dsaForce);
 
   TCopyWindowAction=(cwaNone,cwaPause,cwaSkip,cwaCancel);
-  TCopyWindowState=(cwsWaiting,cwsRecursing,cwsCopying,cwsPaused,cwsWaitingActionResult);
+  TCopyWindowState=(cwsWaiting,cwsRecursing,cwsCopying,cwsPaused,cwsWaitingActionResult,cwsCancelling);
   TCopyWindowCopyEndAction=(cweClose,cweDontClose,cweDontCloseIfErrors);
 
   TCopyWindowConfigData=record
@@ -63,6 +63,7 @@ function GetVolumeNameString(Path:WideString):WideString;
 function SameVolume(Path1,Path2:WideString):boolean;
 function SamePhysicalDrive(Path1,Path2:WideString):boolean;
 procedure SetProcessPriority(Priority:Cardinal);
+function CopySecurity(const SourceFile:WideString;const DestFile:WideString):Boolean;
 
 procedure dbg(msg:string);overload;
 procedure dbg(val:cardinal);overload;
@@ -409,9 +410,9 @@ begin
   end;
 end;
 
-//*********************************************************************************
-// SetProcessPriority
-//*********************************************************************************
+//******************************************************************************
+// SetProcessPriority: channde la priorité du processus
+//******************************************************************************
 procedure SetProcessPriority(Priority:Cardinal);
 var ph:THandle;
 begin
@@ -419,6 +420,61 @@ begin
   if ph=0 then exit;
   SetPriorityClass(ph,Priority);
   CloseHandle(ph);
+end;
+
+//******************************************************************************
+// CopySecurity: copie les infos de sécurité d'un fichier ou dossier vers un autre
+//******************************************************************************
+function CopySecurity(const SourceFile:WideString;const DestFile:WideString):Boolean;
+var SD:array of byte;
+    SDR:TSecurityDescriptor;
+    LengthNeeded:Cardinal;
+    LastError:Cardinal;
+begin
+  // on tente de lire le SecutityDescriptor avec un buffer de 256 octets
+  SetLength(SD,256);
+  Result:=GetFileSecurityW(PWideChar(SourceFile),
+                    DACL_SECURITY_INFORMATION or GROUP_SECURITY_INFORMATION or
+                    OWNER_SECURITY_INFORMATION or SACL_SECURITY_INFORMATION,
+                    @SD[0],
+                    Length(SD),
+                    LengthNeeded);
+
+  // si le buffer était trop petit, on donne au buffer la taille nécessaire
+  if (not Result) and (GetLastError=ERROR_INSUFFICIENT_BUFFER) then
+  begin
+    SetLength(SD,LengthNeeded);
+    Result:=GetFileSecurityW(PWideChar(SourceFile),
+                      DACL_SECURITY_INFORMATION or GROUP_SECURITY_INFORMATION or
+                      OWNER_SECURITY_INFORMATION or SACL_SECURITY_INFORMATION,
+                      @SD[0],
+                      Length(SD),
+                      LengthNeeded);
+  end;
+
+  // on peut maintenant copier le SD vers le fichier destination
+  if Result then
+  begin
+    SDR:=PSecurityDescriptor(@SD[0])^;
+    if (SDR.Sacl<>nil) or (SDR.Dacl<>nil) then
+    begin
+      Result:=SetFileSecurityW(PWideChar(DestFile),
+                        DACL_SECURITY_INFORMATION or GROUP_SECURITY_INFORMATION or
+                        OWNER_SECURITY_INFORMATION or SACL_SECURITY_INFORMATION,
+                        @SD[0]);
+    end;
+  end;
+
+  // échouer silencieusmeent si l'on a pas le droit de lire ou écrire la sécurité
+  LastError:=GetLastError;
+  if not Result and
+      (LastError=ERROR_ACCESS_DENIED) or
+      (LastError=ERROR_PRIVILEGE_NOT_HELD) or
+      (LastError=ERROR_INVALID_OWNER) or
+      (LastError=ERROR_INVALID_PRIMARY_GROUP) then Result:=True;
+
+
+  SetLength(SD,0);
 end;
 
 //******************************************************************************

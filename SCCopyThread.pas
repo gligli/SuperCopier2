@@ -3,13 +3,14 @@ unit SCCopyThread;
 interface
 
 uses
-  Windows,Commctrl,Classes,SCObjectThreadList,SCWorkThread,SCWorkThreadList,SCCopier,SCCommon,
+  Windows,Commctrl,Classes,SCObjectThreadList,SCWorkThread,SCWorkThreadList,SCCopier,SCAnsiBufferedCopier,SCWideUnbufferedCopier,SCCommon,
   SCConfig,SCBaseList,SCDirList,SCSystray,SCCopyForm,SCDiskSpaceForm,SCCollisionForm,SCCopyErrorForm,Forms,TntForms;
 
 type
   TCopyThread=class(TWorkThread)
   private
     Copier:TCopier;
+    CancelPending:Boolean;
 
     WaitingBaseList:TBaseList;
     WaitingBaseListDestDir:WideString;
@@ -23,6 +24,7 @@ type
     LastCopiedSize:Int64;
     NumSamples,CurrentSample:Integer;
     SpeedSamples:array of integer;
+    SpeedSamplesFirstPass:Boolean;
     CopySpeed:Integer;
 
     ThrottleLastTime:Integer;
@@ -39,7 +41,7 @@ type
         ConfigDataModifiedByThread:Boolean; // mettre a true si la config doit être copiée de la thread vers la fenêtre
         lvErrorListEmpty:Boolean;
 
-
+        FormCaption,
         llFromCaption,
         llToCaption,
         llFileCaption,
@@ -126,13 +128,14 @@ type
     function LockCopier:TCopier;
     procedure UnlockCopier;
     procedure UpdateCopyWindow;
+    procedure Cancel;override;
   end;
 
 
 implementation
 
 uses SysUtils,TntSysUtils,FileCtrl,SCLocStrings, TntComCtrls,
-  SCFileList, StrUtils, MaskUtils;
+  SCFileList, StrUtils, MaskUtils,SCWin32;
 
 //******************************************************************************
 //******************************************************************************
@@ -152,7 +155,12 @@ begin
   FreeOnTerminate:=True;
   FThreadType:=wttCopy;
 
-  Copier:=TAnsiBufferedCopier.Create; //TODO: choisir le copier en fonction de l'os et de la config
+  // on choisis le copier en fonction de la config et de l'OS
+  if Config.Values.FailSafeCopier or (Win32Platform<>VER_PLATFORM_WIN32_NT) then
+    Copier:=TAnsiBufferedCopier.Create
+  else
+    Copier:=TWideUnbufferedCopier.Create;
+
   Copier.BufferSize:=Config.Values.CopyBufferSize;
 
   WaitingBaseList:=nil;
@@ -160,8 +168,13 @@ begin
   SrcDir:='?';
   FIsMove:=PIsMove;
   LastCopyErrorFile:='';
+  CancelPending:=False;
 
-  NumSamples:=Config.Values.CopySpeedAveragingInterval div Config.Values.CopyWindowUpdateInterval;
+  // init calcul vitesse
+  NumSamples:=0;
+  if Config.Values.CopyWindowUpdateInterval<>0 then
+    NumSamples:=Config.Values.CopySpeedAveragingInterval div Config.Values.CopyWindowUpdateInterval;
+  if NumSamples=0 then NumSamples:=1;
   SetLength(SpeedSamples,NumSamples);
 
   // évènements du copier
@@ -348,92 +361,117 @@ end;
 // Execute: corps de la thread, sers de chef d'orchestre pour le copier
 //******************************************************************************
 procedure TCopyThread.Execute;
-var CopyError:Boolean;
+var CopyError,UnfinishedCopy:Boolean;
 begin
-  repeat
-    // attendre les données
-    while (not CheckWaitingBaseList) and (Copier.FileList.Count=0) and (Sync.Copy.Action<>cwaCancel) do
-    begin
-      Sync.Copy.State:=cwsWaiting;
-      Synchronize(SyncUpdateCopy);
-      Sleep(DEFAULT_WAIT);
-    end;
-
-    // init des veriables servant a calculer la vitesse
-    LastCopyWindowUpdate:=GetTickCount;
-    LastCopiedSize:=Copier.CopiedSize;
-    CurrentSample:=-1;
-    CopySpeed:=0;
-
-    ThrottleLastTime:=GetTickCount;
-    ThrottleLastCopiedSize:=Copier.CopiedSize;
-
-    if Copier.FirstCopy then
-    begin
-      dbgln('Copy Start');
-
-      // boucle principale
+  try
+    try
       repeat
-        // vérifier si il y a une baselist en attente
-        CheckWaitingBaseList;
-
-        // màj de lvFileItems
-        Synchronize(SyncUpdateFileListview);
-
-        // màj de la fenêtre
-        Sync.Copy.State:=cwsCopying;
         UpdateCopyWindow;
-
-        if Copier.ManageFileAction then
+        // attendre les données
+        while (not CheckWaitingBaseList) and (Sync.Copy.Action<>cwaCancel) and (not CancelPending) do
         begin
-//          dbgln('Copying: '+Copier.CurrentCopy.FileItem.SrcFullName);
-//          dbgln('      -> '+Copier.CurrentCopy.FileItem.DestFullName);
-
-          Copier.CurrentCopy.DirItem.VerifyOrCreate;
-
-          CopyError:=not Copier.DoCopy;
-          if not CopyError then
-          begin
-            if (Config.Values.SaveAttributesOnCopy and not IsMove) or
-               (Config.Values.SaveAttributesOnMove and IsMove) then
-              Copier.CopyAttributes;
-
-            if FIsMove then Copier.DeleteSrcFile;
-          end;
-
-          // gestion suppression copies non terminées
-          if (Copier.CurrentCopy.CopiedSize+Copier.CurrentCopy.SkippedSize<>Copier.CurrentCopy.FileItem.SrcSize) and
-             Config.Values.DeleteUnfinishedCopies and
-             not (CopyError and Config.Values.DontDeleteOnCopyError) then
-          begin
-            Copier.DeleteDestFile;
-          end;
+          Sync.Copy.State:=cwsWaiting;
+          UpdateCopyWindow;
+          Sleep(DEFAULT_WAIT);
         end;
 
-      until not Copier.NextCopy;
+        // init des veriables servant a calculer la vitesse
+        LastCopyWindowUpdate:=GetTickCount;
+        LastCopiedSize:=Copier.CopiedSize;
+        CurrentSample:=-1;
+        CopySpeed:=0;
+        SpeedSamplesFirstPass:=True;
 
-      dbgln('Copy End');
+        ThrottleLastTime:=GetTickCount;
+        ThrottleLastCopiedSize:=Copier.CopiedSize;
+
+        if Copier.FirstCopy then
+        begin
+          dbgln('Copy Start');
+
+          // boucle principale
+          repeat
+            // vérifier si il y a une baselist en attente
+            CheckWaitingBaseList;
+
+            // màj de lvFileItems
+            Synchronize(SyncUpdateFileListview);
+
+            // màj de la fenêtre
+            Sync.Copy.State:=cwsCopying;
+            UpdateCopyWindow;
+
+            if Copier.ManageFileAction then
+            begin
+    //          dbgln('Copying: '+Copier.CurrentCopy.FileItem.SrcFullName);
+    //          dbgln('      -> '+Copier.CurrentCopy.FileItem.DestFullName);
+
+              Copier.CurrentCopy.DirItem.VerifyOrCreate;
+
+              CopyError:=not Copier.DoCopy;
+              UnfinishedCopy:=(Copier.CurrentCopy.CopiedSize+Copier.CurrentCopy.SkippedSize)<Copier.CurrentCopy.FileItem.SrcSize;
+              if not CopyError then
+              begin
+                if (Config.Values.SaveAttributesOnCopy and not IsMove) or
+                   (Config.Values.SaveAttributesOnMove and IsMove) then
+                begin
+                  Copier.CopyAttributesAndSecurity;
+                end;
+
+                // déplacement et le fichier à été copié en entier -> on peut supprimer le source
+                if FIsMove and not UnfinishedCopy then
+                     Copier.DeleteSrcFile;
+              end;
+
+              // gestion suppression copies non terminées
+              if UnfinishedCopy and Config.Values.DeleteUnfinishedCopies and
+                 not (CopyError and Config.Values.DontDeleteOnCopyError) then
+              begin
+                Copier.DeleteDestFile;
+              end;
+            end;
+
+            if CancelPending then Copier.CurrentCopy.NextAction:=cpaCancel;
+          until not Copier.NextCopy;
+
+          dbgln('Copy End');
+        end;
+
+        // tout afficher a 100% si la fenêtre reste ouverte alors que la copie est finie
+        Sync.Copy.ggFileProgress:=Sync.Copy.ggFileMax;
+        Sync.Copy.ggAllProgress:=Sync.Copy.ggAllMax;
+        Synchronize(SyncUpdateFileListview); // lvFileList n'est pas à jour après la copie du dernier item
+
+        // notifier de la fin de la copie
+        with Sync.Copy.Notification do
+        begin
+          TargetForm:=nil;
+          IconType:=IBInfo;
+          Title:=lsCopyEndNotifyTitle;
+          Text:=WideFormat(lsCopyEndNotifyText,[DisplayName,Sync.Copy.llSpeedCaption]);
+        end;
+        Synchronize(SyncShowNotificationBalloon);
+
+        // créer les reps vide et supprimer les reps source
+        if Copier.CurrentCopy.NextAction<>cpaCancel then
+        begin
+          Copier.CreateEmptyDirs;
+
+          if FIsMove then Copier.DeleteSrcDirs;
+        end;
+
+      // on boucle tant que la fenêtre de copie doit rester ouverte
+      until (Sync.Copy.Action=cwaCancel) or (Copier.CurrentCopy.NextAction=cpaCancel) or
+            (Sync.Copy.ConfigData.CopyEndAction=cweClose) or
+            ((Sync.Copy.ConfigData.CopyEndAction=cweDontCloseIfErrors) and Sync.Copy.lvErrorListEmpty);
+    except
+      // afficher les exception qui n'ont pas étées trappées (et qui sont de toute façon des bugs)
+      on E:Exception do SCWin32.MessageBox(Sync.Copy.Form.Handle,E.Message,'SuperCopier2 - Critical error!',MB_ICONERROR);
     end;
-
-    // tout afficher a 100% si la fenêtre reste ouverte alors que la copie est finie
-    Sync.Copy.ggFileProgress:=Sync.Copy.ggFileMax;
-    Sync.Copy.ggAllProgress:=Sync.Copy.ggAllMax;
-    Synchronize(SyncUpdateFileListview); // lvFileList n'est pas à jour après la copie du dernier item
-
-    // créer les reps vide et supprimer les reps source
-    if Copier.CurrentCopy.NextAction<>cpaCancel then
-    begin
-      Copier.CreateEmptyDirs;
-
-      if FIsMove then Copier.DeleteSrcDirs;
-    end;
-
-  // on boucle tant que la fenêtre de copie doit rester ouverte
-  until (Sync.Copy.Action=cwaCancel) or (Copier.CurrentCopy.NextAction=cpaCancel) or
-        (Sync.Copy.ConfigData.CopyEndAction=cweClose) or
-        ((Sync.Copy.ConfigData.CopyEndAction=cweDontCloseIfErrors) and Sync.Copy.lvErrorListEmpty);
-
-  WorkThreadList.Remove(Self); // dé-rescencer la thread
+  finally
+    // dé-rescencer la thread
+    WorkThreadList.Remove(Self);
+  end;
 end;
 
 //******************************************************************************
@@ -467,11 +505,12 @@ begin
       end;
       Synchronize(SyncShowNotificationBalloon);
 
-      while Action=claNone do
+      while (Action=claNone) and (not CancelPending) do
       begin
         Synchronize(SyncCheckCollision);
         Sleep(DEFAULT_WAIT);
       end;
+      if CancelPending then Action:=claCancel;
 
       Synchronize(SyncEndCollision);
 
@@ -517,11 +556,12 @@ begin
   Sync.DiskSpace.Volumes:=Volumes;
   Synchronize(SyncInitDiskSpace);
 
-  while Sync.DiskSpace.Action=dsaNone do
+  while (Sync.DiskSpace.Action=dsaNone) and (not CancelPending) do
   begin
     Synchronize(SyncCheckDiskSpace);
     Sleep(DEFAULT_WAIT);
   end;
+  if CancelPending then Sync.DiskSpace.Action:=dsaCancel;
 
   Synchronize(SyncEndDiskSpace);
 
@@ -564,11 +604,12 @@ begin
       end;
       Synchronize(SyncShowNotificationBalloon);
 
-      while Action=ceaNone do
+      while (Action=ceaNone) and (not CancelPending) do
       begin
         Synchronize(SyncCheckCopyError);
         Sleep(DEFAULT_WAIT);
       end;
+      if CancelPending then Action:=ceaCancel;
 
       Synchronize(SyncEndCopyError);
 
@@ -633,7 +674,7 @@ var CurTime:Integer;
   procedure ComputeCopySpeed;
   var TempCopySpeed,TempCopyTime:integer;
       Total:Int64;
-      i:Integer;
+      i,UsedSamples:Integer;
   begin
     // calcul de la vitesse instantanée
     TempCopyTime:=CurTime-LastCopyWindowUpdate;
@@ -645,27 +686,21 @@ var CurTime:Integer;
 
     LastCopiedSize:=Copier.CopiedSize;
 
-    if CurrentSample=-1 then // premier calcul de vitesse?
-    begin
-      // on remplit la liste des samples avec la valeur instantanée
-      for i:=0 to NumSamples-1 do
-        SpeedSamples[i]:=TempCopySpeed;
-
-      CurrentSample:=0;
-    end
-    else
-    begin
-      // ajout à la liste des précédentes vitesses
-      CurrentSample:=(CurrentSample+1) mod NumSamples;
-      SpeedSamples[CurrentSample]:=TempCopySpeed;
-    end;
-
+    // ajout à la liste des précédentes vitesses
+    CurrentSample:=(CurrentSample+1) mod NumSamples;
+    SpeedSamples[CurrentSample]:=TempCopySpeed;
+    if CurrentSample=NumSamples-1 then SpeedSamplesFirstPass:=False;
 
     // on fait la moyenne pour avoir la vitesse à afficher
     Total:=0;
-    for i:=0 to NumSamples-1 do
+    if SpeedSamplesFirstPass then
+      UsedSamples:=CurrentSample+1
+    else
+      UsedSamples:=NumSamples;
+
+    for i:=0 to UsedSamples-1 do
       Total:=Total+SpeedSamples[i];
-    CopySpeed:=Total div NumSamples;
+    CopySpeed:=Total div UsedSamples;
   end;
 
   //ComputeThrottleCopySpeed: calcul de la vitesse de copie lorsque la limitation de vitesse est activée
@@ -720,6 +755,10 @@ begin
 
       ThrottleLastTime:=CurTime;
       ThrottleLastCopiedSize:=Copier.CopiedSize;
+    end
+    else
+    begin
+      Synchronize(SyncUpdateCopy);
     end;
   end;
 
@@ -728,7 +767,7 @@ begin
   begin
     Sync.Copy.State:=cwsPaused;
 
-    while Sync.Copy.State=cwsPaused do
+    while (Sync.Copy.State=cwsPaused) and not CancelPending do
     begin
       CheckWaitingBaseList;
       UpdateCopyWindow;
@@ -743,7 +782,7 @@ begin
   end;
 
   // gestion Skip/Cancel
-  Result:=not (Sync.Copy.Action in [cwaSkip,cwaCancel]);
+  Result:=(not (Sync.Copy.Action in [cwaSkip,cwaCancel])) and (not CancelPending);
 end;
 
 //******************************************************************************
@@ -767,10 +806,13 @@ end;
 procedure TCopyThread.UpdateCopyWindow;
 var TmpStr:String;
     AllRemaining,FileRemaining:TDateTime;
+    Percent:Integer;
 
   //ComputeRemainingTime: calcul du temps restant
   procedure ComputeRemainingTime;
   begin
+    AllRemaining:=0;
+    FileRemaining:=0;
     if CopySpeed<>0 then
       with Copier do
       begin
@@ -780,12 +822,26 @@ var TmpStr:String;
   end;
 
 begin
-  if Assigned(Copier.CurrentCopy.FileItem) and (Copier.FileList.Count>0) then
+  with Sync.Copy,Copier do
   begin
-    ComputeRemainingTime;
+    Case State of
+      cwsWaiting:
+        FormCaption:=WideFormat(lsCopyWindowWaitingCaption,[GetDisplayName]);
+      cwsPaused:
+        FormCaption:=WideFormat(lsCopyWindowPausedCaption,[GetDisplayName]);
+      cwsCancelling:
+        FormCaption:=WideFormat(lsCopyWindowCancellingCaption,[GetDisplayName]);
+      else
+      begin
+        if ggAllMax>0 then Percent:=Round(ggAllProgress*100/ggAllMax) else Percent:=0;
+        FormCaption:=WideFormat('%d%% - %s',[Percent,GetDisplayName]);
+      end;
+    end;
 
-    with Sync.Copy,Copier do
+    if Assigned(Copier.CurrentCopy.FileItem) and (Copier.FileList.Count>0) then
     begin
+      ComputeRemainingTime;
+
       llFromCaption:=CurrentCopy.DirItem.SrcPath;
       llToCaption:=CurrentCopy.DirItem.Destpath;
 
@@ -797,7 +853,7 @@ begin
       ggAllProgress:=CopiedSize+SkippedSize;
       ggAllMax:=FileList.TotalSize;
 
-      llSpeedCaption:=WideFormat(lsSpeed,[CopySpeed div 1024]);
+      llSpeedCaption:=WideFormat(lsSpeed,[CopySpeed / 1024]);
 
       DateTimeToString(TmpStr,'hh:nn:ss',AllRemaining);
       ggAllRemaining:=WideFormat(lsRemaining,[TmpStr]);
@@ -805,11 +861,31 @@ begin
       DateTimeToString(TmpStr,'hh:nn:ss',FileRemaining);
       ggFileRemaining:=WideFormat(lsRemaining,[TmpStr]);
     end;
+
+    Synchronize(SyncUpdateCopy);
+
+    if Sync.Copy.Action=cwaCancel then // gestion de l'annulation
+    begin
+      CancelPending:=True;
+      Sync.Copy.State:=cwsCancelling;
+      Synchronize(SyncUpdateCopy); // raffraichir le State de la form
+    end;
   end;
+end;
 
-  Synchronize(SyncUpdateCopy);
+//******************************************************************************
+// Cancel: annule la copie en cours
+//******************************************************************************
+procedure TCopyThread.Cancel;
+begin
+  try
+    LockCopier;
 
-  if Sync.Copy.Action=cwaCancel then Copier.CurrentCopy.NextAction:=cpaCancel; // gestion de l'annulation
+    CancelPending:=True;
+    Copier.CurrentCopy.NextAction:=cpaCancel;
+  finally
+    UnlockCopier;
+  end;
 end;
 
 //******************************************************************************
@@ -863,13 +939,11 @@ end;
 // SyncUpdatecopy: màj de la fenêtre de copie
 //******************************************************************************
 procedure TCopyThread.SyncUpdatecopy;
-var Percent:Integer;
 begin
   with Sync.Copy,Sync.Copy.Form do
   begin
     // thread -> form
-    if ggAllMax>0 then Percent:=Round(ggAllProgress*100/ggAllMax) else Percent:=0;
-    Caption:=WideFormat('%d%% - %s',[Percent,GetDisplayName]);
+    Caption:=FormCaption;
 
     llFrom.Caption:=llFromCaption;
     llTo.Caption:=llToCaption;
@@ -877,13 +951,10 @@ begin
     llAll.Caption:=llAllCaption;
     llSpeed.Caption:=llSpeedCaption;
 
-    ggFile.Position:=ggFileProgress;
     ggFile.Max:=ggFileMax;
-    ggAll.Position:=ggAllProgress;
+    ggFile.SetAvancement(ggFileProgress,ggFileRemaining);
     ggAll.Max:=ggAllMax;
-
-    llAllRemaining.Caption:=ggAllRemaining;
-    llFileRemaining.Caption:=ggFileRemaining;
+    ggAll.SetAvancement(ggAllProgress,ggAllRemaining);
 
     // form -> thread
 

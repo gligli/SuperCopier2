@@ -15,6 +15,7 @@ type
 
     function ProcessBaseList(BaseList:TBaseList;Operation:Cardinal;DestDir:WideString=''):Boolean;
     procedure CreateEmptyCopyThread(IsMove:Boolean);
+    procedure CancelAllAndWaitTermination(Timeout:Cardinal);
 
     constructor Create;
   end;
@@ -24,7 +25,7 @@ var
 
 implementation
 
-uses ShellApi,TntSysUtils, Contnrs,SCCopyThread;
+uses ShellApi,TntSysUtils, Contnrs,SCCopyThread, DateUtils,Windows,Forms;
 
 //******************************************************************************
 //******************************************************************************
@@ -70,6 +71,8 @@ var i:Integer;
     SameVolumeMove:Boolean;
     CopyThread:TCopyThread;
 begin
+  dbgln('ProcessBaseList: B[0]='+BaseList[0].SrcName);
+  dbgln('                   DD='+DestDir);
   try
     Lock;
 
@@ -84,8 +87,6 @@ begin
       FO_COPY:
       begin
         GuessedSrcDir:=WideExtractFilePath(BaseList[0].SrcName);
-        dbgln(GuessedSrcDir);
-        dbgln(DestDir);
         SameVolumeMove:=(Operation=FO_MOVE) and SameVolume(GuessedSrcDir,DestDir);
 
         if SameVolumeMove then
@@ -134,6 +135,31 @@ var CopyThread:TCopyThread;
 begin
   CopyThread:=TCopyThread.Create(IsMove);
   Add(CopyThread);
+end;
+
+//******************************************************************************
+// CancelAllAndWaitTermination: annule tout les traitements et attends la fin des threads
+//******************************************************************************
+procedure TWorkThreadList.CancelAllAndWaitTermination(Timeout:Cardinal);
+var i:Integer;
+    t:Cardinal;
+    Ok:Boolean;
+begin
+  // annulation
+  for i:=0 to Count-1 do Items[i].Cancel;
+
+  // attente
+  t:=GetTickCount;
+  repeat
+    try
+      Lock;
+      Ok:=Count=0;
+    finally
+      Unlock
+    end;
+    Sleep(DEFAULT_WAIT);
+    Application.ProcessMessages;
+  until Ok or (GetTickCount>=t+Timeout);
 end;
 
 end.

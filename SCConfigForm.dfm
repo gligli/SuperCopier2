@@ -1,31 +1,32 @@
 object ConfigForm: TConfigForm
-  Left = 398
-  Top = 100
+  Left = 232
+  Top = 106
   BorderStyle = bsDialog
   Caption = 'Configuration'
-  ClientHeight = 398
-  ClientWidth = 551
+  ClientHeight = 396
+  ClientWidth = 549
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
   OnCreate = TntFormCreate
   OnShow = TntFormShow
   DesignSize = (
-    551
-    398)
+    549
+    396)
   PixelsPerInch = 96
   TextHeight = 13
   object lvSections: TTntListView
     Left = 0
     Top = 0
-    Width = 144
-    Height = 369
+    Width = 151
+    Height = 367
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelInner = bvNone
     BevelOuter = bvNone
@@ -53,8 +54,8 @@ object ConfigForm: TConfigForm
   object pcSections: TTntPageControl
     Left = 152
     Top = 0
-    Width = 398
-    Height = 373
+    Width = 396
+    Height = 371
     ActivePage = tsUI
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabHeight = 10
@@ -122,7 +123,7 @@ object ConfigForm: TConfigForm
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 0
-        object TntLabel1: TTntLabel
+        object llMinimizedEventHandling: TTntLabel
           Left = 9
           Top = 63
           Width = 317
@@ -165,6 +166,7 @@ object ConfigForm: TConfigForm
           ItemHeight = 13
           ParentFont = False
           TabOrder = 1
+          OnClick = cbMinimizeClick
           Items.WideStrings = (
             'Minimize windows to system tray and set them as always on top'
             'Minimize windows to taskbar')
@@ -309,7 +311,7 @@ object ConfigForm: TConfigForm
         ParentFont = False
         TabOrder = 3
         object llProgressFG: TTntLabel
-          Left = 5
+          Left = 6
           Top = 16
           Width = 88
           Height = 13
@@ -322,7 +324,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llProgressBG: TTntLabel
-          Left = 138
+          Left = 108
           Top = 16
           Width = 92
           Height = 13
@@ -335,7 +337,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llProgressBorder: TTntLabel
-          Left = 274
+          Left = 314
           Top = 16
           Width = 60
           Height = 13
@@ -357,8 +359,34 @@ object ConfigForm: TConfigForm
           FrontColor2 = clBlue
           BackColor1 = clGray
           BackColor2 = clWhite
+          FontProgress.Charset = DEFAULT_CHARSET
+          FontProgress.Color = clWhite
+          FontProgress.Height = -11
+          FontProgress.Name = 'MS Sans Serif'
+          FontProgress.Style = [fsBold]
+          FontProgressColor = clBlack
+          FontTxt.Charset = DEFAULT_CHARSET
+          FontTxt.Color = clWhite
+          FontTxt.Height = -11
+          FontTxt.Name = 'MS Sans Serif'
+          FontTxt.Style = []
+          FontTxtColor = clBlack
           Max = 100
           Position = 50
+          TimeRemaining = '00:00:00 Remaining'
+        end
+        object TntLabel1: TTntLabel
+          Left = 211
+          Top = 16
+          Width = 55
+          Height = 13
+          Caption = 'Text colors:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
         end
         object btProgressFG1: TTntButton
           Left = 6
@@ -376,9 +404,9 @@ object ConfigForm: TConfigForm
           OnClick = btProgressFG1Click
         end
         object bgProgressFG2: TTntButton
-          Left = 55
+          Left = 54
           Top = 34
-          Width = 47
+          Width = 48
           Height = 25
           Caption = 'Middle'
           Font.Charset = DEFAULT_CHARSET
@@ -391,9 +419,9 @@ object ConfigForm: TConfigForm
           OnClick = bgProgressFG2Click
         end
         object btProgressBG1: TTntButton
-          Left = 139
+          Left = 108
           Top = 34
-          Width = 51
+          Width = 48
           Height = 25
           Caption = 'Edges'
           Font.Charset = DEFAULT_CHARSET
@@ -406,9 +434,9 @@ object ConfigForm: TConfigForm
           OnClick = btProgressBG1Click
         end
         object btProgressBG2: TTntButton
-          Left = 191
+          Left = 156
           Top = 34
-          Width = 47
+          Width = 48
           Height = 25
           Caption = 'Middle'
           Font.Charset = DEFAULT_CHARSET
@@ -421,9 +449,9 @@ object ConfigForm: TConfigForm
           OnClick = btProgressBG2Click
         end
         object btProgressBorder: TTntButton
-          Left = 275
+          Left = 314
           Top = 34
-          Width = 95
+          Width = 48
           Height = 25
           Caption = 'Border'
           Font.Charset = DEFAULT_CHARSET
@@ -432,8 +460,38 @@ object ConfigForm: TConfigForm
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 6
           OnClick = btProgressBorderClick
+        end
+        object btProgressOutline: TTntButton
+          Left = 259
+          Top = 34
+          Width = 48
+          Height = 25
+          Caption = 'Outline'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+          OnClick = btProgressOutlineClick
+        end
+        object btProgressText: TTntButton
+          Left = 211
+          Top = 34
+          Width = 48
+          Height = 25
+          Caption = 'Text'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+          OnClick = btProgressTextClick
         end
       end
     end
@@ -785,7 +843,7 @@ object ConfigForm: TConfigForm
         Top = 113
         Width = 377
         Height = 67
-        Caption = 'Attributes'
+        Caption = 'Attributes && security'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -798,7 +856,7 @@ object ConfigForm: TConfigForm
           Top = 17
           Width = 363
           Height = 17
-          Caption = 'Copy attributes when a file is copied'
+          Caption = 'Copy attributes and security when a file is copied'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -812,7 +870,7 @@ object ConfigForm: TConfigForm
           Top = 41
           Width = 364
           Height = 17
-          Caption = 'Copy attributes when a file is moved'
+          Caption = 'Copy attributes and security when a file is moved'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -951,12 +1009,12 @@ object ConfigForm: TConfigForm
       Caption = 'tsLog'
       TabVisible = False
       DesignSize = (
-        390
-        365)
+        388
+        363)
       object gbErrorLog: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 377
+        Width = 375
         Height = 94
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Error log'
@@ -1063,12 +1121,12 @@ object ConfigForm: TConfigForm
       Caption = 'tsProcesses'
       TabVisible = False
       DesignSize = (
-        390
-        365)
+        388
+        363)
       object gbHandledProcesses: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 377
+        Width = 375
         Height = 214
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Handled processes'
@@ -1203,7 +1261,7 @@ object ConfigForm: TConfigForm
         Left = 8
         Top = 99
         Width = 377
-        Height = 158
+        Height = 175
         Caption = 'Advanced parameters'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -1386,6 +1444,20 @@ object ConfigForm: TConfigForm
           ParentFont = False
           TabOrder = 4
         end
+        object chFailSafeCopier: TTntCheckBox
+          Left = 8
+          Top = 152
+          Width = 363
+          Height = 17
+          Caption = 'Use a failsafe copier (buffered copy and no unicode support)'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+        end
       end
       object gbConfigLocation: TTntGroupBox
         Left = 8
@@ -1450,8 +1522,8 @@ object ConfigForm: TConfigForm
     end
   end
   object btCancel: TTntButton
-    Left = 474
-    Top = 372
+    Left = 388
+    Top = 370
     Width = 76
     Height = 25
     Anchors = [akRight, akBottom]
@@ -1461,8 +1533,8 @@ object ConfigForm: TConfigForm
     OnClick = btCancelClick
   end
   object btOk: TTntButton
-    Left = 390
-    Top = 372
+    Left = 304
+    Top = 370
     Width = 76
     Height = 25
     Anchors = [akRight, akBottom]
@@ -1470,6 +1542,16 @@ object ConfigForm: TConfigForm
     Default = True
     TabOrder = 2
     OnClick = btOkClick
+  end
+  object btApply: TTntButton
+    Left = 472
+    Top = 370
+    Width = 76
+    Height = 25
+    Anchors = [akRight, akBottom]
+    Caption = 'Apply'
+    TabOrder = 4
+    OnClick = btApplyClick
   end
   object odLog: TTntOpenDialog
     DefaultExt = 'txt'

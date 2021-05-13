@@ -59,10 +59,13 @@ uses TntWindows,Sysutils,SCCommon;
 //******************************************************************************
 function GetFileSize(TheFile:THandle):Int64;
 var SizeHigh:cardinal;
+    ResRec:Int64Rec absolute Result;
 begin
   Result:=0;
-  Windows.GetFileSize(TheFile,@SizeHigh);
-  Result:=(Result and $FFFFFFFF) or (SizeHigh * $100000000);
+  ResRec.Lo:=Windows.GetFileSize(TheFile,@SizeHigh);
+  ResRec.Hi:=SizeHigh;
+
+  if ResRec.Lo=INVALID_FILE_SIZE then Result:=0;
 end;
 
 
@@ -71,12 +74,13 @@ end;
 //******************************************************************************
 function SetFilePointer(TheFile:THandle;DistanceToMove:Int64;MoveMethod:Cardinal):Int64;
 var HiPart,LoPart:Cardinal;
+    ResRec:Int64Rec absolute Result;
 begin
-  LoPart:=DistanceToMove and $FFFFFFFF;
-  HiPart:=DistanceToMove div $100000000;
+  LoPart:=Int64Rec(DistanceToMove).Lo;
+  HiPart:=Int64Rec(DistanceToMove).Hi;
 
-  Result:=Windows.SetFilePointer(TheFile,LoPart,@HiPart,MoveMethod);
-  Result:=(Result and $FFFFFFFF) or (HiPart * $100000000);
+  ResRec.Lo:=Windows.SetFilePointer(TheFile,LoPart,@HiPart,MoveMethod);
+  ResRec.Hi:=HiPart;
 end;
 
 //******************************************************************************
