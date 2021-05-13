@@ -127,6 +127,8 @@ begin
   else
     Form.Caption:=LangIni.ReadString(Form.Name,CAPTION_VALUE,Form.Caption);
 
+  Form.Font.Name:=UIFont;
+
   for i:=0 to Form.ComponentCount-1 do
   begin
     Name:=Form.Components[i].Name;
@@ -137,10 +139,6 @@ begin
         SetComponentText(Form.Components[i],UTF8Decode(Text))
       else
         SetComponentText(Form.Components[i],Text);
-
-//    if (Form.Components[i] is TControl)  then
-//      (Form.Components[i] as TControl).Font.Name:=UIFont;
-//      (GetObjectProp(Form.Components[i] as TControl,'Font') as TFont).Name:=UIFont;
     end;
   end;
 end;

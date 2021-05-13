@@ -1,6 +1,6 @@
 object CopyForm: TCopyForm
-  Left = 288
-  Top = 99
+  Left = 268
+  Top = 103
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu]
@@ -14,7 +14,7 @@ object CopyForm: TCopyForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Microsoft Sans Serif'
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
@@ -140,7 +140,7 @@ object CopyForm: TCopyForm
     Top = 150
     Width = 404
     Height = 249
-    ActivePage = tsCopyList
+    ActivePage = tsOptions
     Anchors = [akLeft, akTop, akRight, akBottom]
     Images = MainForm.ilGlobal
     MultiLine = True
@@ -151,7 +151,7 @@ object CopyForm: TCopyForm
       ImageIndex = 8
       DesignSize = (
         396
-        221)
+        220)
       object btFileTop: TTntSpeedButton
         Left = 0
         Top = 0
@@ -244,7 +244,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 218
+        Height = 217
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -263,17 +263,11 @@ object CopyForm: TCopyForm
             Width = 300
           end>
         ColumnClick = False
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
         HideSelection = False
         MultiSelect = True
         OwnerData = True
         ReadOnly = True
         RowSelect = True
-        ParentFont = False
         PopupMenu = pmFileContext
         TabOrder = 0
         ViewStyle = vsReport
@@ -318,7 +312,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 216
+        Height = 215
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -340,16 +334,10 @@ object CopyForm: TCopyForm
             Width = 300
           end>
         ColumnClick = False
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
         HideSelection = False
         MultiSelect = True
         ReadOnly = True
         RowSelect = True
-        ParentFont = False
         TabOrder = 0
         ViewStyle = vsReport
         OnData = lvFileListData
@@ -368,12 +356,6 @@ object CopyForm: TCopyForm
         Height = 44
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Speed limit'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 1
         object llSpeedLimitKB: TTntLabel
           Left = 272
@@ -381,12 +363,6 @@ object CopyForm: TCopyForm
           Width = 14
           Height = 13
           Caption = 'KB'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object chSpeedLimit: TTntCheckBox
           Left = 8
@@ -394,12 +370,6 @@ object CopyForm: TCopyForm
           Width = 177
           Height = 17
           Caption = 'Limit copy speed to:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
           OnClick = chSpeedLimitClick
         end
@@ -410,13 +380,7 @@ object CopyForm: TCopyForm
           Height = 21
           DropDownCount = 20
           Enabled = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 1
           Text = '1024'
           OnChange = cbSpeedLimitChange
@@ -441,12 +405,6 @@ object CopyForm: TCopyForm
         Height = 44
         Anchors = [akLeft, akTop, akRight]
         Caption = 'File collisions'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 2
         DesignSize = (
           381
@@ -457,12 +415,6 @@ object CopyForm: TCopyForm
           Width = 161
           Height = 13
           Caption = 'When a file already exists, always:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbCollisions: TTntComboBox
           Left = 184
@@ -471,14 +423,8 @@ object CopyForm: TCopyForm
           Height = 21
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
           ItemIndex = 0
-          ParentFont = False
           TabOrder = 0
           Text = 'Ask what to do'
           OnChange = cbCollisionsChange
@@ -500,12 +446,6 @@ object CopyForm: TCopyForm
         Height = 44
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Copy errors'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 3
         DesignSize = (
           381
@@ -516,12 +456,6 @@ object CopyForm: TCopyForm
           Width = 166
           Height = 13
           Caption = 'When there is a copy error, always:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbCopyError: TTntComboBox
           Left = 184
@@ -530,14 +464,8 @@ object CopyForm: TCopyForm
           Height = 21
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
           ItemIndex = 0
-          ParentFont = False
           TabOrder = 0
           Text = 'Ask what to do'
           OnChange = cbCopyErrorChange
@@ -556,12 +484,6 @@ object CopyForm: TCopyForm
         Height = 44
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Copy end'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         DesignSize = (
           381
@@ -572,12 +494,6 @@ object CopyForm: TCopyForm
           Width = 108
           Height = 13
           Caption = 'At the end of the copy:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbCopyEnd: TTntComboBox
           Left = 184
@@ -586,14 +502,8 @@ object CopyForm: TCopyForm
           Height = 21
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
           ItemIndex = 0
-          ParentFont = False
           TabOrder = 0
           Text = 'Close the window'
           OnChange = cbCopyEndChange

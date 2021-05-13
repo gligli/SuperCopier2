@@ -984,8 +984,10 @@ begin
   with Sync.Copy,Sync.Copy.Form do
   begin
     // thread -> form
-    
-    Caption:=FormCaption;
+
+//    Caption:=FormCaption;
+    writeln(iswindowunicode(handle));
+    SetWindowTextW(Handle,PWideChar(FormCaption));
 
     llFrom.Caption:=llFromCaption;
     llTo.Caption:=llToCaption;

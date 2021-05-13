@@ -381,7 +381,7 @@ begin
      GetVolumeNameForVolumeMountPoint(TmpBuf2,TmpBuf2,MAX_PATH) then
   begin
     // pour windows 2000 et supérieurs, on compare le guid de volume
-    Result:=StrCompW(TmpBuf,TmpBuf2)=0;
+    Result:=WideCompareStr(TmpBuf,TmpBuf2)=0;
   end
   else
   begin

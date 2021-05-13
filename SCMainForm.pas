@@ -112,7 +112,7 @@ begin
 
           BaseList.Add(Item);
 
-          Inc(Source,StrLenW(Source)+1);
+          Inc(Source,Length(Source)+1);
         end;
 
         Handled:=WorkThreadList.ProcessBaseList(BaseList,Operation,Destination);

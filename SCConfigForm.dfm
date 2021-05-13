@@ -1,6 +1,6 @@
 object ConfigForm: TConfigForm
-  Left = 202
-  Top = 103
+  Left = 243
+  Top = 104
   BorderStyle = bsDialog
   Caption = 'Configuration'
   ClientHeight = 396
@@ -56,7 +56,7 @@ object ConfigForm: TConfigForm
     Top = 0
     Width = 449
     Height = 371
-    ActivePage = tsLog
+    ActivePage = tsAdvanced
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabHeight = 10
     TabOrder = 1
@@ -70,12 +70,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 62
         Caption = 'Language'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         object llLanguage: TTntLabel
           Left = 8
@@ -83,12 +77,6 @@ object ConfigForm: TConfigForm
           Width = 92
           Height = 13
           Caption = 'Interface language:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llLanguageInfo: TTntLabel
           Left = 8
@@ -98,12 +86,6 @@ object ConfigForm: TConfigForm
           Caption = 
             '(English (default) won'#39't be applied until you restart SuperCopie' +
             'r.)'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbLanguage: TTntComboBox
           Left = 216
@@ -111,13 +93,7 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Microsoft Sans Serif'
-          Font.Style = []
-          ItemHeight = 0
-          ParentFont = False
+          ItemHeight = 13
           TabOrder = 0
         end
       end
@@ -131,12 +107,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 67
         Caption = 'Startup'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         object chStartWithWindows: TTntCheckBox
           Left = 8
@@ -144,12 +114,6 @@ object ConfigForm: TConfigForm
           Width = 393
           Height = 17
           Caption = 'Start when windows starts'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
         end
         object chActivateOnStart: TTntCheckBox
@@ -158,12 +122,6 @@ object ConfigForm: TConfigForm
           Width = 393
           Height = 17
           Caption = 'Activate SuperCopier when it starts'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
         end
       end
@@ -177,12 +135,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 112
         Caption = 'Taskbar && system tray'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         object llMinimizedEventHandling: TTntLabel
           Left = 9
@@ -190,12 +142,6 @@ object ConfigForm: TConfigForm
           Width = 250
           Height = 13
           Caption = 'When there is an event and the window is minimized:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object chTrayIcon: TTntCheckBox
           Left = 8
@@ -203,12 +149,6 @@ object ConfigForm: TConfigForm
           Width = 363
           Height = 17
           Caption = 'Show SuperCopier icon in system tray'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
         end
         object cbMinimize: TTntComboBox
@@ -217,13 +157,7 @@ object ConfigForm: TConfigForm
           Width = 409
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 1
           OnClick = cbMinimizeClick
           Items.WideStrings = (
@@ -236,13 +170,7 @@ object ConfigForm: TConfigForm
           Width = 409
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 2
           Items.WideStrings = (
             'Do nothing (wait for the window to be restored)'
@@ -258,12 +186,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 90
         Caption = 'Copy window appearance'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 1
         object chCWSavePosition: TTntCheckBox
           Left = 8
@@ -271,12 +193,6 @@ object ConfigForm: TConfigForm
           Width = 401
           Height = 17
           Caption = 'Save copy window position'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
         end
         object chCWSaveSize: TTntCheckBox
@@ -285,12 +201,6 @@ object ConfigForm: TConfigForm
           Width = 401
           Height = 17
           Caption = 'Save copy window size'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
         end
         object chCWStartMinimized: TTntCheckBox
@@ -299,12 +209,6 @@ object ConfigForm: TConfigForm
           Width = 401
           Height = 17
           Caption = 'Start copies with copy window minimized'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 2
         end
       end
@@ -314,12 +218,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 45
         Caption = 'Size unit'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 2
         object llSizeUnit: TTntLabel
           Left = 8
@@ -327,12 +225,6 @@ object ConfigForm: TConfigForm
           Width = 145
           Height = 13
           Caption = 'Use this unit to display file size:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbSizeUnit: TTntComboBox
           Left = 216
@@ -340,13 +232,7 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 0
           Items.WideStrings = (
             'Auto'
@@ -362,12 +248,6 @@ object ConfigForm: TConfigForm
         Width = 426
         Height = 96
         Caption = 'Progress bars'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 3
         object llProgressFG: TTntLabel
           Left = 6
@@ -375,12 +255,6 @@ object ConfigForm: TConfigForm
           Width = 88
           Height = 13
           Caption = 'Foreground colors:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llProgressBG: TTntLabel
           Left = 116
@@ -388,12 +262,6 @@ object ConfigForm: TConfigForm
           Width = 92
           Height = 13
           Caption = 'Background colors:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llProgressBorder: TTntLabel
           Left = 338
@@ -401,12 +269,6 @@ object ConfigForm: TConfigForm
           Width = 60
           Height = 13
           Caption = 'Border color:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object ggProgress: TSCProgessBar
           Left = 6
@@ -440,12 +302,6 @@ object ConfigForm: TConfigForm
           Width = 55
           Height = 13
           Caption = 'Text colors:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object btProgressFG1: TTntButton
           Left = 6
@@ -453,12 +309,6 @@ object ConfigForm: TConfigForm
           Width = 48
           Height = 25
           Caption = 'Edges'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
           OnClick = btProgressFG1Click
         end
@@ -468,12 +318,6 @@ object ConfigForm: TConfigForm
           Width = 48
           Height = 25
           Caption = 'Middle'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
           OnClick = bgProgressFG2Click
         end
@@ -483,12 +327,6 @@ object ConfigForm: TConfigForm
           Width = 48
           Height = 25
           Caption = 'Edges'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 2
           OnClick = btProgressBG1Click
         end
@@ -498,12 +336,6 @@ object ConfigForm: TConfigForm
           Width = 48
           Height = 25
           Caption = 'Middle'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 3
           OnClick = btProgressBG2Click
         end
@@ -513,12 +345,6 @@ object ConfigForm: TConfigForm
           Width = 48
           Height = 25
           Caption = 'Border'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 6
           OnClick = btProgressBorderClick
         end
@@ -528,12 +354,6 @@ object ConfigForm: TConfigForm
           Width = 48
           Height = 25
           Caption = 'Outline'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 5
           OnClick = btProgressOutlineClick
         end
@@ -543,12 +363,6 @@ object ConfigForm: TConfigForm
           Width = 48
           Height = 25
           Caption = 'Text'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 4
           OnClick = btProgressTextClick
         end
@@ -563,12 +377,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 44
         Caption = 'Copy end'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         object llCopyEnd: TTntLabel
           Left = 8
@@ -576,12 +384,6 @@ object ConfigForm: TConfigForm
           Width = 108
           Height = 13
           Caption = 'At the end of the copy:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbCopyEnd: TTntComboBox
           Left = 216
@@ -589,14 +391,8 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
           ItemIndex = 0
-          ParentFont = False
           TabOrder = 0
           Text = 'Close the window'
           Items.WideStrings = (
@@ -611,12 +407,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 44
         Caption = 'Speed limit'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 1
         object llSpeedLimitKB: TTntLabel
           Left = 304
@@ -624,12 +414,6 @@ object ConfigForm: TConfigForm
           Width = 14
           Height = 13
           Caption = 'KB'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object chSpeedLimit: TTntCheckBox
           Left = 8
@@ -637,12 +421,6 @@ object ConfigForm: TConfigForm
           Width = 209
           Height = 17
           Caption = 'Limit copy speed to:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
           OnClick = chSpeedLimitClick
         end
@@ -652,13 +430,7 @@ object ConfigForm: TConfigForm
           Width = 81
           Height = 21
           DropDownCount = 20
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 1
           Text = '1024'
           OnKeyPress = NumbersOnly
@@ -681,12 +453,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 44
         Caption = 'File collisions'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 2
         object llCollisions: TTntLabel
           Left = 8
@@ -694,12 +460,6 @@ object ConfigForm: TConfigForm
           Width = 161
           Height = 13
           Caption = 'When a file already exists, always:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbCollisions: TTntComboBox
           Left = 216
@@ -707,14 +467,8 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
           ItemIndex = 0
-          ParentFont = False
           TabOrder = 0
           Text = 'Ask what to do'
           Items.WideStrings = (
@@ -734,12 +488,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 72
         Caption = 'Copy errors'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 3
         object llCopyErrors: TTntLabel
           Left = 8
@@ -747,12 +495,6 @@ object ConfigForm: TConfigForm
           Width = 166
           Height = 13
           Caption = 'When there is a copy error, always:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llRetryInterval: TTntLabel
           Left = 8
@@ -760,12 +502,6 @@ object ConfigForm: TConfigForm
           Width = 155
           Height = 13
           Caption = 'Time to wait between two retries:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llRetryIntervalUnit: TTntLabel
           Left = 304
@@ -773,12 +509,6 @@ object ConfigForm: TConfigForm
           Width = 57
           Height = 13
           Caption = 'Milliseconds'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbCopyError: TTntComboBox
           Left = 216
@@ -786,14 +516,8 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
           ItemIndex = 0
-          ParentFont = False
           TabOrder = 0
           Text = 'Ask what to do'
           Items.WideStrings = (
@@ -808,12 +532,6 @@ object ConfigForm: TConfigForm
           Top = 42
           Width = 81
           Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
         end
       end
@@ -827,12 +545,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 106
         Caption = 'New copy list handling'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         object llCLHandling: TTntLabel
           Left = 8
@@ -840,12 +552,6 @@ object ConfigForm: TConfigForm
           Width = 237
           Height = 13
           Caption = 'Add new copy lists to allready copying ones when:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llCLHandlingInfo: TTntLabel
           Left = 8
@@ -853,12 +559,6 @@ object ConfigForm: TConfigForm
           Width = 258
           Height = 13
           Caption = '(same source means, for example, same physical drive)'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbCLHandling: TTntComboBox
           Left = 8
@@ -866,13 +566,7 @@ object ConfigForm: TConfigForm
           Width = 409
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 0
           Items.WideStrings = (
             'Never'
@@ -888,12 +582,6 @@ object ConfigForm: TConfigForm
           Width = 363
           Height = 17
           Caption = 'Ask for confirmation before adding'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
         end
       end
@@ -903,12 +591,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 67
         Caption = 'Attributes && security'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 1
         object chSaveAttributesOnCopy: TTntCheckBox
           Left = 8
@@ -916,12 +598,6 @@ object ConfigForm: TConfigForm
           Width = 363
           Height = 17
           Caption = 'Copy attributes and security when a file is copied'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
         end
         object chSaveAttributesOnMove: TTntCheckBox
@@ -930,12 +606,6 @@ object ConfigForm: TConfigForm
           Width = 364
           Height = 17
           Caption = 'Copy attributes and security when a file is moved'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
         end
       end
@@ -945,12 +615,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 67
         Caption = 'Deleting'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 2
         object chDeleteUnfinishedCopies: TTntCheckBox
           Left = 8
@@ -958,12 +622,6 @@ object ConfigForm: TConfigForm
           Width = 363
           Height = 17
           Caption = 'Delete files when they are not entirely copied'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
           OnClick = chDeleteUnfinishedCopiesClick
         end
@@ -973,12 +631,6 @@ object ConfigForm: TConfigForm
           Width = 340
           Height = 17
           Caption = 'Don'#39't delete them if it was caused by a copy error'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
         end
       end
@@ -988,12 +640,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 82
         Caption = 'Renaming'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 4
         object llRenameOld: TTntLabel
           Left = 8
@@ -1001,12 +647,6 @@ object ConfigForm: TConfigForm
           Width = 117
           Height = 13
           Caption = 'Old file renaming pattern:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llRenameNew: TTntLabel
           Left = 8
@@ -1014,24 +654,12 @@ object ConfigForm: TConfigForm
           Width = 123
           Height = 13
           Caption = 'New file renaming pattern:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object edRenameOldPattern: TTntEdit
           Left = 216
           Top = 22
           Width = 201
           Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
         end
         object edRenameNewPattern: TTntEdit
@@ -1039,12 +667,6 @@ object ConfigForm: TConfigForm
           Top = 50
           Width = 201
           Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
         end
       end
@@ -1054,12 +676,6 @@ object ConfigForm: TConfigForm
         Width = 75
         Height = 16
         Caption = 'Help'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = []
-        ParentFont = False
         TabOrder = 3
         OnClick = btRenamingHelpClick
       end
@@ -1073,12 +689,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 94
         Caption = 'Error log'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         object llErrorLogAutoSaveMode: TTntLabel
           Left = 32
@@ -1086,12 +696,6 @@ object ConfigForm: TConfigForm
           Width = 48
           Height = 13
           Caption = 'Save it to:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llErrorLogFileName: TTntLabel
           Left = 32
@@ -1099,12 +703,6 @@ object ConfigForm: TConfigForm
           Width = 135
           Height = 13
           Caption = 'Filename (and maybe folder):'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbErrorLogAutoSaveMode: TTntComboBox
           Left = 216
@@ -1112,13 +710,7 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 0
           OnChange = cbErrorLogAutoSaveModeChange
           Items.WideStrings = (
@@ -1132,12 +724,6 @@ object ConfigForm: TConfigForm
           Width = 363
           Height = 17
           Caption = 'Automatically save the error log'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
           OnClick = chErrorLogAutoSaveClick
         end
@@ -1146,12 +732,6 @@ object ConfigForm: TConfigForm
           Top = 64
           Width = 169
           Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 2
           OnKeyPress = FileNameOnly
         end
@@ -1161,12 +741,6 @@ object ConfigForm: TConfigForm
           Width = 26
           Height = 21
           Caption = '...'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 3
           OnClick = btELFNBrowseClick
         end
@@ -1185,12 +759,6 @@ object ConfigForm: TConfigForm
         Height = 214
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Handled processes'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         object llHandledProcessses: TTntLabel
           Left = 8
@@ -1200,12 +768,6 @@ object ConfigForm: TConfigForm
           Caption = 
             'List of processes (shells or other) that SuperCopier must handle' +
             ':'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object lvHandledProcesses: TTntListView
           Left = 8
@@ -1218,15 +780,9 @@ object ConfigForm: TConfigForm
             item
               AutoSize = True
             end>
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           HideSelection = False
           ReadOnly = True
           RowSelect = True
-          ParentFont = False
           ShowColumnHeaders = False
           TabOrder = 0
           ViewStyle = vsReport
@@ -1237,12 +793,6 @@ object ConfigForm: TConfigForm
           Width = 71
           Height = 25
           Caption = 'Add'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
           OnClick = btAddProcessClick
         end
@@ -1252,12 +802,6 @@ object ConfigForm: TConfigForm
           Width = 71
           Height = 25
           Caption = 'Remove'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 2
           OnClick = btRemoveProcessClick
         end
@@ -1272,12 +816,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 44
         Caption = 'Priority'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 0
         object llPriority: TTntLabel
           Left = 8
@@ -1285,12 +823,6 @@ object ConfigForm: TConfigForm
           Width = 134
           Height = 13
           Caption = 'SuperCopier process priority:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbPriority: TTntComboBox
           Left = 216
@@ -1298,13 +830,7 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 0
           Items.WideStrings = (
             'Idle'
@@ -1318,12 +844,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 175
         Caption = 'Advanced parameters'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 3
         object llCopyBufferSize: TTntLabel
           Left = 8
@@ -1331,12 +851,6 @@ object ConfigForm: TConfigForm
           Width = 78
           Height = 13
           Caption = 'Copy buffer size:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llCopyBufferSizeUnit: TTntLabel
           Left = 304
@@ -1344,12 +858,6 @@ object ConfigForm: TConfigForm
           Width = 26
           Height = 13
           Caption = 'Bytes'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llCopyWindowUpdateInterval: TTntLabel
           Left = 8
@@ -1357,12 +865,6 @@ object ConfigForm: TConfigForm
           Width = 139
           Height = 13
           Caption = 'Copy window update interval:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llCopyWindowUpdateIntervalUnit: TTntLabel
           Left = 304
@@ -1370,12 +872,6 @@ object ConfigForm: TConfigForm
           Width = 57
           Height = 13
           Caption = 'Milliseconds'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llCopySpeedAveragingInterval: TTntLabel
           Left = 8
@@ -1383,12 +879,6 @@ object ConfigForm: TConfigForm
           Width = 146
           Height = 13
           Caption = 'Copy speed averaging interval:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llCopySpeedAveragingIntervalUnit: TTntLabel
           Left = 304
@@ -1396,12 +886,6 @@ object ConfigForm: TConfigForm
           Width = 57
           Height = 13
           Caption = 'Milliseconds'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llCopyThrottleInterval: TTntLabel
           Left = 8
@@ -1409,12 +893,6 @@ object ConfigForm: TConfigForm
           Width = 99
           Height = 13
           Caption = 'Copy throttle interval:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object llCopyThrottleIntervalUnit: TTntLabel
           Left = 304
@@ -1422,24 +900,12 @@ object ConfigForm: TConfigForm
           Width = 57
           Height = 13
           Caption = 'Milliseconds'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object edCopyBufferSize: TTntEdit
           Left = 216
           Top = 14
           Width = 81
           Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
           OnKeyPress = NumbersOnly
         end
@@ -1448,12 +914,6 @@ object ConfigForm: TConfigForm
           Top = 43
           Width = 81
           Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
           OnKeyPress = NumbersOnly
         end
@@ -1462,12 +922,6 @@ object ConfigForm: TConfigForm
           Top = 72
           Width = 81
           Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 2
           OnKeyPress = NumbersOnly
         end
@@ -1476,12 +930,6 @@ object ConfigForm: TConfigForm
           Top = 101
           Width = 81
           Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 3
           OnKeyPress = NumbersOnly
         end
@@ -1491,12 +939,6 @@ object ConfigForm: TConfigForm
           Width = 415
           Height = 17
           Caption = 'Fast free space check (can have problems with NTFS mount points)'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 4
         end
         object chFailSafeCopier: TTntCheckBox
@@ -1505,12 +947,6 @@ object ConfigForm: TConfigForm
           Width = 409
           Height = 17
           Caption = 'Use a failsafe copier (buffered copy and no unicode support)'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 5
         end
       end
@@ -1520,12 +956,6 @@ object ConfigForm: TConfigForm
         Width = 425
         Height = 44
         Caption = 'Settings location'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
         TabOrder = 1
         object llConfigLocation: TTntLabel
           Left = 8
@@ -1533,12 +963,6 @@ object ConfigForm: TConfigForm
           Width = 79
           Height = 13
           Caption = 'Store settings to:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ParentFont = False
         end
         object cbConfigLocation: TTntComboBox
           Left = 216
@@ -1546,13 +970,7 @@ object ConfigForm: TConfigForm
           Width = 201
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
           ItemHeight = 13
-          ParentFont = False
           TabOrder = 0
           Items.WideStrings = (
             'The registry'
@@ -1565,12 +983,6 @@ object ConfigForm: TConfigForm
         Width = 75
         Height = 16
         Caption = 'Help'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = []
-        ParentFont = False
         TabOrder = 2
         OnClick = btAdvancedHelpClick
       end

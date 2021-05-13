@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=2
 MinorVer=0
 Release=0
-Build=539
+Build=540
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=SFX TEAM
 FileDescription=SuperCopier 2 (explorer file copy replacement)
-FileVersion=2.0.0.539
+FileVersion=2.0.0.540
 InternalName=SuperCopier2
 LegalCopyright=GNU GPL
 LegalTrademarks=

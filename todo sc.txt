@@ -90,7 +90,8 @@ x moyen de ne pas incrémenter totalcount et totalsize quand on ajoute un fichier
 * btUnfold en default et concerver focus unfold/pause
 
 - pb avec always on top et opendialogs
-- ajouter choix police dans .lng
+* ajouter choix police dans .lng
+  - ajouter ParentFont a TScPopupButton et TScProgressBar
 - caption copyform pas unicode
 - compos
   - V pour popupbutton
