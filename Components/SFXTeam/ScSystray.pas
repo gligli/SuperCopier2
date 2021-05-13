@@ -35,6 +35,8 @@ type
   TIcoBalloon=(IBNone,IBInfo,IBWarning,IBError);
   TWinVer=(Win9x,WinMe,WinNT,Win2kXP);
 
+
+
   TDUMMYUNIONNAME    = record
   case Integer of
       0: (uTimeout: UINT);
@@ -82,10 +84,16 @@ type
     FVisible: Boolean;
     FDblClick:TNotifyEvent;
     FMouseDown:TNotifyEvent;
+    FOnBallonShow:TNotifyEvent;
+    FOnBallonHide:TNotifyEvent;
+    FOnBallonTimeOut:TNotifyEvent;
+    FOnBallonClick:TNotifyEvent;
     WM_TASKBARCREATED:Cardinal;// Message
     WinVer:TWinVer;
     HIconBmp:HICON;
-
+    HndDll:Cardinal;
+    ShellNotifyIconA:function (dwMessage: DWORD; lpData: PNotifyIconDataA): BOOL; stdcall;
+    ShellNotifyIconW:function (dwMessage: DWORD; lpData: PNotifyIconDataW): BOOL; stdcall;
     procedure SetBitmap(const Value:TBitmap);
     procedure SetHint(const Value:WideString);
     procedure SetIcon(const Value:TIcon);
@@ -121,7 +129,13 @@ type
     property Visible:Boolean read FVisible write SetVisible; // Affiche ou masque l'icone du systray
     property OnDblClick  : TNotifyEvent read FDblClick write FDblClick; // évenement double clic gauche sur l'icone du systray
     property OnMouseDown : TNotifyEvent read FMouseDown write FMouseDown; // évenement clic gauche sur l'icone du systray
+    property OnBallonShow : TNotifyEvent read FOnBallonShow write FOnBallonShow; //
+    property OnBallonHide : TNotifyEvent read FOnBallonHide write FOnBallonHide; //
+    property OnBallonTimeOut : TNotifyEvent read FOnBallonTimeOut write FOnBallonTimeOut; //
+    property OnBallonClick : TNotifyEvent read FOnBallonClick write FOnBallonClick; //
+
   end;
+
 
 procedure Register;
 
@@ -163,6 +177,9 @@ begin
     Case Winver of
       Win9x:{WINDOWS 9x}
         begin
+          HndDll:=LoadLibraryA(shell32);
+          if HndDll<>0 then
+            ShellNotifyIconA:=GetProcAddress(HndDll,'Shell_NotifyIconA');
           SysIconStruc9x.cbSize:=Sizeof(SysIconStruc9x);
           SysIconStruc9x.Wnd:=AllocateHWnd(SysTrayMessages);
           SysIconStruc9x.uID:=0;
@@ -173,6 +190,9 @@ begin
         end;
       WinMe:{WINDOWS Me}
         begin
+          HndDll:=LoadLibraryA(shell32);
+          if HndDll<>0 then
+            ShellNotifyIconA:=GetProcAddress(HndDll,'Shell_NotifyIconA');
           SysIconStrucMe.cbSize:=sizeof(SysIconStrucMe);
           SysIconStrucMe.Wnd := AllocateHWnd(SysTrayMessages);
           SysIconStrucMe.uID := 0;
@@ -185,6 +205,9 @@ begin
         end;
       WinNT:{WINDOWS NT <=4}
         begin
+          HndDll:=LoadLibraryA(shell32);
+          if HndDll<>0 then
+            ShellNotifyIconW:=GetProcAddress(HndDll,'Shell_NotifyIconW');
           SysIconStrucNt.cbSize:=Sizeof(SysIconStrucNt);
           SysIconStrucNt.Wnd:=AllocateHWnd(SysTrayMessages);
           SysIconStrucNt.uID:=0;
@@ -195,6 +218,9 @@ begin
         end;
       Win2kXP:{WINDOWS 2000 et >}
         begin
+          HndDll:=LoadLibraryA(shell32);
+          if HndDll<>0 then
+            ShellNotifyIconW:=GetProcAddress(HndDll,'Shell_NotifyIconW');
           SysIconStruc2kXp.cbSize:=sizeof(SysIconStruc2kXp);
           SysIconStruc2kXp.Wnd := AllocateHWnd(SysTrayMessages);
           SysIconStruc2kXp.uID := 0;
@@ -224,10 +250,10 @@ end;
 procedure TScSystray.HideIcon;
 begin
   case WinVer of
-    Win9x:   Shell_NotifyIconA(NIM_DELETE, @SysIconStruc9x);
-    WinMe:   Shell_NotifyIconA(NIM_DELETE, @SysIconStrucMe);
-    WinNT:   Shell_NotifyIconW(NIM_DELETE, @SysIconStrucNT);
-    Win2kXP: Shell_NotifyIconW(NIM_DELETE, @SysIconStruc2kXp);
+    Win9x:   ShellNotifyIconA(NIM_DELETE, @SysIconStruc9x);
+    WinMe:   ShellNotifyIconA(NIM_DELETE, @SysIconStrucMe);
+    WinNT:   ShellNotifyIconW(NIM_DELETE, @SysIconStrucNT);
+    Win2kXP: ShellNotifyIconW(NIM_DELETE, @SysIconStruc2kXp);
   end;
 end;
 
@@ -240,10 +266,10 @@ end;
 procedure TScSystray.ShowIcon;
 begin
   case WinVer of
-    Win9x:   Shell_NotifyIconA(NIM_ADD, @SysIconStruc9x);
-    WinMe:   Shell_NotifyIconA(NIM_ADD, @SysIconStrucMe);
-    WinNT:   Shell_NotifyIconW(NIM_ADD, @SysIconStrucNT);
-    Win2kXP: Shell_NotifyIconW(NIM_ADD, @SysIconStruc2kXp);
+    Win9x:   ShellNotifyIconA(NIM_ADD, @SysIconStruc9x);
+    WinMe:   ShellNotifyIconA(NIM_ADD, @SysIconStrucMe);
+    WinNT:   ShellNotifyIconW(NIM_ADD, @SysIconStrucNT);
+    Win2kXP: ShellNotifyIconW(NIM_ADD, @SysIconStruc2kXp);
   end;
 end;
 
@@ -302,30 +328,30 @@ begin
         begin
           SysIconStruc9x.hIcon:=HIconBmp;
           if FVisible then
-            Shell_NotifyIconA(NIM_MODIFY, @SysIconStruc9x);
+            ShellNotifyIconA(NIM_MODIFY, @SysIconStruc9x);
         end;
       WinMe:
         begin
           SysIconStrucMe.hIcon:=HIconBmp;
           SysIconStrucMe.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
           if FVisible then
-            Shell_NotifyIconA(NIM_MODIFY, @SysIconStrucMe);
+            ShellNotifyIconA(NIM_MODIFY, @SysIconStrucMe);
         end;
       WinNT:
         begin
           SysIconStrucNt.hIcon:=HIconBmp;
           if FVisible then
-            Shell_NotifyIconW(NIM_MODIFY, @SysIconStrucNt)
+            ShellNotifyIconW(NIM_MODIFY, @SysIconStrucNt)
         end;
       Win2kXP:
         begin
           SysIconStruc2kXp.hIcon:=HIconBmp;
           SysIconStruc2kXp.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
           if FVisible then
-            Shell_NotifyIconW(NIM_MODIFY, @SysIconStruc2kXp)
+            ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp)
         end;
       end;{case}
-
+    MaskBitmap.Free;
   end;
 end;
 
@@ -346,27 +372,27 @@ begin
         begin
           SysIconStruc9x.hIcon:=FIcon.Handle;
           if FVisible then
-            Shell_NotifyIconA(NIM_MODIFY, @SysIconStruc9x);
+            ShellNotifyIconA(NIM_MODIFY, @SysIconStruc9x);
         end;
       WinMe:
         begin
           SysIconStrucMe.hIcon:=FIcon.Handle;
           SysIconStrucMe.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
           if FVisible then
-            Shell_NotifyIconA(NIM_MODIFY, @SysIconStrucMe);
+            ShellNotifyIconA(NIM_MODIFY, @SysIconStrucMe);
         end;
       WinNT:
         begin
           SysIconStrucNt.hIcon:=FIcon.Handle;
           if FVisible then
-            Shell_NotifyIconW(NIM_MODIFY, @SysIconStrucNt)
+            ShellNotifyIconW(NIM_MODIFY, @SysIconStrucNt)
         end;
       Win2kXP:
         begin
           SysIconStruc2kXp.hIcon:=FIcon.Handle;
           SysIconStruc2kXp.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
           if FVisible then
-            Shell_NotifyIconW(NIM_MODIFY, @SysIconStruc2kXp)
+            ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp)
         end;
       end;
 
@@ -406,10 +432,10 @@ begin
   if (Msg.Msg=WM_TASKBARCREATED) and FVisible then
   begin
     case WinVer of
-      Win9x:   Shell_NotifyIconA(NIM_ADD, @SysIconStruc9x);
-      WinMe:   Shell_NotifyIconA(NIM_ADD, @SysIconStrucMe);
-      WinNT:   Shell_NotifyIconW(NIM_ADD, @SysIconStrucNT);
-      Win2kXP: Shell_NotifyIconW(NIM_ADD, @SysIconStruc2kXp);
+      Win9x:   ShellNotifyIconA(NIM_ADD, @SysIconStruc9x);
+      WinMe:   ShellNotifyIconA(NIM_ADD, @SysIconStrucMe);
+      WinNT:   ShellNotifyIconW(NIM_ADD, @SysIconStrucNT);
+      Win2kXP: ShellNotifyIconW(NIM_ADD, @SysIconStruc2kXp);
     end;
   end
   //----------------------------------------------------------------------------
@@ -428,7 +454,7 @@ begin
             WinNT:   SetForegroundWindow(SysIconStrucNt.Wnd);
             Win2kXP: SetForegroundWindow(SysIconStruc2kXp.Wnd);
           end;
-          if Assigned(FMouseDown) then FMouseDown(Self);
+          if Assigned(FDblClick) then FDblClick(Self);
         end;
 
       WM_RBUTTONDOWN:
@@ -458,10 +484,10 @@ begin
       WM_LBUTTONUP:;
       WM_RBUTTONUP:;
       WM_RBUTTONDBLCLK:;
-      NIN_BALLOONSHOW:;
-      NIN_BALLOONHIDE:;
-      NIN_BALLOONTIMEOUT:;
-      NIN_BALLOONUSERCLICK:;
+      NIN_BALLOONSHOW:if Assigned(FOnBallonShow) then FOnBallonShow(Self);
+      NIN_BALLOONHIDE:if Assigned(FOnBallonHide) then FOnBallonHide(Self);
+      NIN_BALLOONTIMEOUT:if Assigned(FOnBallonTimeOut) then FOnBallonTimeOut(Self);
+      NIN_BALLOONUSERCLICK:if Assigned(FOnBallonClick) then FOnBallonClick(Self);
      end;
   end;
   //----------------------------------------------------------------------------
@@ -491,7 +517,7 @@ begin
           move(TmpStr[1],SysIconStruc9x.szTip,size+1);
           SysIconStruc9x.szTip[63]:=#0;
           if FVisible then
-            Shell_NotifyIconA(NIM_MODIFY, @SysIconStruc9x);
+            ShellNotifyIconA(NIM_MODIFY, @SysIconStruc9x);
         end;
       WinMe:
         begin
@@ -501,7 +527,7 @@ begin
           move(TmpStr[1],SysIconStrucMe.szTip,size+1);
           SysIconStrucMe.szTip[127]:=#0;
           if FVisible then
-            Shell_NotifyIconA(NIM_MODIFY, @SysIconStrucMe);
+            ShellNotifyIconA(NIM_MODIFY, @SysIconStrucMe);
         end;
       WinNT:
         begin
@@ -510,7 +536,7 @@ begin
           Move(FHint[1],SysIconStrucNt.szTip,size*2+2); // copie la widestring
           SysIconStrucNt.szTip[63]:=#0;  // marque le caractère de terminaison
           if FVisible then
-            Shell_NotifyIconW(NIM_MODIFY, @SysIconStrucNt);
+            ShellNotifyIconW(NIM_MODIFY, @SysIconStrucNt);
         end;
       Win2kXP:
         begin
@@ -520,7 +546,7 @@ begin
           SysIconStruc2kXp.szTip[127]:=#0; // marque le caractère de terminaison
           SysIconStruc2kXp.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
           if FVisible then
-            Shell_NotifyIconW(NIM_MODIFY, @SysIconStruc2kXp);
+            ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp);
         end;
     end;{fin de case}
   end;
@@ -575,7 +601,7 @@ begin
           end;
           SysIconStrucMe.uFlags:=NIF_INFO;
           SysIconStrucMe.DUMMYUNIONNAME.uTimeout:=500;
-          Shell_NotifyIconW(NIM_MODIFY, @SysIconStrucMe);
+          ShellNotifyIconW(NIM_MODIFY, @SysIconStrucMe);
         end;
       Win2kXP:
         begin
@@ -598,7 +624,7 @@ begin
           end;
           SysIconStruc2kXp.uFlags:=NIF_INFO;
           SysIconStruc2kXp.DUMMYUNIONNAME.uTimeout:=500;
-          Shell_NotifyIconW(NIM_MODIFY, @SysIconStruc2kXp);
+          ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp);
       end;
     end;{fin case}
   end;
@@ -621,6 +647,7 @@ begin
     WinNT:   DeallocateHWnd(SysIconStrucNt.wnd);
     Win2kXP: DeallocateHWnd(SysIconStruc2kXp.wnd);
   end;
+  FreeLibrary(HndDll);
   inherited;
 end;
 

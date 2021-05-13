@@ -2,7 +2,10 @@ unit SCLocStrings;
 
 interface
 
+uses SCLocEngine;
+
 var
+
 lsCopyDisplayName:WideString='Copy from %s to %s';
 lsMoveDisplayName:WideString='Move from %s to %s';
 lsCopyOf1:WideString='Copy of %s';
@@ -64,6 +67,59 @@ lsCopyEndNotifyText:WideString='%s'+#13#10+'End speed: %s';
 
 lsHookErrorCaption:WideString='SuperCopier2 can''t run';
 lsHookErrorText:WideString='SuperCopier2 couldn''t attach to processes, this is normal if you ran it twice.';
+lsDiskSpaceNotifyTitle:WideString='Not enough free space';
+
+procedure TranslateAllStrings;
 
 implementation
+
+procedure TranslateAllStrings;
+begin
+  with LocEngine do
+  begin
+    TranslateString(01,lsCopyDisplayName);
+    TranslateString(02,lsMoveDisplayName);
+    TranslateString(03,lsCopyOf1);
+    TranslateString(04,lsCopyOf2);
+    TranslateString(05,lsConfirmCopylistAdd);
+    TranslateString(06,lsCreatingCopyList);
+    TranslateString(07,lsChooseDestDir);
+    TranslateString(08,lsAll);
+    TranslateString(09,lsFile);
+    TranslateString(10,lsSpeed);
+    TranslateString(11,lsRemaining);
+    TranslateString(12,lsCopyWindowCancellingCaption);
+    TranslateString(13,lsCopyWindowPausedCaption);
+    TranslateString(14,lsCopyWindowWaitingCaption);
+    TranslateString(15,lsCollisionFileData);
+    TranslateString(16,lsRenameAction);
+    TranslateString(17,lsDeleteAction);
+    TranslateString(18,lsListAction);
+    TranslateString(19,lsCopyAction);
+    TranslateString(20,lsUpdateTimeAction);
+    TranslateString(21,lsUpdateAttributesAction);
+    TranslateString(22,lsUpdateSecurityAction);
+    TranslateString(23,lsBytes);
+    TranslateString(24,lsKBytes);
+    TranslateString(25,lsMBytes);
+    TranslateString(26,lsGBytes);
+    TranslateString(27,lsChooseFolderToAdd);
+    TranslateString(28,lsRenamingHelpCaption);
+    TranslateString(29,lsRenamingHelpText);
+    TranslateString(30,lsAdvancedHelpCaption);
+    TranslateString(31,lsAdvancedHelpText);
+    TranslateString(32,lsCollisionNotifyTitle);
+    TranslateString(33,lsCollisionNotifyText);
+    TranslateString(34,lsCopyErrorNotifyTitle);
+    TranslateString(35,lsCopyErrorNotifyText);
+    TranslateString(36,lsGenericErrorNotifyTitle);
+    TranslateString(37,lsGenericErrorNotifyText);
+    TranslateString(38,lsCopyEndNotifyTitle);
+    TranslateString(39,lsCopyEndNotifyText);
+    TranslateString(40,lsHookErrorCaption);
+    TranslateString(41,lsHookErrorText);
+    TranslateString(42,lsDiskSpaceNotifyTitle);
+  end;
+end;
+
 end.

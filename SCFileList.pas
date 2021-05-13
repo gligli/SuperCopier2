@@ -15,6 +15,8 @@ type
 	public
     BaseListId:Integer;
 
+    CopyTryCount:Integer;
+
 		SrcName,
 		DestName:WideString;
 		SrcSize:Int64;
@@ -283,8 +285,8 @@ function TFileList.Add(Item: TFileItem): Integer;
 begin
 	// maj des compteurs
 	Inc(Size,Item.SrcSize);
-	Inc(TotalSize,Item.SrcSize);
-	Inc(TotalCount,1);
+  Inc(TotalSize,Item.SrcSize);
+  Inc(TotalCount,1);
 
   Item.Owner:=Self;
 

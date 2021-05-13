@@ -3,6 +3,7 @@ program SuperCopier2;
 {%File 'ana sc.txt'}
 {%File 'SCBuildConfig.inc'}
 {%File 'todo sc.txt'}
+{%File 'Compil\ReadMe.txt'}
 
 uses
   Forms,
@@ -31,7 +32,9 @@ uses
   SCAboutForm in 'SCAboutForm.pas' {AboutForm},
   SCWideUnbufferedCopier in 'SCWideUnbufferedCopier.pas',
   SCAnsiBufferedCopier in 'SCAnsiBufferedCopier.pas',
-  SCConfigShared in 'SCConfigShared.pas';
+  SCConfigShared in 'SCConfigShared.pas',
+  SCLocEngine in 'SCLocEngine.pas',
+  SCBaseListQueue in 'SCBaseListQueue.pas';
 
 {$R *.res}
 

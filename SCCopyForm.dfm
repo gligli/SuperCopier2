@@ -1,6 +1,8 @@
 object CopyForm: TCopyForm
-  Left = 388
-  Top = 101
+  Left = 288
+  Top = 99
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = 'CopyForm'
@@ -48,15 +50,6 @@ object CopyForm: TCopyForm
     FontTxt.Style = []
     FontTxtColor = clBlack
     Max = 100
-  end
-  object llFile: TTntLabel
-    Left = 8
-    Top = 72
-    Width = 385
-    Height = 13
-    Anchors = [akLeft, akTop, akRight]
-    AutoSize = False
-    Caption = 'llFile'
   end
   object llAll: TTntLabel
     Left = 8
@@ -133,12 +126,21 @@ object CopyForm: TCopyForm
     AutoSize = False
     Caption = 'llFrom'
   end
+  object llFile: TSCFileNameLabel
+    Left = 8
+    Top = 72
+    Width = 385
+    Height = 13
+    Anchors = [akLeft, akTop, akRight]
+    AutoSize = False
+    Caption = 'llFile'
+  end
   object pcPages: TTntPageControl
     Left = -1
     Top = 150
     Width = 404
     Height = 251
-    ActivePage = tsCopyList
+    ActivePage = tsErrors
     Anchors = [akLeft, akTop, akRight, akBottom]
     Images = MainForm.ilGlobal
     MultiLine = True
@@ -316,7 +318,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 220
+        Height = 221
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -389,7 +391,7 @@ object CopyForm: TCopyForm
         object chSpeedLimit: TTntCheckBox
           Left = 8
           Top = 16
-          Width = 113
+          Width = 177
           Height = 17
           Caption = 'Limit copy speed to:'
           Font.Charset = DEFAULT_CHARSET
@@ -602,12 +604,12 @@ object CopyForm: TCopyForm
         end
       end
       object btSaveDefaultCfg: TTntButton
-        Left = 272
+        Left = 192
         Top = 199
-        Width = 116
+        Width = 196
         Height = 25
         Anchors = [akTop, akRight]
-        Caption = 'Set as default'
+        Caption = 'Set as default options'
         TabOrder = 4
         OnClick = btSaveDefaultCfgClick
       end
@@ -660,6 +662,7 @@ object CopyForm: TCopyForm
     Top = 116
     Width = 65
     Height = 25
+    Visible = False
     TabOrder = 5
     TabStop = True
     Anchors = [akTop, akRight]
@@ -702,7 +705,7 @@ object CopyForm: TCopyForm
     Images = MainForm.ilGlobal
     TrackButton = tbLeftButton
     Left = 204
-    Top = 334
+    Top = 366
     object miTop: TTntMenuItem
       Caption = 'Top'
       ImageIndex = 12
@@ -754,7 +757,7 @@ object CopyForm: TCopyForm
     AutoHotkeys = maManual
     TrackButton = tbLeftButton
     Left = 236
-    Top = 334
+    Top = 366
     object miDefaultDest: TTntMenuItem
       Caption = 'Use default destination folder ()'
       Default = True
@@ -781,33 +784,33 @@ object CopyForm: TCopyForm
     Filter = 'SuperCopier2 Copy List (*.scl)|*.scl'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
     Left = 300
-    Top = 334
+    Top = 366
   end
   object sdCopyList: TTntSaveDialog
     DefaultExt = 'scl'
     Filter = 'SuperCopier2 Copy List (*.scl)|*.scl'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 332
-    Top = 334
+    Top = 366
   end
   object sdErrorLog: TTntSaveDialog
     DefaultExt = 'txt'
     FileName = 'errorlog.txt'
     Filter = 'Text files (*.txt)|*.txt'
     Left = 364
-    Top = 334
+    Top = 366
   end
   object odFileAdd: TTntOpenDialog
     Filter = 'Any file (*.*)'
     Options = [ofHideReadOnly, ofAllowMultiSelect, ofPathMustExist, ofFileMustExist, ofShareAware, ofEnableSizing]
     Left = 268
-    Top = 334
+    Top = 366
   end
   object pmFileAdd: TTntPopupMenu
     AutoHotkeys = maManual
     TrackButton = tbLeftButton
     Left = 172
-    Top = 334
+    Top = 366
     object miAddFiles: TTntMenuItem
       Caption = 'Add files...'
       OnClick = miAddFilesClick
@@ -820,30 +823,33 @@ object CopyForm: TCopyForm
   object btTitleBar: TSCTitleBarBt
     OnClick = btTitleBarClick
     Left = 107
-    Top = 334
+    Top = 366
   end
   object Systray: TScSystray
     Popup = pmSystray
     Visible = False
     OnMouseDown = SystrayMouseDown
+    OnBallonClick = SystrayMouseDown
     Left = 75
-    Top = 334
+    Top = 366
   end
   object tiSystray: TTimer
+    Enabled = False
     Interval = 500
     OnTimer = tiSystrayTimer
     Left = 43
-    Top = 334
+    Top = 366
   end
   object pmSystray: TTntPopupMenu
     AutoHotkeys = maManual
     Images = MainForm.ilGlobal
     TrackButton = tbLeftButton
     Left = 140
-    Top = 334
+    Top = 366
     object miStResume: TTntMenuItem
       Caption = 'Resume'
       ImageIndex = 26
+      Visible = False
       OnClick = miStPauseClick
     end
     object miStPause: TTntMenuItem

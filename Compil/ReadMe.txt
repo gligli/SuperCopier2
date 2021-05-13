@@ -1,58 +1,55 @@
 SuperCopier 2 beta 1
 ====================
 
-Site web:
+Website:
   http://supercopier.sfxteam.org
 
 E-Mail:
-  supercopier@sfxteam.org (mettez de préférence le mot 'SuperCopier' dans l'objet de l'e-mail)
+  supercopier@sfxteam.org (preferably put the 'SuperCopier' word  in the e-mail subject)
 
 Staff:
-  GliGli: Code principal,
-  Guimli: Outil de traduction,
-  Yogi: Copieur NT Originel,
-  ZeuS: Composants graphiques.
+  GliGli: Main code,
+  Yogi: Original NT Copier,
+  ZeuS: Graphical components.
 
-Remerciements:
-  TntWare http://www.tntware.com/ (composants unicode),
-  Tal Sella http://www.virtualplastic.net/scrow/ (icônes),
-  Mathias Rauen http://www.madshi.net/ (bibliothèque de hook).
+Special thanks to:
+  TntWare http://www.tntware.com/ (unicode componants),
+  Tal Sella http://www.virtualplastic.net/scrow/ (icons),
+  Mathias Rauen http://www.madshi.net/ (hook library).
 
 Description:
 ============
 
-SuperCopier remplace le système de copie de fichiers de l'explorateur de windows 
-en y ajoutant des améliorations:
-    - Possibilité de reprendre les transferts
-    - Réglage du taux de transfert
-    - Plus de bugs si l'on copie plus de 2 Go de fichiers (Vous pouvez copier jusqu'à
-      4 To de fichiers, je pense que ça devrait suffire ;)
-    - Calcul du taux de transfert
-    - Meilleur système de visualisation	
-    - Un peu plus rapide
-    - Listes de copie modifiables à volonté pendant la copie
-    - Log des erreurs
+SuperCopier replaces windows explorer file copy and adds many features:
+		- Transfer resuming
+		- Copy speed control
+		- No bugs if You copy more than 2GB at once
+		- Copy speed computation
+		- Better copy progress display
+		- A little faster
+		- Copy list editable while copyin
+    - Error log
+		- Copy list saving/loading
     - ...
     
-Compatibilité: Windows 95/98/Millenium/NT4/2000/XP/2003Server
+Compatibility: Windows 95/98/Millenium/NT4/2000/XP/2003Server
 
-Historique:
-===========
+History:
+========
 
 - v2 beta 1:
-    Réécriture complète de l'application.
-    ... Donc plein de choses nouvelles mais c'est trop long à énumérer :)
+    Complete rewrite of the software.
+    ... So many new things but it's too long to enumerate :)
 
-A venir:
-========
-  Choix de la langue de l'interface
-  Prise en charge des suppressions et des déplacements sur un même volume
-  Outil en ligne de commande
+Coming:
+=======
+  Handling of deletions and same volume moves
+	Command line tool  
 
-A propos de l'auteur:
-=====================
-  Je (GliGli) suis actuellement à la recherche d'un Job d'analyste programmeur sur Lyon (69,France).
-  Je connais particulièrement bien le Delphi (SuperCopier est développé en Delphi), si vous êtes
-  intéressé, envoyez moi un e-mail à f.guilhaume@free.fr .
+About the author:
+=================
+  I (GliGli) am looking for an analyst programmer job near Lyon (69,France).
+  I know particularly well Delphi (SuperCopier was developped in Delphi), if You are
+  interrested, e-mail me at f.guilhaume@free.fr .
   
   

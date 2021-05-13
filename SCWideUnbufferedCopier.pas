@@ -142,6 +142,8 @@ begin
     if Pos('\\',SourceFile)<>1 then SourceFile:=ENABLE_32K_CHARS_PATH+SourceFile; // TODO: a ameliorer
     if Pos('\\',DestFile)<>1 then DestFile:=ENABLE_32K_CHARS_PATH+DestFile;
 
+    Inc(FileItem.CopyTryCount);
+
     try
       HSrc:=INVALID_HANDLE_VALUE;
       HDest:=INVALID_HANDLE_VALUE;

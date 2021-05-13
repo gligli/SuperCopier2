@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics,  TntForms,
   Dialogs, StdCtrls,filectrl,tntsysutils,TntStdCtrls,ShellApi, Controls,
   ComCtrls, TntComCtrls, XPMan, ScSystray, Menus, TntMenus, ImgList,
-  Buttons, TntButtons,SCConfigShared;
+  Buttons, TntButtons,SCConfigShared,SCLocEngine;
 
 const
   CANCEL_TIMEOUT=5000; //ms
@@ -42,11 +42,15 @@ type
     procedure miActivateClick(Sender: TObject);
     procedure miCancelAllClick(Sender: TObject);
     procedure miCancelThreadClick(Sender: TObject);
+    procedure SystrayBallonClick(Sender: TObject);
   private
     { Déclarations privées }
+    procedure UpdateSystrayIcon;
     procedure OpenDialog(var AMsg:TMessage); message WM_OPENDIALOG;
   public
     { Déclarations publiques }
+    NotificationSourceForm:TTntForm;
+    NotificationSourceThread:TThread;
   end;
 
 var
@@ -55,7 +59,7 @@ var
 
 implementation
 uses SCConfig,SCCommon,SCWin32,SCCopyThread,SCBaseList,SCFileList,SCDirList,SCHookShared,SCWorkThreadList,madCodeHook,
-  Forms,SCConfigForm,SCAboutForm,SCLocStrings;
+  Forms,SCConfigForm,SCAboutForm,SCLocStrings,SCCopyForm, Math;
 {$R *.dfm}
 
 //******************************************************************************
@@ -83,7 +87,7 @@ begin
     // le processus ayant lancé la copie doit-it être pris en charge?
     ProcessIdToFileName(HookData.ProcessId,RawProcessName);
     ProcessName:=LowerCase(ExtractFileName(RawProcessName));
-    if Pos(ProcessName,Config.Values.HandledProcesses)<>0 then
+    if Pos(ProcessName,LowerCase(Config.Values.HandledProcesses))<>0 then
       with HookData do
       begin
         BaseList:=TBaseList.Create;
@@ -118,20 +122,22 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  Windows.SetParent(Handle,THandle(HWND_MESSAGE)); // cacher la form
   Caption:=SC2_MAINFORM_CAPTION;
 
-  Windows.SetParent(Handle,THandle(HWND_MESSAGE)); // cacher la form
+  WorkThreadList:=TWorkThreadList.Create;
 
-  Systray.Hint:='SuperCopier 2';
-  Systray.Icone:=Application.Icon;
+  LocEngine:=TLocEngine.Create;
 
   OpenConfig;
+  ApplyConfig;
 
   CopyHandlingActive:=Config.Values.ActivateOnStart;
   miActivate.Visible:=not CopyHandlingActive;
   miDeactivate.Visible:=CopyHandlingActive;
 
-  WorkThreadList:=TWorkThreadList.Create;
+  Systray.Hint:='SuperCopier 2';
+  UpdateSystrayIcon;
 
   if not InjectLibrary(ALL_SESSIONS and not CURRENT_PROCESS,DLL_NAME) or
      not CreateIpcQueue(IPC_NAME,HookCallback) then
@@ -139,6 +145,10 @@ begin
     SCWin32.MessageBox(Handle,lsHookErrorText,lsHookErrorCaption,MB_OK or MB_ICONERROR);
     Application.Terminate;
   end;
+
+  NotificationSourceForm:=nil;
+
+  LocEngine.TranslateForm(Self);
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -153,6 +163,8 @@ begin
   WorkThreadList.Free;
 
   CloseConfig;
+
+  LocEngine.Free;
 end;
 
 procedure TMainForm.miConfigClick(Sender: TObject);
@@ -198,20 +210,21 @@ end;
 
 procedure TMainForm.miThreadListClick(Sender: TObject);
 var i:Integer;
-    MenuItem,CancelSubItem:TMenuItem;
+    MenuItem,CancelSubItem:TTntMenuItem;
 begin
   for i:=0 to WorkThreadList.Count-1 do
   begin
-    MenuItem:=TMenuItem.Create(pmSystray);
+    MenuItem:=TTntMenuItem.Create(pmSystray);
     MenuItem.Caption:=WorkThreadList[i].DisplayName;
     MenuItem.ImageIndex:=miThreadList.ImageIndex;
     MenuItem.Tag:=i;
     miThreadList.Add(MenuItem);
 
-    CancelSubItem:=TMenuItem.Create(pmSystray);
+    CancelSubItem:=TTntMenuItem.Create(pmSystray);
     CancelSubItem.Caption:=miCancelThread.Caption;
     CancelSubItem.OnClick:=miCancelThread.OnClick;
     CancelSubItem.ImageIndex:=miCancelThread.ImageIndex;
+    CancelSubItem.Tag:=i;
     MenuItem.Add(CancelSubItem);
   end;
 
@@ -225,6 +238,8 @@ begin
 
   miActivate.Visible:=not CopyHandlingActive;
   miDeactivate.Visible:=CopyHandlingActive;
+
+  UpdateSystrayIcon;
 end;
 
 procedure TMainForm.miCancelAllClick(Sender: TObject);
@@ -235,6 +250,28 @@ end;
 procedure TMainForm.miCancelThreadClick(Sender: TObject);
 begin
   WorkThreadList[(Sender as TMenuItem).Tag].Cancel;
+end;
+
+procedure TMainForm.SystrayBallonClick(Sender: TObject);
+begin
+  if (WorkThreadList.IndexOf(NotificationSourceThread)<>-1) and (NotificationSourceForm is TCopyForm) then
+  begin
+    (NotificationSourceForm as TCopyForm).Minimized:=False;
+  end;
+end;
+
+procedure TMainForm.UpdateSystrayIcon;
+var TmpIcon:TIcon;
+    Idx:Integer;
+begin
+  TmpIcon:=TIcon.Create;
+  try
+    if CopyHandlingActive then Idx:=28 else Idx:=29;
+    ilGlobal.GetIcon(Idx,TmpIcon);
+    Systray.Icone:=TmpIcon;
+  finally
+    TmpIcon.Free;
+  end;
 end;
 
 //******************************************************************************

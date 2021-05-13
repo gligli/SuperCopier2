@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
   Dialogs, StdCtrls, TntStdCtrls, ExtCtrls, TntExtCtrls,SCCopier,SCCommon,
-  SCFileNameLabel, ScPopupButton, Menus, TntMenus;
+  SCFileNameLabel, ScPopupButton, Menus, TntMenus,SCLocEngine;
 
 type
   TCopyErrorForm = class(TTntForm)
@@ -59,6 +59,8 @@ end;
 
 procedure TCopyErrorForm.FormCreate(Sender: TObject);
 begin
+  LocEngine.TranslateForm(Self);
+
   //HACK: ne pas mettre directement la fenêtre en resizeable pour que
   //      la gestion des grandes polices puisse la redimentionner
   BorderStyle:=bsSizeToolWin;

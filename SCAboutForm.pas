@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
-  Dialogs, ExtCtrls, StdCtrls, TntStdCtrls,ShellApi;
+  Dialogs, ExtCtrls, StdCtrls, TntStdCtrls,ShellApi,SCLocEngine;
 
 const
   COSTAB_LENGTH=2048;
@@ -21,8 +21,8 @@ type
     llThanks1: TTntLabel;
     llEmail: TTntLabel;
     llStaff2: TTntLabel;
-    llThanks2: TLabel;
     btReadme: TTntButton;
+    llThanks2: TTntLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure imLogoClick(Sender: TObject);
@@ -53,6 +53,8 @@ implementation
 procedure TAboutForm.FormCreate(Sender: TObject);
 var i:integer;
 begin
+  LocEngine.TranslateForm(Self);
+
 	imLogo.Picture.Bitmap.PixelFormat:=pf32bit;
 
   // copie de l'image dans une autre
@@ -64,6 +66,7 @@ begin
 
 	// on précalcule une petite table de cosinus
 	for i:=0 to COSTAB_LENGTH-1 do CosTab[i]:=Round((Cos(i*2*Pi/COSTAB_LENGTH)+1)*255/2);
+
 end;
 
 procedure TAboutForm.TntFormCloseQuery(Sender: TObject;
@@ -163,7 +166,7 @@ end;
 
 procedure TAboutForm.btReadmeClick(Sender: TObject);
 begin
-  ShellExecute(Handle,'open','ReadMe.txt','','',SW_SHOW);
+  ShellExecute(Handle,'open',PChar(String(btReadme.Caption)),'','',SW_SHOW);
 end;
 
 end.

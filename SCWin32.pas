@@ -16,6 +16,7 @@ const
 type
   TGetVolumePathNameW=function(lpszFileName,lpszVolumePathName:PWideChar;cchBufferLength:Cardinal):LongBool;stdcall;
   TGetVolumeNameForVolumeMountPointW=function(lpszVolumeMountPoint,lpszVolumeName:PWideChar;cchBufferLength:Cardinal):LongBool;stdcall;
+  TGetSystemDefaultUILanguage=function:LANGID;stdcall;
 
   TStorageDeviceNumber=record
 		DeviceType:DWORD;
@@ -42,6 +43,9 @@ function GetVolumeInformation(lpRootPathName: PWideChar;
   var lpMaximumComponentLength, lpFileSystemFlags: DWORD;
   lpFileSystemNameBuffer: PWideChar; nFileSystemNameSize: DWORD): BOOL;
 function MessageBox(hWnd: HWND; lpText, lpCaption: WideString; uType: UINT): Integer;
+function GetTempPath:WideString;
+function CopyFile(lpExistingFileName, lpNewFileName: PWideChar; bFailIfExists: BOOL): BOOL;
+
 
 var
   HKernel32_dll:Cardinal;
@@ -49,6 +53,7 @@ var
   // fonctions non déclarées sous tous les windows, appel dynamique obligatoire
   GetVolumePathName:TGetVolumePathNameW;
   GetVolumeNameForVolumeMountPoint:TGetVolumeNameForVolumeMountPointW;
+  GetSystemDefaultUILanguage:TGetSystemDefaultUILanguage;
 
 implementation
 
@@ -231,11 +236,29 @@ begin
   Result:=MessageBoxW(hWnd,PWideChar(lpText),PWideChar(lpCaption),uType); // fonction implémentée sous Win9x
 end;
 
+//******************************************************************************
+// GetTempPath
+//******************************************************************************
+function GetTempPath:WideString;
+var Buf:array[0..MAX_PATH] of WideChar;
+begin
+  if Tnt_GetTempPathW(MAX_PATH,Buf)<>0 then Result:=Buf;
+end;
+
+//******************************************************************************
+// CopyFile
+//******************************************************************************
+function CopyFile(lpExistingFileName, lpNewFileName: PWideChar; bFailIfExists: BOOL): BOOL;
+begin
+  Result:=Tnt_CopyFileW(lpExistingFileName,lpNewFileName,bFailIfExists);
+end;
+
 initialization
   HKernel32_dll:=LoadLibrary('kernel32.dll');
   GetVolumePathName:=GetProcAddress(HKernel32_dll,'GetVolumePathNameW');
   GetVolumeNameForVolumeMountPoint:=GetProcAddress(HKernel32_dll,'GetVolumeNameForVolumeMountPointW');
-  
+  GetSystemDefaultUILanguage:=GetProcAddress(HKernel32_dll,'GetSystemDefaultUILanguage');
+
 finalization
   FreeLibrary(HKernel32_dll);
 

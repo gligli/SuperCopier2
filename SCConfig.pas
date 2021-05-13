@@ -49,6 +49,7 @@ type
     ProgressOutlineColor:TColor;
     MinimizedEventHandling:TMinimizedEventHandling;
     FailSafeCopier:Boolean;
+    Language:WideString;
   end;
 
   TConfig=class
@@ -169,6 +170,7 @@ const
     ProgressOutlineColor:clBlack;
     MinimizedEventHandling:mehShowBalloon;
     FailSafeCopier:False;
+    Language:'';
   );
 
   CONFIG_REGISTRY_KEY='Software\SFX TEAM\SuperCopier2';
@@ -182,7 +184,7 @@ procedure CloseConfig;
 procedure ApplyConfig;
 
 implementation
-uses SysUtils, StrUtils,TntForms,TntSysutils,SCWin32,SCMainForm;
+uses SysUtils, StrUtils,TntForms,TntSysutils,SCWin32,SCMainForm,SCLocEngine,SCLocStrings,SCConfigForm,SCAboutForm;
 
 //******************************************************************************
 // OpenConfig: crée l'objet de configuration et charge la config
@@ -215,6 +217,14 @@ begin
   finally
     Reg.CloseKey;
     Reg.Free;
+  end;
+
+  // langage
+  if Config.Values.Language='' then Config.Values.Language:=GetOSLanguageName;
+  if Config.Values.Language<>DEFAULT_LANGUAGE then
+  begin
+    LocEngine.LoadLanguageFile(WideExtractFilePath(TntApplication.ExeName)+LANG_SUBDIR+Config.Values.Language+LANG_EXT);
+    TranslateAllStrings;
   end;
 end;
 
@@ -282,6 +292,10 @@ procedure ApplyConfig;
 begin
   SetProcessPriority(Config.Values.Priority);
   MainForm.Systray.Visible:=Config.Values.TrayIcon;
+
+  LocEngine.TranslateForm(MainForm);
+  if Assigned(ConfigForm) then LocEngine.TranslateForm(ConfigForm);
+  if Assigned(AboutForm) then LocEngine.TranslateForm(AboutForm);
 end;
 
 //******************************************************************************
@@ -356,6 +370,7 @@ begin
       ProgressOutlineColor:=StringToColor(ReadString('ProgressOutlineColor'));
       MinimizedEventHandling:=TMinimizedEventHandling(ReadInteger('MinimizedEventHandling'));
       FailSafeCopier:=ReadBoolean('FailSafeCopier');
+      Language:=UTF8Decode(ReadString('Language'));
     except
       LoadDefaultConfig;
     end;
@@ -415,6 +430,7 @@ begin
     WriteString('ProgressOutlineColor',ColorToString(ProgressOutlineColor));
     WriteInteger('MinimizedEventHandling',Integer(MinimizedEventHandling));
     WriteBoolean('FailSafeCopier',FailSafeCopier);
+    WriteString('Language',UTF8Encode(Language));
   end;
 end;
 

@@ -59,6 +59,8 @@ begin
     SourceFile:=FileItem.SrcFullName;
     DestFile:=FileItem.DestFullName;
 
+    Inc(FileItem.CopyTryCount);
+
     try
       HSrc:=INVALID_HANDLE_VALUE;
       HDest:=INVALID_HANDLE_VALUE;

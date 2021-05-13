@@ -50,6 +50,8 @@ type
      destructor Destroy; override;
   published
     { Déclarations publiées }
+    property Visible;
+    property Enabled;
     property TabOrder;
     property TabStop;
     property Anchors;
@@ -66,6 +68,13 @@ procedure Register;
 implementation
 
 uses Menus;
+
+type
+  TEndMenu=function:LongBool;stdcall;
+
+var
+  HUser32_dll:Cardinal;
+  DynEndMenu:TEndMenu;
 
 procedure Register;
 begin
@@ -113,11 +122,25 @@ end;
 
 procedure TScPopupButton.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
+var PMHwnd:THandle;
 begin
   inherited;
 
   // on ferme le popup menu
-  if Assigned(FPopup) then EndMenu;
+  if Assigned(FPopup) then
+  begin
+    if (Win32MajorVersion>4) and // Win98/Me ou Win2000 et >
+       ((Win32Platform=VER_PLATFORM_WIN32_NT) or
+       ((Win32Platform=VER_PLATFORM_WIN32_WINDOWS) and (Win32MinorVersion>0))) then
+    begin
+      DynEndMenu;
+    end
+    else if (Win32MajorVersion=4) and (Win32Platform=VER_PLATFORM_WIN32_NT) then //Win NT4
+    begin
+      PMHwnd:=FindWindow('#32768',nil);
+      SendMessage(PMHwnd,WM_CLOSE,0,0);
+    end;
+  end;
 
   StatusButton:=SBNormal;
   if (Y>=0) and (Y<=Height) and (X>=0) and (X<=Width) then
@@ -165,6 +188,7 @@ begin
     end;
   end;
 end;
+
 
 procedure TScPopupButton.SetItemIndex(const Value: Integer);
 var
@@ -422,5 +446,12 @@ procedure TScPopupButton.KeyUp(var Key: Word; Shift: TShiftState);
 begin
   inherited;
 end;
+
+initialization
+  HUser32_dll:=LoadLibrary('user32.dll');
+  DynEndMenu:=GetProcAddress(HUser32_dll,'EndMenu');
+
+finalization
+  FreeLibrary(HUser32_dll);
 
 end.

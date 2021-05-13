@@ -14,6 +14,7 @@ object CollisionRenameForm: TCollisionRenameForm
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poOwnerFormCenter
+  OnCreate = TntFormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object llOriginalNameTitle: TTntLabel
@@ -41,7 +42,7 @@ object CollisionRenameForm: TCollisionRenameForm
   object rbRenameNew: TTntRadioButton
     Left = 8
     Top = 8
-    Width = 113
+    Width = 201
     Height = 17
     Caption = 'Rename new file'
     Checked = True
@@ -51,7 +52,7 @@ object CollisionRenameForm: TCollisionRenameForm
   object rbRenameOld: TTntRadioButton
     Left = 208
     Top = 8
-    Width = 113
+    Width = 193
     Height = 17
     Caption = 'Rename old file'
     TabOrder = 1

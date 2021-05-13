@@ -23,6 +23,12 @@ type
     FFontTxtColor: TColor;
     FFontTxt: TFont;
     FTimeRemaining:Widestring;
+    FFrontColorPalette:Array of TColor;
+    FBackColorPalette:Array of TColor;
+
+    TmpBmp:Tbitmap;
+    DoitRepeindre:Boolean;
+    WidthProgress,PourcentProgress:Integer;
 
     Procedure SetBorderColor(const Value:TColor);
     Procedure SetFrontColor1(const Value:TColor);
@@ -37,6 +43,11 @@ type
     Procedure SetMin(const Value:Int64);
     Procedure SetPosition(const Value:Int64);
     Procedure SetTimeRemaining(const Value:WideString);
+    Procedure Resize(var Message:TWMWindowPosChanging);message WM_WINDOWPOSCHANGED;
+    Procedure CalculPalette;
+
+    Procedure RecreerTmpBmp;
+    Procedure CalculPourcent;
   protected
     { Déclarations protégées }
     procedure Paint;override;
@@ -68,6 +79,8 @@ procedure Register;
 
 implementation
 
+uses Types;
+
 procedure Register;
 begin
   RegisterComponents('SFX Team', [TSCProgessBar]);
@@ -75,188 +88,295 @@ end;
 
 { TSCProgessBar }
 
+//##############################################################################
+//                            CREATE
+//
+// Reçois: AOwner
+// But: Création du composant et initialisation
 constructor TSCProgessBar.Create(AOwner: TComponent);
 begin
   inherited;
+
+  FMin:=0; // Valeur mini de la progressbar
+  Fmax:=100; // valeur max de la progressbar
+
+  TmpBmp:=nil;
+  RecreerTmpBmp;
+  CalculPourcent;
+
   ControlStyle := [csOpaque,csFramed];
-  FMin:=0;
-  Fmax:=100;
+  Height:=15;
+  Width:=200;
   FFontProgress:=TFont.Create;
   FFontTxt:=TFont.Create;
   FFontProgress.Color:=clWhite;
   FFontTxt.Color:=clWhite;
-
-  Self.Constraints.MinHeight:=10;
+  Self.Constraints.MinHeight:=10;  // on limite la taille mini
   Self.Constraints.MinWidth:=10;
-  FPosition:=0;
+  FPosition:=0; // Fposition est la position de l progressbar par rapport a Fmax
   FFrontColor1:=clNavy;
   FFrontColor2:=clCream;
   FBackColor1:=$00685758;
   FBackColor2:=clWhite;
   FFontProgressColor:=clBlack;
   FFontTxtColor:=clBlack;
+  CalculPalette;
+  Invalidate;
 end;
 
 destructor TSCProgessBar.Destroy;
 begin
+  SetLength(FFrontColorPalette,0);
+  SetLength(FBackColorPalette,0);
   FFontProgress.Free;
   FFontTxt.Free;
+
+  TmpBmp.Free;
+
   inherited;
 end;
 
-procedure TSCProgessBar.SetMax(const Value: Int64);
-begin
-  If (Value<>FMax) and (Value>Fmin) then
-  begin
-    FMax:=Value;
-    invalidate;
-  end;
-end;
-
-procedure TSCProgessBar.SetMin(const Value: Int64);
-begin
-  If (Value<>FMin) and (FMax>Value) then
-  begin
-    FMin:=Value;
-    invalidate;
-  end;
-end;
-
-procedure TSCProgessBar.SetPosition(const Value: Int64);
-begin
-  If (Value<>FPosition) and (Value<=FMax) then
-  begin
-    FPosition:=Value;
-    invalidate;
-  end;
-end;
-
+//##############################################################################
+//                            Paint
+//
+// Reçois: Rien
+// But: Dessine la progressbar
 procedure TSCProgessBar.Paint;
+Const
+  MargeDroite=8;
+  DT_TEXTPERSO=DT_CENTER+DT_VCENTER+DT_SINGLELINE;
+var
+  Y:Integer;
+  Textsize:TSize;
+  TxtRect,TxtRectB:TRect;
+  PourcentProgressStr:String;
+begin
+  if DoitRepeindre then
+  begin
+    DoitRepeindre:=False;
+
+    With TmpBmp.Canvas do
+    begin
+      {dessine la progress bar}
+
+      for y:=0 to TmpBmp.Height-1 do
+      begin
+        pen.Color:=FFrontColorPalette[Y];
+        MoveTo(0,y);
+        LineTo(WidthProgress,y);
+        pen.Color:=FBackColorPalette[Y];
+        MoveTo(WidthProgress,y);
+        LineTo(TmpBmp.Width,y);
+      end;
+
+      {Dessine le % de progression et la widestring}
+
+      Font:=FFontProgress;
+      PourcentProgressStr:=IntToStr(PourcentProgress)+' %';
+      GetTextExtentPoint32(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),Textsize);
+      Brush.Style:=bsClear;
+      //on dessine le contoure du texte
+      Font.Color:=FFontProgressColor;
+      With TxtRect do
+      begin
+        Left:=(TmpBmp.Width div 2)-(Textsize.cx div 2)-1 ;
+        Top:=(TmpBmp.Height Div 2)-(Textsize.Cy+2) div 2;
+        Right:=left+Textsize.cx+2;
+        Bottom:=Top+Textsize.cy+2;
+        TxtRectB:=Rect(left-1,Top-1,Right-1,Bottom-1);
+        DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left+1,Top+1,Right+1,Bottom+1);
+        DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left-1,Top+1,Right-1,Bottom+1);
+        DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left+1,Top-1,Right+1,Bottom-1);
+        DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left,Top-1,Right,Bottom-1);
+        DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left-1,Top,Right-1,Bottom);
+        DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left,Top+1,Right,Bottom+1);
+        DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left+1,Top,Right+1,Bottom);
+        DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRectB,DT_TEXTPERSO);
+      end;
+      // on dessine le texte
+      Font.Color:=FFontProgress.Color;
+      DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRect,DT_TEXTPERSO);
+
+      Font:=FFontTxt;
+      GetTextExtentPoint32W(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),Textsize);
+      Brush.Style:=bsClear;
+      Font.Color:=FFontTxtColor;
+      With TxtRect do
+      begin
+        Left:=TmpBmp.Width-(Textsize.cx+2)-MargeDroite;
+        Top:=(TmpBmp.Height Div 2)-(Textsize.Cy+2) div 2;
+        Right:=left+Textsize.cx+2;
+        Bottom:=Top+Textsize.cy+2;
+        TxtRectB:=Rect(left-1,Top-1,Right-1,Bottom-1);
+        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left+1,Top+1,Right+1,Bottom+1);
+        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left-1,Top+1,Right-1,Bottom+1);
+        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left+1,Top-1,Right+1,Bottom-1);
+        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left,Top-1,Right,Bottom-1);
+        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left-1,Top,Right-1,Bottom);
+        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left,Top+1,Right,Bottom+1);
+        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        TxtRectB:=Rect(left+1,Top,Right+1,Bottom);
+        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+      end;
+      Font.Color:=FFontTxt.Color;
+      DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRect,DT_TEXTPERSO);
+
+      {dessine le cadre}
+      Pen.Color:=FBorderColor;
+      Brush.Style:=bsClear;
+      Rectangle(0,0,Width,height);
+    end;
+  end;
+
+  {dessine sur le composant}
+  Canvas.Draw(0,0,TmpBmp);
+end;
+
+//##############################################################################
+//                            CalculPalette
+//
+// Reçois: Rien
+// But: Calcul le dégradé de couleur, lors d'un changement de couleur ou resize en hauteur
+procedure TSCProgessBar.CalculPalette;
     procedure ColorToRVB(Color:TColor;var R,V,B:Integer);
     begin
       R:=Color and $000000FF;
       V:=(Color and $0000FF00) shr 8;
       B:=(Color and $00FF0000) shr 16;
     end;
-    procedure OutlineText(var Bmp:Tbitmap;TextColor,TextOutline:TColor);
-    var
-      x,y:integer;
-    begin
-      For X:=0 to Bmp.Width-1 do
-      begin
-        for y:=0 to Bmp.Height-1 do
-        begin
-          With Bmp.Canvas do
-          begin
-            if Pixels[X,Y]=TextColor then
-            begin
-              if Pixels[X+1,Y+1]=clFuchsia then Pixels[X+1,Y+1]:=TextOutline;
-              if Pixels[X-1,Y-1]=clFuchsia then Pixels[X-1,Y-1]:=TextOutline;
-              if Pixels[X+1,Y-1]=clFuchsia then Pixels[X+1,Y-1]:=TextOutline;
-              if Pixels[X-1,Y+1]=clFuchsia then Pixels[X-1,Y+1]:=TextOutline;
-              if Pixels[X+1,Y]=clFuchsia then Pixels[X+1,Y]:=TextOutline;
-              if Pixels[X-1,Y]=clFuchsia then Pixels[X-1,Y]:=TextOutline;
-              if Pixels[X,Y+1]=clFuchsia then Pixels[X,Y+1]:=TextOutline;
-              if Pixels[X,Y-1]=clFuchsia then Pixels[X,Y-1]:=TextOutline;
-            end;
-          end;
-        end;
-      end;
-    end;
 var
-  Y,WidthProgress,PourcentProgress:Integer;
-  Textsize:TSize;
-  TxtRect:TRect;
-  PourcentProgressStr:String;
+  y:Integer;
   R1,V1,B1,R2,V2,B2:Integer;
   R1b,V1b,B1b,R2b,V2b,B2b:Integer;
-  Bmp,BmpText:Tbitmap;
 begin
-  {efface le fond}
-  Perform(WM_ERASEBKGND,Canvas.Handle,1);
-  {dessine la progresse bar}
-  Bmp:=TBitmap.Create;
-  Bmp.Width:=Width;
-  Bmp.Height:=Height;
-  Bmp.PixelFormat:=pfDevice;
+  SetLength(FFrontColorPalette,Height);
+  SetLength(FBackColorPalette,Height);
   ColorToRVB(FFrontColor1,R1,V1,B1);
   ColorToRVB(FFrontColor2,R2,V2,B2);
   ColorToRVB(FBackColor1,R1b,V1b,B1b);
   ColorToRVB(FBackColor2,R2b,V2b,B2b);
-  PourcentProgress:=(FPosition*100) div FMax;
-  //WidthProgress:=(PourcentProgress*Width) div 100;
-  WidthProgress:=(FPosition*Width) div FMAX;
-  for y:=0 to (Bmp.Height div 2) do
+  for y:=0 to (Height div 2) do
   begin
-    Bmp.Canvas.pen.Color:=RGB( (R1+ MulDiv(y,R2-R1,bmp.Height)) mod 256,
-                               (V1+ MulDiv(y,V2-V1,bmp.Height)) mod 256,
-                               (B1+ MulDiv(y,B2-b1,bmp.Height)) mod 256);
-    Bmp.Canvas.MoveTo(0,y);
-    Bmp.Canvas.LineTo(WidthProgress,y);
-    Bmp.Canvas.MoveTo(0,Bmp.Height-Y);
-    Bmp.Canvas.LineTo(WidthProgress,Bmp.Height-Y);
-    Bmp.Canvas.pen.Color:=RGB( (R1b+ MulDiv(y,R2b-R1b,bmp.Height)) mod 256,
-                               (V1b+ MulDiv(y,V2b-V1b,bmp.Height)) mod 256,
-                               (B1b+ MulDiv(y,B2b-B1b,bmp.Height)) mod 256);
-    Bmp.Canvas.MoveTo(WidthProgress,y);
-    Bmp.Canvas.LineTo(Bmp.Width,y);
-    Bmp.Canvas.MoveTo(WidthProgress,Bmp.Height-Y);
-    Bmp.Canvas.LineTo(Bmp.Width,Bmp.Height-Y);
+    {Couleur d'avant plan}
+    FFrontColorPalette[y]:=RGB((R1+ MulDiv(y,R2-R1,Height)) mod 256,
+                               (V1+ MulDiv(y,V2-V1,Height)) mod 256,
+                               (B1+ MulDiv(y,B2-b1,Height)) mod 256);
+    FFrontColorPalette[Height-Y-1]:=FFrontColorPalette[y];
+    {Couleur d'arrière plan}
+    FBackColorPalette[y]:=RGB( (R1b+ MulDiv(y,R2b-R1b,Height)) mod 256,
+                               (V1b+ MulDiv(y,V2b-V1b,Height)) mod 256,
+                               (B1b+ MulDiv(y,B2b-B1b,Height)) mod 256);
+    FBackColorPalette[Height-Y-1]:=FBackColorPalette[y];
   end;
-
-  {Dessine le % de progression et la widestring}
-  BmpText:=TBitmap.Create;
-  PourcentProgressStr:=IntToStr(PourcentProgress)+' %';
-  With BmpText do
-  begin
-    TransparentColor:=clFuchsia;
-    Transparent:=true;
-
-    {dessine le %}
-    Canvas.Font:=FFontProgress;
-    textsize:=Canvas.TextExtent(PourcentProgressStr);
-    Width:=textsize.cx+1;
-    Height:=textsize.cy+1;
-    Canvas.Brush.Color:=clFuchsia;
-    Canvas.FillRect(Canvas.ClipRect);
-    Canvas.TextOut(0,0,PourcentProgressStr);
-    OutlineText(BmpText,FFontProgress.Color,FFontProgressColor);
-    bmp.Canvas.Draw((bmp.Width div 2)-Width div 2,(bmp.Height div 2)-Height div 2 +1,BmpText);
-    {dessine le widestring}
-    Canvas.Font:=FFontTxt;
-    GetTextExtentPoint32W(Canvas.Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),Textsize);
-    Width:=textsize.cx+1;
-    Height:=textsize.cy+1;
-    Canvas.FillRect(Canvas.ClipRect);
-    TxtRect:=Rect(0,0,Width,Height);
-    DrawTextW(Canvas.Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRect,DT_CENTER+DT_VCENTER+DT_SINGLELINE);
-    OutlineText(BmpText,FFontTxt.Color,FFontTxtColor);
-    bmp.Canvas.Draw(Bmp.Width-Width-5,(bmp.Height div 2)-Height div 2 +1,BmpText);
-    Free;
-  end;
-
-  Bmp.Canvas.Pen.Color:=FBorderColor;
-  Bmp.Canvas.Brush.Style:=bsClear;
-  bmp.Canvas.Rectangle(0,0,Width,height);
-  Canvas.Draw(0,0,Bmp);
-  Canvas.Pen.Color:=FBorderColor;
-  Bmp.Free;
 end;
 
+//##############################################################################
+//                            RecreerTmpBmp
+//
+//
+//
+//
+procedure TSCProgessBar.RecreerTmpBmp;
+begin
+  if TmpBmp<>nil then TmpBmp.Free;
+
+  TmpBmp:=TBitmap.Create;
+  TmpBmp.Width:=Width;
+  TmpBmp.Height:=Height;
+  TmpBmp.PixelFormat:=pfDevice;
+
+  DoitRepeindre:=True;
+end;
+
+//##############################################################################
+//                            CalculPourcent
+//
+//
+//
+//
+procedure TSCProgessBar.CalculPourcent;
+var PP,WP:Integer;
+begin
+  PP:=(FPosition*100) div FMax;
+  WP:=(FPosition*Width) div FMax;
+
+  if (PP<>PourcentProgress) or (WP<>WidthProgress) then
+  begin
+    PourcentProgress:=PP;
+    WidthProgress:=WP;
+
+    DoitRepeindre:=True;
+  end;
+end;
+
+//##############################################################################
+//                            SetAvancement
+//
+// Reçois: Reçois Position entier sur 64bit et TimeRemaining une widestring
+// But: définir la position de la trackbar et le texte à afficher
+//      celà permet de faire un seul repaint en entrant deux informations
 procedure TSCProgessBar.SetAvancement(Position: Int64;
   TimeRemaining: WideString);
+var Modified:Boolean;
 begin
-   If (Position<>FPosition) and (Position<=FMax) then
+   Modified:=False;
+
+   If (Position<>FPosition) and (Position<=FMax) and (Position>=Fmin) then
+   begin
      FPosition:=Position;
-   FTimeRemaining:=TimeRemaining;
-   invalidate;
+     Modified:=True;
+   end;
+
+   if (TimeRemaining<>FTimeRemaining) then
+   begin
+     FTimeRemaining:=TimeRemaining;
+     Modified:=True;
+   end;
+
+   if Modified then
+   begin
+     CalculPourcent;
+     Invalidate;
+   end;
 end;
 
+//##############################################################################
+//                            Resize
+//
+// Reçois: Rien
+// But: Appeler lors du resize de la progressbar il permet de recalculer la palette
+//      qui change lorsque la hauteur de la progressbar change
+procedure TSCProgessBar.Resize(var Message: TWMWindowPosChanging);
+begin
+  inherited;
+
+  CalculPalette;
+  RecreerTmpBmp;
+  CalculPourcent;
+  Message.Result:=1;
+end;
+
+
+//--------------------- Definition des propriétés ------------------------------
 procedure TSCProgessBar.SetBorderColor(const Value: TColor);
 begin
   If Value<>FBorderColor then
   begin
     FBorderColor:=Value;
+    DoitRepeindre:=True;
     Invalidate;
   end;
 end;
@@ -267,6 +387,8 @@ begin
   if Value<>FBackColor1 then
   begin
     FBackColor1:=Value;
+    DoitRepeindre:=True;
+    CalculPalette;
     Invalidate;
   end;
 end;
@@ -276,6 +398,8 @@ begin
   if value<>FFrontColor2 then
   begin
     FBackColor2:=Value;
+    DoitRepeindre:=True;
+    CalculPalette;
     Invalidate;
   end;
 end;
@@ -285,6 +409,8 @@ begin
   if value<>FFrontColor1 then
   begin
     FFrontColor1:=Value;
+    DoitRepeindre:=True;
+    CalculPalette;
     Invalidate;
   end;
 end;
@@ -294,6 +420,8 @@ begin
   if value<>FFrontColor2 then
   begin
     FFrontColor2:=Value;
+    DoitRepeindre:=True;
+    CalculPalette;
     Invalidate;
   end;
 end;
@@ -303,6 +431,7 @@ begin
   if value<>FFontProgress then
   begin
     FFontProgress:=Value;
+    DoitRepeindre:=True;
     Invalidate;
   end;
 end;
@@ -312,6 +441,7 @@ begin
   if value<>FFontProgressColor then
   begin
     FFontProgressColor:=Value;
+    DoitRepeindre:=True;
     Invalidate;
   end;
 end;
@@ -321,6 +451,7 @@ begin
   if value<>FFontProgress then
   begin
     FFontTxt:=Value;
+    DoitRepeindre:=True;
     Invalidate;
   end;
 end;
@@ -330,6 +461,7 @@ begin
   if value<>FFontTxtColor then
   begin
     FFontTxtColor:=Value;
+    DoitRepeindre:=True;
     Invalidate;
   end;
 end;
@@ -339,8 +471,40 @@ begin
   if value<>FTimeRemaining then
   begin
     FTimeRemaining:=Value;
+    DoitRepeindre:=True;
     Invalidate;
   end;
 end;
+
+procedure TSCProgessBar.SetMax(const Value: Int64);
+begin
+  If (Value<>FMax) and (Value>Fmin) then
+  begin
+    FMax:=Value;
+    CalculPourcent;
+    invalidate;
+  end;
+end;
+
+procedure TSCProgessBar.SetMin(const Value: Int64);
+begin
+  If (Value<>FMin) and (FMax>Value) then
+  begin
+    FMin:=Value;
+    CalculPourcent;
+    invalidate;
+  end;
+end;
+
+procedure TSCProgessBar.SetPosition(const Value: Int64);
+begin
+  If (Value<>FPosition) and (Value<=FMax) and (Position>=Fmin) then
+  begin
+    FPosition:=Value;
+    CalculPourcent;
+    invalidate;
+  end;
+end;
+
 
 end.

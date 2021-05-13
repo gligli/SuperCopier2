@@ -2,7 +2,7 @@ program SCConfig;
 
 uses
   messages,windows,
-  SCConfigShared;
+  SCConfigShared in 'SCConfigShared.pas';
 
 {$R SC2Config.res}
 

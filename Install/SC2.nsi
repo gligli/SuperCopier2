@@ -1,7 +1,7 @@
 ; The name of the installer
 Name "SuperCopier 2"
 
-Icon "..\pictures\progicon32.ico"
+Icon "..\pictures\progicon.ico"
 
 ; The file to write
 OutFile "SuperCopier2xxx.exe"
@@ -36,7 +36,7 @@ LangString Sec3Name ${LANG_FRENCH} "Démarrer quand windows démarre"
 LangString Sec4Name ${LANG_ENGLISH} "Run when install finishes"
 LangString Sec4Name ${LANG_FRENCH} "Démarrer à la fin de l'installation"
 LangString Sec5Name ${LANG_ENGLISH} "Open ReadMe when install finishes"
-LangString Sec5Name ${LANG_FRENCH} "Ouvrir le ReadMe à la fin de l'installation"
+LangString Sec5Name ${LANG_FRENCH} "Ouvrir le LisezMoi à la fin de l'installation"
 
 LangString UninstSC1 ${LANG_ENGLISH} "You must uninstall SuperCopier 1 before installing SuperCopier 2, would you like to uninstall it?"
 LangString UninstSC1 ${LANG_FRENCH} "Vous devez désinstaller SuperCopier 1 avant d'installer SuperCopier 2, voulez-vous le désinstaller?"
@@ -66,6 +66,12 @@ Section $(Sec1Name)
   SC1NotInstalled:
 
   ; Set output path to the installation directory.
+  SetOutPath $INSTDIR\Languages
+
+  ; Put file there
+	File ..\compil\Languages\Français.lng
+
+  ; Set output path to the installation directory.
   SetOutPath $INSTDIR
 
   ; Put file there
@@ -73,6 +79,7 @@ Section $(Sec1Name)
   File ..\compil\SC2Config.exe
   File ..\compil\SC2Hook.dll
   File ..\compil\ReadMe.txt
+	File ..\compil\LisezMoi.txt
 
   ; Write the uninstall keys for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SuperCopier2" "DisplayName" "SuperCopier2"
@@ -92,7 +99,7 @@ Section $(Sec2Name)
 
   CreateShortCut "$SMPROGRAMS\SuperCopier2\$(MenuAccess).lnk" "$INSTDIR\SC2Config.exe" "" "$INSTDIR\SC2Config.exe" 0
 
-  CreateShortCut "$SMPROGRAMS\SuperCopier2\$(ReadMe).lnk" "$INSTDIR\readme.txt" "" "$INSTDIR\readme.txt" 0
+  CreateShortCut "$SMPROGRAMS\SuperCopier2\$(ReadMe).lnk" "$INSTDIR\$(ReadMe).txt" "" "$INSTDIR\$(ReadMe).txt" 0
   CreateShortCut "$SMPROGRAMS\SuperCopier2\$(UninstSC2).lnk" "$INSTDIR\SC2Uninst.exe" "" "$INSTDIR\SC2Uninst.exe" 0
 SectionEnd ; end the section
 
@@ -134,13 +141,16 @@ Section "Uninstall"
   Delete $INSTDIR\SC2Config.exe
   Delete $INSTDIR\SC2Hook.dll
   Delete $INSTDIR\readme.txt
+  Delete $INSTDIR\lisezmoi.txt
   Delete $INSTDIR\SC2Uninst.exe
+  Delete $INSTDIR\Languages\Français.lng
 
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\SuperCopier2\*.*"
 
   ; Remove directories used
   RMDir "$SMPROGRAMS\SuperCopier2"
+  RMDir "$INSTDIR\Languages"
   RMDir "$INSTDIR"
 
 SectionEnd
@@ -166,7 +176,7 @@ Function .onInit
 		Abort
 
 	NoLang:
-	
+
   ; fermeture de supercopier 1 & 2
 
   FindWindow $R0 "" "SCHiddenFormStarted"
@@ -194,7 +204,11 @@ Function .onInstSuccess
 
   StrCmp $8 "readme" Good2 NoGood2
   Good2:
-    ExecShell open $INSTDIR\readme.txt
+    IntCmp $LANGUAGE ${LANG_FRENCH} RMFr
+    ExecShell open $INSTDIR\ReadMe.txt
+    GoTo NoGood2
+    RMFr:
+    ExecShell open $INSTDIR\LisezMoi.txt
   NoGood2:
 
   NoLaunch:

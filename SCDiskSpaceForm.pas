@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
   Dialogs, StdCtrls, TntStdCtrls, ComCtrls, TntComCtrls, ExtCtrls,
-  TntExtCtrls,SCCommon, ScPopupButton;
+  TntExtCtrls,SCCommon, ScPopupButton,SCLocEngine;
 
 type
   TDiskSpaceForm = class(TTntForm)
@@ -42,6 +42,8 @@ end;
 
 procedure TDiskSpaceForm.FormCreate(Sender: TObject);
 begin
+  LocEngine.TranslateForm(Self);
+
   Action:=dsaNone;
 end;
 

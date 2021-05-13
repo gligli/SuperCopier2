@@ -56,19 +56,61 @@
 * cancel marche po
 * config
 * installeur
-
+* pause ki foire si lancee par Execute
 *? icones
+* evt restore quand minimisé dans la taskbar
+* chg icone principale selon etat
+
+* created du dossier destiantion est à false (donc bug avec la sécurité)
+* click bulle=affichage fenetre
+
+* compos
+  * dbl click sur le systray
+  * perf de la progress
+  * tbbt qui s'efface (pb de taille du caption)
+  * leak bitmap sur systray
+
+=== beta 1 ===
+
+* bug processes et casse
+* pb rep relatif pour les langages
+* utf8 non décodé (pb code byte order sur mm ligne ke header)
+* pb valeur de 'language' dans la cfg, passer en utf8
+* annuler quand disque plein de décrémente pas les compteurs
+x moyen de ne pas incrémenter totalcount et totalsize quand on ajoute un fichier
+* tinifile pas unicode (HACK)
+* queue des baselist
+* pause 'universelle' (dans récursion et avant de copier un fichier)
+* delay de rééssai pour tout les fichiers en erreur, ajouter prop a tfileitem
+* pas de applyconfig au démarrage
+* pas de notification pour diskspace
+
+- pb avec always on top et opendialogs
+- ajouter choix police dans .lng
+- caption copyform pas unicode
+- gerer la taille de la fenetre du copier en fonction de la taille non cliente
+- compos
+  - V pour popupbutton
+  - modif scsystray pour afficher l'icone quand bulle
+  - clic sur tbbt ki foire si on bouge la souris
+
+=== beta 2 ===
+
 - plantage quand timeout au quit
 
 - compos
-  - dbl click sur le systray
-  - perf de la progress
   - focus qui s'efface du bouton
-  - tbbt qui s'efface (pb de taille du caption)
-  - leak bitmap sur systray
-=== beta 1 ===
 
 - changement taille buffer quand copie vers mm dur
 - multilangues
 ? supression/déplacement
+
+
+? extension du shell:
+        SuperCopier Ajouter à > Nouvelle copie
+                                Nouveau déplacement
+                                -----------------------
+                                Copy de ? vers ?
+                                Déplacement de ? vers ?
+                                ....
 

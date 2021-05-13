@@ -1,6 +1,7 @@
 unit SCCommon;
 
-{$include 'SCBuildConfig.inc'}
+//{$include 'SCBuildConfig.inc'}
+{$DEFINE DEBUG}
 
 interface
 
@@ -19,7 +20,6 @@ type
   TCopyErrorAction=(ceaNone,ceaCancel,ceaSkip,ceaRetry,ceaEndOfList);
   TDiskSpaceAction=(dsaNone,dsaCancel,dsaForce);
 
-  TCopyWindowAction=(cwaNone,cwaPause,cwaSkip,cwaCancel);
   TCopyWindowState=(cwsWaiting,cwsRecursing,cwsCopying,cwsPaused,cwsWaitingActionResult,cwsCancelling);
   TCopyWindowCopyEndAction=(cweClose,cweDontClose,cweDontCloseIfErrors);
 
@@ -64,6 +64,7 @@ function SameVolume(Path1,Path2:WideString):boolean;
 function SamePhysicalDrive(Path1,Path2:WideString):boolean;
 procedure SetProcessPriority(Priority:Cardinal);
 function CopySecurity(const SourceFile:WideString;const DestFile:WideString):Boolean;
+function GetOSLanguageName:String;
 
 procedure dbg(msg:string);overload;
 procedure dbg(val:cardinal);overload;
@@ -475,6 +476,23 @@ begin
 
 
   SetLength(SD,0);
+end;
+
+//******************************************************************************
+// GetOSLanguageName: renvoie le nom de la langue de l'OS dans la langue de l'OS
+//******************************************************************************
+function GetOSLanguageName:String;
+var LID:LANGID;
+    TmpBuf:array[0..254] of char;
+begin
+  if (Win32Platform=VER_PLATFORM_WIN32_NT) and (Win32MajorVersion>=5) then
+    LID:=GetSystemDefaultUILanguage
+  else
+    LID:=GetSystemDefaultLangID;
+
+  VerLanguageName(LID,TmpBuf,Length(TmpBuf));
+  Result:=TmpBuf;
+  Result:=LeftStr(Result,Pos(' (',Result)-1);
 end;
 
 //******************************************************************************

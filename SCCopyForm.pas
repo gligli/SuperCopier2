@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls,TntStdCtrls, ComCtrls, TntComCtrls, Controls,
   ExtCtrls, TntExtCtrls, Spin, Menus, TntMenus,SCFilelist,ScBaseList,ShellApi,
   TntDialogs,TntClasses,SCCommon, SCProgessBar, SCTitleBarBt, ScSystray,
-  SCFileNameLabel, Buttons, TntButtons, ToolWin, ScPopupButton;
+  SCFileNameLabel, Buttons, TntButtons, ToolWin, ScPopupButton,SCLocEngine;
 
 const
   WIDTH_DPI_MULTIPLIER=408/96;
@@ -18,7 +18,6 @@ type
   TLvFileListAction=procedure(FileList:TFileList;Item:TListItem);
 
   TCopyForm = class(TTntForm)
-    llFile: TTntLabel;
     llAll: TTntLabel;
     llSpeed: TTntLabel;
     llFromTitle: TTntLabel;
@@ -93,6 +92,7 @@ type
     miStCancel: TTntMenuItem;
     miStPause: TTntMenuItem;
     miStResume: TTntMenuItem;
+    llFile: TSCFileNameLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure chSpeedLimitClick(Sender: TObject);
@@ -146,6 +146,7 @@ type
     procedure ProcessLvFileListAction(Action:TLvFileListAction;SelectedOnly:Boolean;BackwardScan:Boolean=True);
     procedure OpenNewFilesMenu;
     procedure OnDropFiles(var Msg:TMessage); message WM_DROPFILES;
+    procedure OnWindowPosChanged(var Msg:TMessage); message WM_ACTIVATE;
 
     procedure SetState(Value:TCopyWindowState);
     procedure SetConfigData(Value:TCopyWindowConfigData);
@@ -153,7 +154,8 @@ type
     procedure SetMinimized(Value:Boolean);
   public
     { Déclarations publiques }
-    Action:TCopyWindowAction;
+    Paused,SkipPending,CancelPending:Boolean;
+    
     CopyThread:TThread; // déclaré en tant que TThread pour éviter la référence circulaire
     UnfoldedHeight:Integer;
     NotificationTargetForm:TTntForm;
@@ -332,17 +334,13 @@ begin
     cwsWaiting,
     cwsRecursing:
     begin
-      btPause.Visible:=True;
-      btResume.Visible:=False;
-      btPause.Enabled:=False;
-      btResume.Enabled:=False;
+      btPause.Enabled:=True;
+      btResume.Enabled:=True;
       btSkip.Enabled:=False;
       btCancel.Enabled:=True;
     end;
     cwsCopying:
     begin
-      btPause.Visible:=True;
-      btResume.Visible:=False;
       btPause.Enabled:=True;
       btResume.Enabled:=True;
       btSkip.Enabled:=True;
@@ -350,11 +348,8 @@ begin
     end;
     cwsPaused:
     begin
-      btPause.Visible:=False;
-      btResume.Visible:=True;
       btPause.Enabled:=True;
       btResume.Enabled:=True;
-      btSkip.Enabled:=True;
       btCancel.Enabled:=True;
     end;
     cwsCancelling,
@@ -369,9 +364,7 @@ begin
 
   // menu systray
   miStPause.Enabled:=btPause.Enabled;
-  miStPause.Visible:=btPause.Visible;
   miStResume.Enabled:=btResume.Enabled;
-  miStResume.Visible:=btResume.Visible;
   miStCancel.Enabled:=btCancel.Enabled;
 end;
 
@@ -433,17 +426,28 @@ begin
   begin
     if Config.Values.MinimizeToTray then
     begin
+      WindowState:=wsMinimized;
+
       FMinimizedToTray:=True;
       Visible:=False;
       tiSystray.Enabled:=True;
       Systray.Visible:=True;
       tiSystrayTimer(nil);
+    end
+    else
+    begin
+      //HACK: en utilisant WindowState, toutes les fenêtres de copies sont réduites
+      //      j'utilise dont direct l'API
+      SetForegroundWindow(Handle);
+      ShowWindow(Handle,SW_SHOWMINIMIZED);
+
+      if not Visible then Visible:=True;
     end;
-    WindowState:=wsMinimized;
   end
   else
   begin
     WindowState:=wsNormal;
+
     Visible:=True;
     Systray.Visible:=False;
     tiSystray.Enabled:=False;
@@ -503,6 +507,8 @@ end;
 procedure TCopyForm.FormCreate(Sender: TObject);
 var ExStyle:Cardinal;
 begin
+  LocEngine.TranslateForm(Self);
+
   //HACK: ne pas mettre directement la fenêtre en resizeable pour que
   //      la gestion des grandes polices puisse la redimentionner
   BorderStyle:=bsSizeToolWin;
@@ -510,7 +516,10 @@ begin
   // init variables
   UnfoldedHeight:=Round(UNFOLDED_HEIGHT_DPI_MULTIPLIER*PixelsPerInch);
   Constraints.MinWidth:=Round(WIDTH_DPI_MULTIPLIER*PixelsPerInch);
-  Action:=cwaNone;
+
+  CancelPending:=False;
+  SkipPending:=False;
+  Paused:=False;
   State:=cwsWaiting;
   NotificationTargetForm:=nil;
 
@@ -601,8 +610,7 @@ begin
     Canvas.Font.Name:='Arial';
     Canvas.Font.Color:=clWhite;
   end;
-
-  if Config.Values.CopyWindowStartMinimized then Minimized:=True;
+  tiSystray.Enabled:=True;
 
   // accepter le drag & drop
   DragAcceptFiles(Handle,True);
@@ -611,6 +619,8 @@ begin
   btTitleBar.Refresh;
 
   pcPages.ActivePage:=tsCopyList;
+
+  if Config.Values.CopyWindowStartMinimized then Minimized:=True;
 end;
 
 procedure TCopyForm.btSaveDefaultCfgClick(Sender: TObject);
@@ -940,31 +950,26 @@ procedure TCopyForm.btCancelClick(Sender: TObject; ItemIndex: Integer);
 begin
   Caption:=WideFormat(lsCopyWindowCancellingCaption,[TCopyThread(CopyThread).DisplayName]);
   
-  Action:=cwaCancel;
+  CancelPending:=True;
   State:=cwsWaitingActionResult;
 end;
 
 procedure TCopyForm.btSkipClick(Sender: TObject;
   ItemIndex: Integer);
 begin
-  Action:=cwaSkip;
+  SkipPending:=True;
+  if Paused then btPauseClick(nil,0); // appuyer sur 'passer' enlève la pause
   State:=cwsWaitingActionResult;
 end;
 
 procedure TCopyForm.btPauseClick(Sender: TObject; ItemIndex: Integer);
 begin
-  // ne pas perturber les autres actions
-  if Action=cwaPause then
-  begin
-    Action:=cwaNone;
-  end
-  else
-  begin
-    if Action=cwaNone then
-    begin
-      Action:=cwaPause;
-    end;
-  end;
+  Paused:=not Paused;
+
+  btPause.Visible:=not Paused;
+  btResume.Visible:=Paused;
+  miStPause.Visible:=btPause.Visible;
+  miStResume.Visible:=btResume.Visible;
 end;
 
 procedure TCopyForm.btUnfoldClick(Sender: TObject; ItemIndex: Integer);
@@ -1023,4 +1028,17 @@ begin
     Screen.Cursor:=crDefault;
   end;
 end;
+
+procedure TCopyForm.OnWindowPosChanged(var Msg:TMessage);
+begin
+  inherited;
+
+  // gérer la propriété Minimized lorsque l'on réduit dans la taskbar
+  if (Msg.WParamLo<>WA_INACTIVE) and (GetForegroundWindow=Handle) and IsIconic(Handle) then
+  begin
+    dbgln('z');
+    Minimized:=False;
+  end;
+end;
+
 end.

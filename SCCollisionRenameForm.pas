@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
-  Dialogs, StdCtrls, TntStdCtrls, ScPopupButton;
+  Dialogs, StdCtrls, TntStdCtrls, ScPopupButton,SCLocEngine;
 
 type
   TCollisionRenameForm = class(TTntForm)
@@ -20,6 +20,7 @@ type
     procedure edNewNameChange(Sender: TObject);
     procedure btCancelClick(Sender: TObject; ItemIndex: Integer);
     procedure btRenameClick(Sender: TObject; ItemIndex: Integer);
+    procedure TntFormCreate(Sender: TObject);
   private
     { Déclarations privées }
   public
@@ -34,6 +35,11 @@ implementation
 {$R *.dfm}
 
 uses SCCommon,SCLocStrings,SCWin32,TntSysutils;
+
+procedure TCollisionRenameForm.TntFormCreate(Sender: TObject);
+begin
+  LocEngine.TranslateForm(Self);
+end;
 
 procedure TCollisionRenameForm.edNewNameKeyPress(Sender: TObject;
   var Key: Char);

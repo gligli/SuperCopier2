@@ -13,7 +13,7 @@ object AboutForm: TAboutForm
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnCloseQuery = TntFormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -1086,9 +1086,9 @@ object AboutForm: TAboutForm
   object llStaff1: TTntLabel
     Left = 16
     Top = 56
-    Width = 210
+    Width = 201
     Height = 13
-    Caption = 'GliGli: Main code, Guimli: Translation engine,'
+    Caption = 'GliGli: Main code, Yogi: Original NT copier,'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -1128,7 +1128,7 @@ object AboutForm: TAboutForm
     Left = 16
     Top = 104
     Width = 265
-    Height = 26
+    Height = 17
     AutoSize = False
     Caption = 'TntWare (unicode components), Tal Sella (icons),'
     Font.Charset = DEFAULT_CHARSET
@@ -1157,9 +1157,9 @@ object AboutForm: TAboutForm
   object llStaff2: TTntLabel
     Left = 16
     Top = 72
-    Width = 259
+    Width = 141
     Height = 13
-    Caption = 'Yogi: Original NT copier, ZeuS: Graphical components.'
+    Caption = 'ZeuS: Graphical components.'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11
@@ -1167,7 +1167,7 @@ object AboutForm: TAboutForm
     Font.Style = []
     ParentFont = False
   end
-  object llThanks2: TLabel
+  object llThanks2: TTntLabel
     Left = 16
     Top = 120
     Width = 152

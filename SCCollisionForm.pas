@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
   Dialogs, StdCtrls, TntStdCtrls, ExtCtrls, TntExtCtrls,SCCopier,SCCommon,
-  SCFileNameLabel, Menus, TntMenus, ScPopupButton;
+  SCFileNameLabel, Menus, TntMenus, ScPopupButton,SCLocEngine;
 
 type
   TCollisionForm = class(TTntForm)
@@ -77,6 +77,8 @@ end;
 
 procedure TCollisionForm.FormCreate(Sender: TObject);
 begin
+  LocEngine.TranslateForm(Self);
+
   //HACK: ne pas mettre directement la fenêtre en resizeable pour que
   //      la gestion des grandes polices puisse la redimentionner
   BorderStyle:=bsSizeToolWin;

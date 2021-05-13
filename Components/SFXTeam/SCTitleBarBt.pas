@@ -40,7 +40,7 @@ procedure Register;
 
 implementation
 
-uses Math;
+uses Math, Types;
 
 procedure Register;
 begin
@@ -62,7 +62,7 @@ end;
 
 destructor TSCTitleBarBt.Destroy;
 begin
-
+ // enlever la redirectionde la window proc
   inherited Destroy;
 end;
 
@@ -166,10 +166,8 @@ begin
   else // dessin manuel du bouton (pas de theme)
   begin
    Case BtStatus of
-      bsNormal:
+      bsNormal,bsOver:
            DrawFrameControl(DC, TitleBarBtArea, DFC_CAPTION	, DFCS_CAPTIONMIN	);
-      bsOver :
-           DrawFrameControl(DC, TitleBarBtArea, DFC_CAPTION, DFCS_CAPTIONMIN);
       bsPressed :
            DrawFrameControl(DC, TitleBarBtArea, DFC_CAPTION, DFCS_CAPTIONMIN or DFCS_PUSHED);
       bsDisabled : ;
@@ -263,11 +261,12 @@ begin
           msg.Result:=CallWindowProc(OldWndProc, (Owner as TForm).Handle, msg.Msg, msg.wParam, msg.lParam);
         end;
 
-    WM_NCPAINT,WM_NCACTIVATE:
+    WM_PAINT,WM_NCPAINT,WM_NCACTIVATE:
         begin
           msg.Result := CallWindowProc(OldWndProc, (Owner as TForm).Handle, msg.Msg, msg.wParam, msg.lParam);
           PostMessage((Owner as TForm).Handle, WM_REPAINTSCTBB,0,0);
           // on fait appel a un message pour dessiner car sinon on dessine avant que la barre ne soit redessiné
+          DrawTitleBarBt;
         end;
     WM_REPAINTSCTBB:
         begin
@@ -302,9 +301,8 @@ end;
 procedure TSCTitleBarBt.Refresh;
 begin
   NewWndProc := MakeObjectInstance(WMEvent);
-  OldWndProc := pointer(SetWindowLong((Owner as Tform).Handle, GWL_WNDPROC, longint(NewWndProc)));
+  OldWndProc := pointer(SetWindowLong((Owner as Tform).Handle, gwl_WndProc, longint(NewWndProc)));
   CalculZoneBt;
-  DrawTitleBarBt;
 end;
 
 end.

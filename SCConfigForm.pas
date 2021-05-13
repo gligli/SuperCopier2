@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
   Dialogs, ExtCtrls, TntExtCtrls, ComCtrls, TntComCtrls, StdCtrls,
-  TntStdCtrls, TntDialogs, SCProgessBar;
+  TntStdCtrls, TntDialogs, SCProgessBar,SCLocEngine;
 
 type
   TConfigForm = class(TTntForm)
@@ -118,7 +118,12 @@ type
     btProgressBorder: TTntButton;
     btProgressOutline: TTntButton;
     btProgressText: TTntButton;
-    TntLabel1: TTntLabel;
+    llProgressText: TTntLabel;
+    tsLanguage: TTntTabSheet;
+    gbLanguage: TTntGroupBox;
+    llLanguage: TTntLabel;
+    cbLanguage: TTntComboBox;
+    llLanguageInfo: TTntLabel;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure lvSectionsChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
@@ -128,7 +133,7 @@ type
     procedure chDeleteUnfinishedCopiesClick(Sender: TObject);
     procedure chErrorLogAutoSaveClick(Sender: TObject);
     procedure cbErrorLogAutoSaveModeChange(Sender: TObject);
-    procedure TntFormCreate(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure btRenamingHelpClick(Sender: TObject);
     procedure btAddProcessClick(Sender: TObject);
     procedure btRemoveProcessClick(Sender: TObject);
@@ -163,7 +168,8 @@ implementation
 
 {$R *.dfm}
 
-uses SCConfig,SCWin32,SCLocStrings,TntSysutils, Math, SCCommon, SCMainForm;
+uses SCConfig,SCWin32,SCLocStrings,TntSysutils, Math, SCCommon, SCMainForm,
+  StrUtils;
 
 //******************************************************************************
 // UpdateControlsState : fixe l'état d'activation des controles
@@ -176,8 +182,6 @@ begin
   edErrorLogFileName.Enabled:=chErrorLogAutoSave.Checked;
   btELFNBrowse.Enabled:=chErrorLogAutoSave.Checked and (cbErrorLogAutoSaveMode.ItemIndex=2);
   btRemoveProcess.Enabled:=lvHandledProcesses.Items.Count>0;
-  llMinimizedEventHandling.Enabled:=cbMinimize.ItemIndex=0;
-  cbMinimizedEventHandling.Enabled:=cbMinimize.ItemIndex=0;
   chFailSafeCopier.Enabled:=Win32Platform=VER_PLATFORM_WIN32_NT;
 end;
 
@@ -187,9 +191,30 @@ end;
 procedure TConfigForm.GetConfig;
 var i:Integer;
     ProcList:TStringList;
+    FindData:TWin32FindDataW;
+    FindHandle:THandle;
+    FileName:WideString;
 begin
   with Config.Values do
   begin
+    //tsLanguage
+    cbLanguage.Items.Add(DEFAULT_LANGUAGE);
+    FindHandle:=SCWin32.FindFirstFile(PWideChar(WideExtractFilePath(TntApplication.ExeName)+LANG_SUBDIR+'*.*'),FindData);
+    if FindHandle<>INVALID_HANDLE_VALUE then
+    begin
+      repeat
+        if (WideString(FindData.cFileName)<>'.') and (WideString(FindData.cFileName)<>'..') then
+        begin
+          FileName:=FindData.cFileName;
+          FileName:=LeftStr(FileName,Pos('.',FileName)-1);
+          cbLanguage.Items.Add(FileName);
+        end;
+      until not SCWin32.FindNextFile(FindHandle,FindData);
+
+      Windows.FindClose(FindHandle);
+    end;
+    cbLanguage.ItemIndex:=cbLanguage.Items.IndexOf(Language);
+    if cbLanguage.ItemIndex=-1 then cbLanguage.ItemIndex:=0;
     //tsStartup
     chStartWithWindows.Checked:=StartWithWindows;
     chActivateOnStart.Checked:=ActivateOnStart;
@@ -266,6 +291,8 @@ var i:Integer;
 begin
   with Config.Values do
   begin
+    //tsLanguage
+    Language:=cbLanguage.Text;
     //tsStartup
     StartWithWindows:=chStartWithWindows.Checked;
     ActivateOnStart:=chActivateOnStart.Checked;
@@ -357,6 +384,8 @@ begin
   CloseConfig;
   OpenConfig;
   ApplyConfig;
+  lvSectionsChange(nil,lvSections.ItemFocused,ctState); // la localisation change la page active
+  ggProgress.TimeRemaining:=WideFormat(lsRemaining,['00:00:00']);
 end;
 
 procedure TConfigForm.chSpeedLimitClick(Sender: TObject);
@@ -384,10 +413,14 @@ begin
   UpdateControlsState;
 end;
 
-procedure TConfigForm.TntFormCreate(Sender: TObject);
+procedure TConfigForm.FormCreate(Sender: TObject);
 begin
   GetConfig;
   UpdateControlsState;
+
+  LocEngine.TranslateForm(Self);
+
+  ggProgress.TimeRemaining:=WideFormat(lsRemaining,['00:00:00']);
 end;
 
 procedure TConfigForm.btRenamingHelpClick(Sender: TObject);

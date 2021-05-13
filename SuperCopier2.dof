@@ -97,7 +97,7 @@ PackageDCPOutputDir=
 SearchPath=.\Components\Other\tntunicodecontrols;.\Components\SFXTeam
 Packages=vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;soaprtl;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOffice2k
 Conditionals=
-DebugSourceDirs=
+DebugSourceDirs=F:\Projects\SuperCopier2\Components\Other\tntunicodecontrols\
 UsePackages=0
 [Parameters]
 RunParams=
@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=2
 MinorVer=0
 Release=0
-Build=462
+Build=523
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=SFX TEAM
 FileDescription=SuperCopier 2 (explorer file copy replacement)
-FileVersion=2.0.0.462
+FileVersion=2.0.0.523
 InternalName=SuperCopier2
 LegalCopyright=GNU GPL
 LegalTrademarks=

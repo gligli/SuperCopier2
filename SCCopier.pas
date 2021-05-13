@@ -228,6 +228,7 @@ begin
       with CurrentCopy.FileItem do
       begin
         FileItem:=TFileItem.Create;
+        FileItem.CopyTryCount:=CopyTryCount;
         FileItem.BaseListId:=BaseListId;
         FileItem.SrcName:=SrcName;
         FileItem.DestName:=DestName;
@@ -258,7 +259,7 @@ procedure TCopier.AddBaseList(BaseList:TBaseList;DestDir:WideString);
       Result.SrcPath:=SrcParent;
       Result.DestPath:=DestPath;
       Result.ParentDir:=nil;
-      Result.Created:=False; // le répertoire de destination n'existe pas forcément
+      Result.Created:=WideDirectoryExists(DestPath);
       DirList.Add(Result);
     end;
   end;
@@ -330,6 +331,7 @@ begin
       else
       begin
         FileItem:=TFileItem.Create;
+        FileItem.CopyTryCount:=0;
         FileItem.BaseListId:=LastBaseListId;
         FileItem.SrcName:=ShortSourceName;
         FileItem.DestName:=ShortDestName;
@@ -371,7 +373,7 @@ begin
     i:=FileList.Count-1;
     while (i>=0) and (FileList[i].BaseListId=LastBaseListId) do
     begin
-      FileList.Delete(i);
+      FileList.Delete(i,True);
       Dec(i);
     end;
 
@@ -423,6 +425,7 @@ begin
         else
         begin
           NewFileItem:=TFileItem.Create;
+          NewFileItem.CopyTryCount:=0;
           NewFileItem.BaseListId:=LastBaseListId;
           NewFileItem.SrcName:=WideString(cFileName);
           NewFileItem.DestName:=WideString(cFileName);

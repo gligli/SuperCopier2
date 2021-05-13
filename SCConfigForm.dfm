@@ -1,10 +1,10 @@
 object ConfigForm: TConfigForm
-  Left = 232
-  Top = 106
+  Left = 202
+  Top = 103
   BorderStyle = bsDialog
   Caption = 'Configuration'
   ClientHeight = 396
-  ClientWidth = 549
+  ClientWidth = 609
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,19 +15,18 @@ object ConfigForm: TConfigForm
   OldCreateOrder = False
   Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
-  OnCreate = TntFormCreate
+  OnCreate = FormCreate
   OnShow = TntFormShow
   DesignSize = (
-    549
+    609
     396)
   PixelsPerInch = 96
   TextHeight = 13
   object lvSections: TTntListView
     Left = 0
     Top = 0
-    Width = 151
+    Width = 161
     Height = 367
-    Anchors = [akLeft, akTop, akRight, akBottom]
     BevelInner = bvNone
     BevelOuter = bvNone
     Columns = <
@@ -36,14 +35,15 @@ object ConfigForm: TConfigForm
       end>
     HideSelection = False
     Items.Data = {
-      000100000700000000000000FFFFFFFFFFFFFFFF000000000000000007537461
-      7274757000000000FFFFFFFFFFFFFFFF00000000000000000E5573657220696E
-      7465726661636500000000FFFFFFFFFFFFFFFF000000000000000017436F7069
-      65732026206D6F7665732064656661756C747300000000FFFFFFFFFFFFFFFF00
-      0000000000000017436F706965732026206D6F766573206265686176696F7200
-      000000FFFFFFFFFFFFFFFF0000000000000000094572726F72206C6F67000000
-      00FFFFFFFFFFFFFFFF00000000000000001148616E646C65642070726F636573
-      73657300000000FFFFFFFFFFFFFFFF000000000000000008416476616E636564}
+      1D0100000800000000000000FFFFFFFFFFFFFFFF0000000000000000084C616E
+      677561676500000000FFFFFFFFFFFFFFFF000000000000000007537461727475
+      7000000000FFFFFFFFFFFFFFFF00000000000000000E5573657220696E746572
+      6661636500000000FFFFFFFFFFFFFFFF000000000000000017436F7069657320
+      26206D6F7665732064656661756C747300000000FFFFFFFFFFFFFFFF00000000
+      0000000017436F706965732026206D6F766573206265686176696F7200000000
+      FFFFFFFFFFFFFFFF0000000000000000094572726F72206C6F6700000000FFFF
+      FFFFFFFFFFFF00000000000000001148616E646C65642070726F636573736573
+      00000000FFFFFFFFFFFFFFFF000000000000000008416476616E636564}
     ReadOnly = True
     RowSelect = True
     ShowColumnHeaders = False
@@ -52,22 +52,83 @@ object ConfigForm: TConfigForm
     OnChange = lvSectionsChange
   end
   object pcSections: TTntPageControl
-    Left = 152
+    Left = 160
     Top = 0
-    Width = 396
+    Width = 449
     Height = 371
-    ActivePage = tsUI
+    ActivePage = tsLanguage
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabHeight = 10
     TabOrder = 1
     TabPosition = tpBottom
+    object tsLanguage: TTntTabSheet
+      Caption = 'tsLanguage'
+      TabVisible = False
+      object gbLanguage: TTntGroupBox
+        Left = 8
+        Top = 3
+        Width = 425
+        Height = 62
+        Caption = 'Language'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+        object llLanguage: TTntLabel
+          Left = 8
+          Top = 18
+          Width = 92
+          Height = 13
+          Caption = 'Interface language:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+        end
+        object llLanguageInfo: TTntLabel
+          Left = 8
+          Top = 40
+          Width = 299
+          Height = 13
+          Caption = 
+            '(English (default) won'#39't be applied until you restart SuperCopie' +
+            'r.)'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+        end
+        object cbLanguage: TTntComboBox
+          Left = 216
+          Top = 13
+          Width = 201
+          Height = 21
+          Style = csDropDownList
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Microsoft Sans Serif'
+          Font.Style = []
+          ItemHeight = 13
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+    end
     object tsStartup: TTntTabSheet
       Caption = 'tsStartup'
       TabVisible = False
       object gbStartup: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 377
+        Width = 425
         Height = 67
         Caption = 'Startup'
         Font.Charset = DEFAULT_CHARSET
@@ -80,7 +141,7 @@ object ConfigForm: TConfigForm
         object chStartWithWindows: TTntCheckBox
           Left = 8
           Top = 17
-          Width = 363
+          Width = 393
           Height = 17
           Caption = 'Start when windows starts'
           Font.Charset = DEFAULT_CHARSET
@@ -94,7 +155,7 @@ object ConfigForm: TConfigForm
         object chActivateOnStart: TTntCheckBox
           Left = 8
           Top = 41
-          Width = 364
+          Width = 393
           Height = 17
           Caption = 'Activate SuperCopier when it starts'
           Font.Charset = DEFAULT_CHARSET
@@ -113,7 +174,7 @@ object ConfigForm: TConfigForm
       object gbTaskbar: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 377
+        Width = 425
         Height = 112
         Caption = 'Taskbar && system tray'
         Font.Charset = DEFAULT_CHARSET
@@ -126,11 +187,9 @@ object ConfigForm: TConfigForm
         object llMinimizedEventHandling: TTntLabel
           Left = 9
           Top = 63
-          Width = 317
+          Width = 250
           Height = 13
-          Caption = 
-            'When there is an event and the window is minimized to system tra' +
-            'y:'
+          Caption = 'When there is an event and the window is minimized:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -155,7 +214,7 @@ object ConfigForm: TConfigForm
         object cbMinimize: TTntComboBox
           Left = 8
           Top = 38
-          Width = 360
+          Width = 409
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -174,7 +233,7 @@ object ConfigForm: TConfigForm
         object cbMinimizedEventHandling: TTntComboBox
           Left = 8
           Top = 82
-          Width = 360
+          Width = 409
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -196,7 +255,7 @@ object ConfigForm: TConfigForm
       object gbCWAppearance: TTntGroupBox
         Left = 8
         Top = 119
-        Width = 377
+        Width = 425
         Height = 90
         Caption = 'Copy window appearance'
         Font.Charset = DEFAULT_CHARSET
@@ -209,7 +268,7 @@ object ConfigForm: TConfigForm
         object chCWSavePosition: TTntCheckBox
           Left = 8
           Top = 40
-          Width = 363
+          Width = 401
           Height = 17
           Caption = 'Save copy window position'
           Font.Charset = DEFAULT_CHARSET
@@ -223,7 +282,7 @@ object ConfigForm: TConfigForm
         object chCWSaveSize: TTntCheckBox
           Left = 8
           Top = 64
-          Width = 363
+          Width = 401
           Height = 17
           Caption = 'Save copy window size'
           Font.Charset = DEFAULT_CHARSET
@@ -237,7 +296,7 @@ object ConfigForm: TConfigForm
         object chCWStartMinimized: TTntCheckBox
           Left = 8
           Top = 16
-          Width = 361
+          Width = 401
           Height = 17
           Caption = 'Start copies with copy window minimized'
           Font.Charset = DEFAULT_CHARSET
@@ -252,7 +311,7 @@ object ConfigForm: TConfigForm
       object gbSizeUnit: TTntGroupBox
         Left = 8
         Top = 213
-        Width = 377
+        Width = 425
         Height = 45
         Caption = 'Size unit'
         Font.Charset = DEFAULT_CHARSET
@@ -276,9 +335,9 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object cbSizeUnit: TTntComboBox
-          Left = 184
+          Left = 216
           Top = 14
-          Width = 184
+          Width = 201
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -298,9 +357,9 @@ object ConfigForm: TConfigForm
         end
       end
       object gbProgressrar: TTntGroupBox
-        Left = 9
+        Left = 8
         Top = 262
-        Width = 377
+        Width = 426
         Height = 96
         Caption = 'Progress bars'
         Font.Charset = DEFAULT_CHARSET
@@ -324,7 +383,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llProgressBG: TTntLabel
-          Left = 108
+          Left = 116
           Top = 16
           Width = 92
           Height = 13
@@ -337,7 +396,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llProgressBorder: TTntLabel
-          Left = 314
+          Left = 338
           Top = 16
           Width = 60
           Height = 13
@@ -352,7 +411,7 @@ object ConfigForm: TConfigForm
         object ggProgress: TSCProgessBar
           Left = 6
           Top = 72
-          Width = 363
+          Width = 411
           Height = 17
           BorderColor = clBlack
           FrontColor1 = clRed
@@ -375,8 +434,8 @@ object ConfigForm: TConfigForm
           Position = 50
           TimeRemaining = '00:00:00 Remaining'
         end
-        object TntLabel1: TTntLabel
-          Left = 211
+        object llProgressText: TTntLabel
+          Left = 227
           Top = 16
           Width = 55
           Height = 13
@@ -419,7 +478,7 @@ object ConfigForm: TConfigForm
           OnClick = bgProgressFG2Click
         end
         object btProgressBG1: TTntButton
-          Left = 108
+          Left = 116
           Top = 34
           Width = 48
           Height = 25
@@ -434,7 +493,7 @@ object ConfigForm: TConfigForm
           OnClick = btProgressBG1Click
         end
         object btProgressBG2: TTntButton
-          Left = 156
+          Left = 164
           Top = 34
           Width = 48
           Height = 25
@@ -449,7 +508,7 @@ object ConfigForm: TConfigForm
           OnClick = btProgressBG2Click
         end
         object btProgressBorder: TTntButton
-          Left = 314
+          Left = 338
           Top = 34
           Width = 48
           Height = 25
@@ -464,7 +523,7 @@ object ConfigForm: TConfigForm
           OnClick = btProgressBorderClick
         end
         object btProgressOutline: TTntButton
-          Left = 259
+          Left = 275
           Top = 34
           Width = 48
           Height = 25
@@ -479,7 +538,7 @@ object ConfigForm: TConfigForm
           OnClick = btProgressOutlineClick
         end
         object btProgressText: TTntButton
-          Left = 211
+          Left = 227
           Top = 34
           Width = 48
           Height = 25
@@ -501,7 +560,7 @@ object ConfigForm: TConfigForm
       object gbCopyEnd: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 377
+        Width = 425
         Height = 44
         Caption = 'Copy end'
         Font.Charset = DEFAULT_CHARSET
@@ -525,9 +584,9 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object cbCopyEnd: TTntComboBox
-          Left = 184
+          Left = 216
           Top = 13
-          Width = 183
+          Width = 201
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -549,7 +608,7 @@ object ConfigForm: TConfigForm
       object gbSpeedLimit: TTntGroupBox
         Left = 8
         Top = 51
-        Width = 377
+        Width = 425
         Height = 44
         Caption = 'Speed limit'
         Font.Charset = DEFAULT_CHARSET
@@ -560,7 +619,7 @@ object ConfigForm: TConfigForm
         ParentFont = False
         TabOrder = 1
         object llSpeedLimitKB: TTntLabel
-          Left = 272
+          Left = 304
           Top = 17
           Width = 14
           Height = 13
@@ -575,7 +634,7 @@ object ConfigForm: TConfigForm
         object chSpeedLimit: TTntCheckBox
           Left = 8
           Top = 16
-          Width = 113
+          Width = 209
           Height = 17
           Caption = 'Limit copy speed to:'
           Font.Charset = DEFAULT_CHARSET
@@ -588,7 +647,7 @@ object ConfigForm: TConfigForm
           OnClick = chSpeedLimitClick
         end
         object cbSpeedLimit: TTntComboBox
-          Left = 184
+          Left = 216
           Top = 14
           Width = 81
           Height = 21
@@ -619,7 +678,7 @@ object ConfigForm: TConfigForm
       object gbCollisions: TTntGroupBox
         Left = 8
         Top = 99
-        Width = 377
+        Width = 425
         Height = 44
         Caption = 'File collisions'
         Font.Charset = DEFAULT_CHARSET
@@ -643,9 +702,9 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object cbCollisions: TTntComboBox
-          Left = 184
+          Left = 216
           Top = 14
-          Width = 183
+          Width = 201
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -672,7 +731,7 @@ object ConfigForm: TConfigForm
       object gbCopyErrors: TTntGroupBox
         Left = 8
         Top = 147
-        Width = 377
+        Width = 425
         Height = 72
         Caption = 'Copy errors'
         Font.Charset = DEFAULT_CHARSET
@@ -709,7 +768,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llRetryIntervalUnit: TTntLabel
-          Left = 272
+          Left = 304
           Top = 46
           Width = 57
           Height = 13
@@ -722,9 +781,9 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object cbCopyError: TTntComboBox
-          Left = 184
+          Left = 216
           Top = 14
-          Width = 183
+          Width = 201
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -745,7 +804,7 @@ object ConfigForm: TConfigForm
             'Put the file at the copy list bottom')
         end
         object edCopyErrorRetry: TTntEdit
-          Left = 184
+          Left = 216
           Top = 42
           Width = 81
           Height = 21
@@ -765,7 +824,7 @@ object ConfigForm: TConfigForm
       object gbCLHandling: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 377
+        Width = 425
         Height = 106
         Caption = 'New copy list handling'
         Font.Charset = DEFAULT_CHARSET
@@ -804,7 +863,7 @@ object ConfigForm: TConfigForm
         object cbCLHandling: TTntComboBox
           Left = 8
           Top = 37
-          Width = 359
+          Width = 409
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -841,7 +900,7 @@ object ConfigForm: TConfigForm
       object gbAttributes: TTntGroupBox
         Left = 8
         Top = 113
-        Width = 377
+        Width = 425
         Height = 67
         Caption = 'Attributes && security'
         Font.Charset = DEFAULT_CHARSET
@@ -883,7 +942,7 @@ object ConfigForm: TConfigForm
       object gbDeleting: TTntGroupBox
         Left = 8
         Top = 184
-        Width = 377
+        Width = 425
         Height = 67
         Caption = 'Deleting'
         Font.Charset = DEFAULT_CHARSET
@@ -926,7 +985,7 @@ object ConfigForm: TConfigForm
       object gbRenaming: TTntGroupBox
         Left = 8
         Top = 255
-        Width = 377
+        Width = 425
         Height = 82
         Caption = 'Renaming'
         Font.Charset = DEFAULT_CHARSET
@@ -963,9 +1022,9 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object edRenameOldPattern: TTntEdit
-          Left = 184
+          Left = 216
           Top = 22
-          Width = 182
+          Width = 201
           Height = 21
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -976,9 +1035,9 @@ object ConfigForm: TConfigForm
           TabOrder = 0
         end
         object edRenameNewPattern: TTntEdit
-          Left = 184
+          Left = 216
           Top = 50
-          Width = 182
+          Width = 201
           Height = 21
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -990,7 +1049,7 @@ object ConfigForm: TConfigForm
         end
       end
       object btRenamingHelp: TTntButton
-        Left = 309
+        Left = 357
         Top = 254
         Width = 75
         Height = 16
@@ -1008,15 +1067,11 @@ object ConfigForm: TConfigForm
     object tsLog: TTntTabSheet
       Caption = 'tsLog'
       TabVisible = False
-      DesignSize = (
-        388
-        363)
       object gbErrorLog: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 375
+        Width = 425
         Height = 94
-        Anchors = [akLeft, akTop, akRight]
         Caption = 'Error log'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -1052,9 +1107,9 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object cbErrorLogAutoSaveMode: TTntComboBox
-          Left = 184
+          Left = 216
           Top = 37
-          Width = 183
+          Width = 201
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -1087,9 +1142,9 @@ object ConfigForm: TConfigForm
           OnClick = chErrorLogAutoSaveClick
         end
         object edErrorLogFileName: TTntEdit
-          Left = 184
+          Left = 216
           Top = 64
-          Width = 153
+          Width = 169
           Height = 21
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1101,7 +1156,7 @@ object ConfigForm: TConfigForm
           OnKeyPress = FileNameOnly
         end
         object btELFNBrowse: TTntButton
-          Left = 344
+          Left = 392
           Top = 64
           Width = 26
           Height = 21
@@ -1121,12 +1176,12 @@ object ConfigForm: TConfigForm
       Caption = 'tsProcesses'
       TabVisible = False
       DesignSize = (
-        388
+        441
         363)
       object gbHandledProcesses: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 375
+        Width = 425
         Height = 214
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Handled processes'
@@ -1155,7 +1210,7 @@ object ConfigForm: TConfigForm
         object lvHandledProcesses: TTntListView
           Left = 8
           Top = 40
-          Width = 283
+          Width = 329
           Height = 165
           BevelInner = bvNone
           BevelOuter = bvNone
@@ -1177,7 +1232,7 @@ object ConfigForm: TConfigForm
           ViewStyle = vsReport
         end
         object btAddProcess: TTntButton
-          Left = 298
+          Left = 346
           Top = 40
           Width = 71
           Height = 25
@@ -1192,7 +1247,7 @@ object ConfigForm: TConfigForm
           OnClick = btAddProcessClick
         end
         object btRemoveProcess: TTntButton
-          Left = 298
+          Left = 346
           Top = 72
           Width = 71
           Height = 25
@@ -1214,7 +1269,7 @@ object ConfigForm: TConfigForm
       object gbPriority: TTntGroupBox
         Left = 8
         Top = 3
-        Width = 377
+        Width = 425
         Height = 44
         Caption = 'Priority'
         Font.Charset = DEFAULT_CHARSET
@@ -1238,9 +1293,9 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object cbPriority: TTntComboBox
-          Left = 184
+          Left = 216
           Top = 13
-          Width = 183
+          Width = 201
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -1260,7 +1315,7 @@ object ConfigForm: TConfigForm
       object gbAdvanced: TTntGroupBox
         Left = 8
         Top = 99
-        Width = 377
+        Width = 425
         Height = 175
         Caption = 'Advanced parameters'
         Font.Charset = DEFAULT_CHARSET
@@ -1284,7 +1339,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llCopyBufferSizeUnit: TTntLabel
-          Left = 272
+          Left = 304
           Top = 18
           Width = 26
           Height = 13
@@ -1310,7 +1365,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llCopyWindowUpdateIntervalUnit: TTntLabel
-          Left = 272
+          Left = 304
           Top = 47
           Width = 57
           Height = 13
@@ -1336,7 +1391,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llCopySpeedAveragingIntervalUnit: TTntLabel
-          Left = 272
+          Left = 304
           Top = 76
           Width = 57
           Height = 13
@@ -1362,7 +1417,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object llCopyThrottleIntervalUnit: TTntLabel
-          Left = 272
+          Left = 304
           Top = 105
           Width = 57
           Height = 13
@@ -1375,7 +1430,7 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object edCopyBufferSize: TTntEdit
-          Left = 184
+          Left = 216
           Top = 14
           Width = 81
           Height = 21
@@ -1389,7 +1444,7 @@ object ConfigForm: TConfigForm
           OnKeyPress = NumbersOnly
         end
         object edCopyWindowUpdateInterval: TTntEdit
-          Left = 184
+          Left = 216
           Top = 43
           Width = 81
           Height = 21
@@ -1403,7 +1458,7 @@ object ConfigForm: TConfigForm
           OnKeyPress = NumbersOnly
         end
         object edCopySpeedAveragingInterval: TTntEdit
-          Left = 184
+          Left = 216
           Top = 72
           Width = 81
           Height = 21
@@ -1417,7 +1472,7 @@ object ConfigForm: TConfigForm
           OnKeyPress = NumbersOnly
         end
         object edCopyThrottleInterval: TTntEdit
-          Left = 184
+          Left = 216
           Top = 101
           Width = 81
           Height = 21
@@ -1433,7 +1488,7 @@ object ConfigForm: TConfigForm
         object chFastFreeSpaceCheck: TTntCheckBox
           Left = 8
           Top = 132
-          Width = 363
+          Width = 415
           Height = 17
           Caption = 'Fast free space check (can have problems with NTFS mount points)'
           Font.Charset = DEFAULT_CHARSET
@@ -1447,7 +1502,7 @@ object ConfigForm: TConfigForm
         object chFailSafeCopier: TTntCheckBox
           Left = 8
           Top = 152
-          Width = 363
+          Width = 409
           Height = 17
           Caption = 'Use a failsafe copier (buffered copy and no unicode support)'
           Font.Charset = DEFAULT_CHARSET
@@ -1462,7 +1517,7 @@ object ConfigForm: TConfigForm
       object gbConfigLocation: TTntGroupBox
         Left = 8
         Top = 51
-        Width = 377
+        Width = 425
         Height = 44
         Caption = 'Settings location'
         Font.Charset = DEFAULT_CHARSET
@@ -1486,9 +1541,9 @@ object ConfigForm: TConfigForm
           ParentFont = False
         end
         object cbConfigLocation: TTntComboBox
-          Left = 184
+          Left = 216
           Top = 13
-          Width = 183
+          Width = 201
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -1505,7 +1560,7 @@ object ConfigForm: TConfigForm
         end
       end
       object btAdvancedHelp: TTntButton
-        Left = 309
+        Left = 357
         Top = 97
         Width = 75
         Height = 16
@@ -1522,7 +1577,7 @@ object ConfigForm: TConfigForm
     end
   end
   object btCancel: TTntButton
-    Left = 388
+    Left = 448
     Top = 370
     Width = 76
     Height = 25
@@ -1533,7 +1588,7 @@ object ConfigForm: TConfigForm
     OnClick = btCancelClick
   end
   object btOk: TTntButton
-    Left = 304
+    Left = 364
     Top = 370
     Width = 76
     Height = 25
@@ -1544,7 +1599,7 @@ object ConfigForm: TConfigForm
     OnClick = btOkClick
   end
   object btApply: TTntButton
-    Left = 472
+    Left = 532
     Top = 370
     Width = 76
     Height = 25
