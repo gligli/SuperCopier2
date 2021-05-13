@@ -139,8 +139,8 @@ object CopyForm: TCopyForm
     Left = -1
     Top = 150
     Width = 404
-    Height = 249
-    ActivePage = tsOptions
+    Height = 254
+    ActivePage = tsCopyList
     Anchors = [akLeft, akTop, akRight, akBottom]
     Images = MainForm.ilGlobal
     MultiLine = True
@@ -151,7 +151,7 @@ object CopyForm: TCopyForm
       ImageIndex = 8
       DesignSize = (
         396
-        220)
+        225)
       object btFileTop: TTntSpeedButton
         Left = 0
         Top = 0
@@ -244,7 +244,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 217
+        Height = 220
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -285,7 +285,7 @@ object CopyForm: TCopyForm
       ParentFont = False
       DesignSize = (
         396
-        220)
+        225)
       object btErrorClear: TTntSpeedButton
         Left = 0
         Top = 0
@@ -312,7 +312,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 215
+        Height = 220
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -348,7 +348,7 @@ object CopyForm: TCopyForm
       ImageIndex = 4
       DesignSize = (
         396
-        220)
+        225)
       object gbSpeedLimit: TTntGroupBox
         Left = 8
         Top = 51
@@ -385,7 +385,7 @@ object CopyForm: TCopyForm
           Text = '1024'
           OnChange = cbSpeedLimitChange
           OnKeyPress = cbSpeedLimitKeyPress
-          Items.WideStrings = (
+          Items.Strings = (
             '64'
             '128'
             '256'
@@ -428,7 +428,7 @@ object CopyForm: TCopyForm
           TabOrder = 0
           Text = 'Ask what to do'
           OnChange = cbCollisionsChange
-          Items.WideStrings = (
+          Items.Strings = (
             'Ask what to do'
             'Cancel the whole copy'
             'Skip'
@@ -469,7 +469,7 @@ object CopyForm: TCopyForm
           TabOrder = 0
           Text = 'Ask what to do'
           OnChange = cbCopyErrorChange
-          Items.WideStrings = (
+          Items.Strings = (
             'Ask what to do'
             'Cancel then whole copy'
             'Skip'
@@ -507,7 +507,7 @@ object CopyForm: TCopyForm
           TabOrder = 0
           Text = 'Close the window'
           OnChange = cbCopyEndChange
-          Items.WideStrings = (
+          Items.Strings = (
             'Close the window'
             'Don'#39't close the window'
             'Don'#39't close if there was errors')

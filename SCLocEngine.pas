@@ -64,7 +64,6 @@ var TmpLangFile:String;
 begin
   if Assigned(LangIni) then LangIni.Free;
 
-
   TmpLangFile:=LangFile;
   if WideString(TmpLangFile)<>LangFile then // le nom de fichier est-il passé 'sans pertes' en ansi?
   begin
@@ -164,7 +163,7 @@ begin
       if IsUTF8 then
         StrText:=UTF8Encode(Text)
       else
-        StrText:=Text;
+        StrText:=Text;                                 
 
       LangIni.WriteString(Form.Name,Name,StrText);
 //      dbgln(Name+'='+Text);

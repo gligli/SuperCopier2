@@ -69,6 +69,9 @@ lsHookErrorCaption:WideString='SuperCopier2 can''t run';
 lsHookErrorText:WideString='SuperCopier2 couldn''t attach to processes, this is normal if you ran it twice.';
 lsDiskSpaceNotifyTitle:WideString='Not enough free space';
 
+lsHookEngineNoIPC:WideString='Failed to initialize the hooking engine: IPC creation failed';
+lsHookEngineNoFileMapping:WideString='Failed to initialize the hooking engine: file mapping creation failed';
+
 procedure TranslateAllStrings;
 
 implementation

@@ -34,7 +34,8 @@ uses
   SCAnsiBufferedCopier in 'SCAnsiBufferedCopier.pas',
   SCConfigShared in 'SCConfigShared.pas',
   SCLocEngine in 'SCLocEngine.pas',
-  SCBaseListQueue in 'SCBaseListQueue.pas';
+  SCBaseListQueue in 'SCBaseListQueue.pas',
+  SCHookEngine in 'SCHookEngine.pas';
 
 {$R *.res}
 

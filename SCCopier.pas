@@ -431,7 +431,7 @@ begin
           NewFileItem.DestName:=WideString(cFileName);
           NewFileItem.Directory:=DirItem;
           NewFileItem.SrcSize:=nFileSizeLow;
-          inc(NewFileItem.SrcSize,nFileSizeHigh * $FFFFFFFF);
+          Inc(NewFileItem.SrcSize,nFileSizeHigh * $100000000);
           FileList.Add(NewFileItem);
         end;
       end;

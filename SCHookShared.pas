@@ -4,14 +4,29 @@ interface
 
 const
   IPC_NAME='SuperCopier2 IPC';
+  FILE_MAPING_NAME='SuperCopier2 file mapping';
   DLL_NAME='SC2Hook.dll';
 
 type
-  TSCHookData=record
-    Operation:Integer;
+  TSCH2ADataType=(hdtSHFileOperation,hdtShellExecute);
+
+  TSCHook2AppData=record
     ProcessId:Cardinal;
-    SourceSize,DestinationSize:Integer;
+    case DataType:TSCH2ADataType of
+      hdtSHFileOperation:(
+        Operation:Integer;
+        SourceSize,DestinationSize:Integer;
+      );
+      hdtShellExecute:(
+        ProcessHandle:THandle;
+      );
   end;
 
+  TSCApp2HookData=record
+    IsUserHook:Boolean;
+    HandledProcesses:string[255];
+  end;
+
+  PSCApp2HookData=^TSCApp2HookData;
 implementation
 end.

@@ -114,6 +114,7 @@ x moyen de ne pas incrémenter totalcount et totalsize quand on ajoute un fichier
 - gestion des liens dfs pour espace disque restant
 - pb creation rep qd prise en charge copie apres dl d'un fichier dans une page ie dans explorer
 -? se positionner sur le tab log + unfold si erreur a la fin
+* pb calcul taille dans recursion
 
 === beta 2 ===
 
