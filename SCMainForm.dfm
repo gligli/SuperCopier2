@@ -1,8 +1,8 @@
 object MainForm: TMainForm
   Left = 707
   Top = 100
-  Width = 186
-  Height = 97
+  Width = 189
+  Height = 95
   Caption = 'SC2 MainForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

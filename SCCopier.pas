@@ -64,7 +64,7 @@ type
     function VerifyFreeSpace(FastMode:Boolean=true):Boolean;
     function FirstCopy:Boolean;
     function NextCopy:Boolean;
-    function ManageFileAction:Boolean;
+    function ManageFileAction(ResumeNoAgeVerification:Boolean=False):Boolean;
     procedure CreateEmptyDirs;
     procedure DeleteSrcDirs;
     procedure DeleteSrcFile;
@@ -649,7 +649,7 @@ end;
 // ManageFileAction : Gère les collisions de fichiers et effectue les actions demandées
 //                    Renvoie false si la copie du fichier en cours est annulée
 //******************************************************************************
-function TCopier.ManageFileAction;
+function TCopier.ManageFileAction(ResumeNoAgeVerification:Boolean):Boolean;
 var Action:TCollisionAction;
     FullNewName,NewName:WideString;
     MustRedo:Boolean;
@@ -692,15 +692,15 @@ begin
       begin
         with CurrentCopy.FileItem do
         begin
-          if (SrcAge=DestAge) and (SrcSize>DestSize) then
+          if (ResumeNoAgeVerification or (SrcAge=DestAge)) and (SrcSize>DestSize) then
           begin
             Result:=true;
             CurrentCopy.NextAction:=cpaRetry;
           end
           else
           begin
-            // la reprise ne peut pas etre effectuée -> passer au fichier suivant
-            Result:=False;
+            // la reprise ne peut pas etre effectuée -> écraser
+            Result:=True;
             CurrentCopy.NextAction:=cpaNextFile;
           end;
         end;

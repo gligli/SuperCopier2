@@ -50,6 +50,7 @@ type
     MinimizedEventHandling:TMinimizedEventHandling;
     FailSafeCopier:Boolean;
     Language:WideString;
+    CopyResumeNoAgeVerification:Boolean;
   end;
 
   TConfig=class
@@ -171,6 +172,7 @@ const
     MinimizedEventHandling:mehShowBalloon;
     FailSafeCopier:False;
     Language:'';
+    CopyResumeNoAgeVerification:False;
   );
 
   CONFIG_REGISTRY_KEY='Software\SFX TEAM\SuperCopier2';
@@ -318,6 +320,8 @@ end;
 
 procedure TConfig.LoadConfig;
 begin
+  LoadDefaultConfig;
+
   with Values do
   begin
     try
@@ -371,8 +375,9 @@ begin
       MinimizedEventHandling:=TMinimizedEventHandling(ReadInteger('MinimizedEventHandling'));
       FailSafeCopier:=ReadBoolean('FailSafeCopier');
       Language:=UTF8Decode(ReadString('Language'));
+      CopyResumeNoAgeVerification:=ReadBoolean('CopyResumeNoAgeVerification');
     except
-      LoadDefaultConfig;
+      // ne rien faire si une valeur n'existe pas
     end;
   end;
 end;
@@ -431,6 +436,7 @@ begin
     WriteInteger('MinimizedEventHandling',Integer(MinimizedEventHandling));
     WriteBoolean('FailSafeCopier',FailSafeCopier);
     WriteString('Language',UTF8Encode(Language));
+    WriteBoolean('CopyResumeNoAgeVerification',CopyResumeNoAgeVerification);
   end;
 end;
 

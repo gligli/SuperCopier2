@@ -46,6 +46,9 @@ type
   private
     { Déclarations privées }
     procedure UpdateSystrayIcon;
+    function InstallAdminHook:Boolean;
+    function InstallUserHook:Boolean;
+    function UninstallHook:Boolean;
     procedure OpenDialog(var AMsg:TMessage); message WM_OPENDIALOG;
   public
     { Déclarations publiques }
@@ -55,7 +58,7 @@ type
 
 var
   MainForm: TMainForm;
-  CopyHandlingActive:Boolean;
+  CopyHandlingActive,IsUserHook:Boolean;
 
 implementation
 uses SCConfig,SCCommon,SCWin32,SCCopyThread,SCBaseList,SCFileList,SCDirList,SCHookShared,SCWorkThreadList,madCodeHook,
@@ -138,8 +141,7 @@ begin
 
   Systray.Hint:='SuperCopier 2';
   UpdateSystrayIcon;
-
-  if not InjectLibrary(ALL_SESSIONS and not CURRENT_PROCESS,DLL_NAME) or
+  if not InstallAdminHook or
      not CreateIpcQueue(IPC_NAME,HookCallback) then
   begin
     SCWin32.MessageBox(Handle,lsHookErrorText,lsHookErrorCaption,MB_OK or MB_ICONERROR);
@@ -158,7 +160,7 @@ begin
   WorkThreadList.CancelAllAndWaitTermination(CANCEL_TIMEOUT);
 
   DestroyIpcQueue(IPC_NAME);
-  UninjectLibrary(ALL_SESSIONS,DLL_NAME);
+  UninstallHook;
 
   WorkThreadList.Free;
 
@@ -260,6 +262,9 @@ begin
   end;
 end;
 
+//******************************************************************************
+// UpdateSystrayIcon: change l'icône du systray en fonction de l'état d'activation
+//******************************************************************************
 procedure TMainForm.UpdateSystrayIcon;
 var TmpIcon:TIcon;
     Idx:Integer;
@@ -271,6 +276,37 @@ begin
     Systray.Icone:=TmpIcon;
   finally
     TmpIcon.Free;
+  end;
+end;
+
+//******************************************************************************
+// InstallAdminHook: tente d'installer un hook global, revoie false si échoue
+//******************************************************************************
+function TMainForm.InstallAdminHook:Boolean;
+begin
+  Result:=InjectLibrary(CURRENT_USER,DLL_NAME);
+  IsUserHook:=False;
+end;
+
+//******************************************************************************
+// InstallUserHook: tente d'installer un hook pour compte utilisateur,
+//                  revoie false si échoue
+//******************************************************************************
+function TMainForm.InstallUserHook:Boolean;
+begin
+end;
+
+//******************************************************************************
+// UninstallHook: désinstalle le hook
+//******************************************************************************
+function TMainForm.UninstallHook:Boolean;
+begin
+  if IsUserHook then
+  begin
+  end
+  else
+  begin
+    UninjectLibrary(CURRENT_USER,DLL_NAME);
   end;
 end;
 

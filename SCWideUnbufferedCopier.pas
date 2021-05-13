@@ -33,7 +33,7 @@ type
 
 implementation
 
-uses SCCommon,SCLocStrings,SCWin32,SysUtils,TntSysutils;
+uses SCCommon,SCLocStrings,SCWin32,SysUtils,TntSysutils,Math;
 
 //******************************************************************************
 //******************************************************************************
@@ -120,6 +120,7 @@ var HSrc,HDest,HBufferedDest:THandle;
     ReadPosRec:Int64Rec absolute ReadPos;
     WritePosRec:Int64Rec absolute WritePos;
     LastError:Cardinal;
+    SourceIsNotUNC,DestIsNotUNC:Boolean;
 begin
   Assert(Assigned(OnCopyProgress),'OnCopyProgress not assigned');
 
@@ -139,8 +140,13 @@ begin
 
     SourceFile:=FileItem.SrcFullName;
     DestFile:=FileItem.DestFullName;
-    if Pos('\\',SourceFile)<>1 then SourceFile:=ENABLE_32K_CHARS_PATH+SourceFile; // TODO: a ameliorer
-    if Pos('\\',DestFile)<>1 then DestFile:=ENABLE_32K_CHARS_PATH+DestFile;
+
+    SourceIsNotUNC:=not PathIsUNC(PWideChar(SourceFile));
+    DestIsNotUNC:=not PathIsUNC(PWideChar(DestFile));
+
+    // gérer les chemins de plus de MAX_PATH caractères
+    if SourceIsNotUNC then SourceFile:=ENABLE_32K_CHARS_PATH+SourceFile;
+    if DestIsNotUNC then DestFile:=ENABLE_32K_CHARS_PATH+DestFile;
 
     Inc(FileItem.CopyTryCount);
 
@@ -155,7 +161,8 @@ begin
                             FILE_SHARE_READ or FILE_SHARE_WRITE,
                             nil,
                             OPEN_EXISTING,
-                            FILE_ATTRIBUTE_NORMAL or FILE_FLAG_NO_BUFFERING or FILE_FLAG_OVERLAPPED,
+                            FILE_ATTRIBUTE_NORMAL or FILE_FLAG_OVERLAPPED
+                            or IfThen(SourceIsNotUNC,FILE_FLAG_NO_BUFFERING,0),
                             0);
         RaiseCopyErrorIfNot(HSrc<>INVALID_HANDLE_VALUE);
 
@@ -170,7 +177,8 @@ begin
                               FILE_SHARE_READ or FILE_SHARE_WRITE,
                               nil,
                               CREATE_ALWAYS,
-                              FILE_ATTRIBUTE_NORMAL or FILE_FLAG_NO_BUFFERING or FILE_FLAG_OVERLAPPED,
+                              FILE_ATTRIBUTE_NORMAL or FILE_FLAG_OVERLAPPED
+                              or IfThen(DestIsNotUNC,FILE_FLAG_NO_BUFFERING,0),
                               0);
           RaiseCopyErrorIfNot(HDest<>INVALID_HANDLE_VALUE);
 
@@ -220,7 +228,7 @@ begin
         WritePos:=SkippedSize;
         SetEvent(Events[WORK_EVENT]);
 
-        if FileItem.SrcSize>0 then // aucun traitemeant a fairepour les fichiers vides
+        if FileItem.SrcSize>0 then // aucun traitemeant a faire pour les fichiers vides
         begin
           while not (ReadEnd and WriteEnd) and ContinueCopy  do
           begin

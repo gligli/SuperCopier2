@@ -6,7 +6,7 @@ object CopyForm: TCopyForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = 'CopyForm'
-  ClientHeight = 397
+  ClientHeight = 395
   ClientWidth = 400
   Color = clBtnFace
   Constraints.MinHeight = 169
@@ -23,7 +23,7 @@ object CopyForm: TCopyForm
   OnDestroy = FormDestroy
   DesignSize = (
     400
-    397)
+    395)
   PixelsPerInch = 96
   TextHeight = 13
   object ggAll: TSCProgessBar
@@ -139,19 +139,19 @@ object CopyForm: TCopyForm
     Left = -1
     Top = 150
     Width = 404
-    Height = 251
-    ActivePage = tsErrors
+    Height = 249
+    ActivePage = tsCopyList
     Anchors = [akLeft, akTop, akRight, akBottom]
     Images = MainForm.ilGlobal
     MultiLine = True
-    TabOrder = 1
+    TabOrder = 6
     OnChange = pcPagesChange
     object tsCopyList: TTntTabSheet
       Caption = 'Copy list'
       ImageIndex = 8
       DesignSize = (
         396
-        222)
+        221)
       object btFileTop: TTntSpeedButton
         Left = 0
         Top = 0
@@ -244,7 +244,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 221
+        Height = 218
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -291,7 +291,7 @@ object CopyForm: TCopyForm
       ParentFont = False
       DesignSize = (
         396
-        222)
+        220)
       object btErrorClear: TTntSpeedButton
         Left = 0
         Top = 0
@@ -318,7 +318,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 221
+        Height = 216
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -360,7 +360,7 @@ object CopyForm: TCopyForm
       ImageIndex = 4
       DesignSize = (
         396
-        222)
+        220)
       object gbSpeedLimit: TTntGroupBox
         Left = 8
         Top = 51
@@ -620,7 +620,7 @@ object CopyForm: TCopyForm
     Top = 116
     Width = 65
     Height = 25
-    TabOrder = 0
+    TabOrder = 5
     TabStop = True
     Anchors = [akTop, akRight]
     ItemIndex = 0
@@ -634,7 +634,7 @@ object CopyForm: TCopyForm
     Top = 116
     Width = 65
     Height = 25
-    TabOrder = 6
+    TabOrder = 4
     TabStop = True
     Anchors = [akTop, akRight]
     ItemIndex = 0
@@ -648,7 +648,7 @@ object CopyForm: TCopyForm
     Top = 116
     Width = 65
     Height = 25
-    TabOrder = 4
+    TabOrder = 2
     TabStop = True
     Anchors = [akTop, akRight]
     ItemIndex = 0
@@ -663,7 +663,7 @@ object CopyForm: TCopyForm
     Width = 65
     Height = 25
     Visible = False
-    TabOrder = 5
+    TabOrder = 3
     TabStop = True
     Anchors = [akTop, akRight]
     ItemIndex = 0
@@ -677,7 +677,7 @@ object CopyForm: TCopyForm
     Top = 116
     Width = 65
     Height = 25
-    TabOrder = 3
+    TabOrder = 1
     TabStop = True
     Anchors = [akTop, akRight]
     ItemIndex = 0
@@ -691,7 +691,7 @@ object CopyForm: TCopyForm
     Top = 116
     Width = 65
     Height = 25
-    TabOrder = 2
+    TabOrder = 0
     TabStop = True
     Anchors = [akTop, akRight]
     ItemIndex = 0

@@ -56,7 +56,7 @@ object ConfigForm: TConfigForm
     Top = 0
     Width = 449
     Height = 371
-    ActivePage = tsLanguage
+    ActivePage = tsLog
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabHeight = 10
     TabOrder = 1
@@ -116,7 +116,7 @@ object ConfigForm: TConfigForm
           Font.Height = -11
           Font.Name = 'Microsoft Sans Serif'
           Font.Style = []
-          ItemHeight = 13
+          ItemHeight = 0
           ParentFont = False
           TabOrder = 0
         end
@@ -1131,7 +1131,7 @@ object ConfigForm: TConfigForm
           Top = 17
           Width = 363
           Height = 17
-          Caption = 'Automaticaly save the error log'
+          Caption = 'Automatically save the error log'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11

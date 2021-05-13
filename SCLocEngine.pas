@@ -69,7 +69,7 @@ begin
   if WideString(TmpLangFile)<>LangFile then // le nom de fichier est-il passé 'sans pertes' en ansi?
   begin
     //HACK: TMemIniFile ne supporte pas unicode, je crée donc une version temporaire
-    //      du fichier de lanques ne contenant que des caractères ansi dans le nom
+    //      du fichier de langues ne contenant que des caractères ansi dans le nom
     TmpLangFile:=SCWin32.GetTempPath+TMP_LANGFILE_NAME;
     SCWin32.CopyFile(PWideChar(LangFile),PWideChar(WideString(TmpLangFile)),False);
   end;

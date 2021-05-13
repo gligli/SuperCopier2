@@ -11,8 +11,8 @@ uses
 
 const
   WIDTH_DPI_MULTIPLIER=408/96;
-  FOLDED_HEIGHT_DPI_MULTIPLIER=169/96;
-  UNFOLDED_HEIGHT_DPI_MULTIPLIER=433/96;
+  FOLDED_HEIGHT_DPI_MULTIPLIER=145/96;
+  UNFOLDED_HEIGHT_DPI_MULTIPLIER=409/96;
 
 type
   TLvFileListAction=procedure(FileList:TFileList;Item:TListItem);
@@ -157,7 +157,7 @@ type
     Paused,SkipPending,CancelPending:Boolean;
     
     CopyThread:TThread; // déclaré en tant que TThread pour éviter la référence circulaire
-    UnfoldedHeight:Integer;
+    UnfoldedHeight,NonClientHeight:Integer;
     NotificationTargetForm:TTntForm;
 
     property State:TCopyWindowState read FState write SetState;
@@ -313,7 +313,7 @@ begin
 end;
 
 //******************************************************************************
-// OpenNewFilesMenu : open le menu permettan tde choisir la destination
+// OpenNewFilesMenu : open le menu permettant de choisir la destination
 //******************************************************************************
 procedure TCopyForm.OpenNewFilesMenu;
 begin
@@ -389,26 +389,31 @@ end;
 // SetUnfolded : change les paramêtres de la fenêtre pour passer en mode développé ou non
 //******************************************************************************
 procedure TCopyForm.SetUnfolded(Value:Boolean);
+var NewClientHeight:Integer;
 begin
   FUnfolded:=Value;
 
   if FUnfolded then
   begin
-    Constraints.MinHeight:=Round(UNFOLDED_HEIGHT_DPI_MULTIPLIER*PixelsPerInch);
+    NewClientHeight:=Round(UNFOLDED_HEIGHT_DPI_MULTIPLIER*PixelsPerInch);
+
+    Constraints.MinHeight:=NewClientHeight+NonClientHeight;
     Constraints.MaxHeight:=0;
 
-    Height:=UnfoldedHeight;
+    ClientHeight:=UnfoldedHeight;
     btUnfold.Visible:=False;
     btFold.Visible:=True;
   end
   else
   begin
-    UnfoldedHeight:=Height;
+    UnfoldedHeight:=ClientHeight;
 
-    Constraints.MinHeight:=Round(FOLDED_HEIGHT_DPI_MULTIPLIER*PixelsPerInch);
-    Constraints.MaxHeight:=Constraints.MinHeight;
+    NewClientHeight:=Round(FOLDED_HEIGHT_DPI_MULTIPLIER*PixelsPerInch);
 
-    Height:=Constraints.MinHeight;
+    Constraints.MinHeight:=NewClientHeight+NonClientHeight;
+    Constraints.MaxHeight:=NewClientHeight+NonClientHeight;
+
+    ClientHeight:=NewClientHeight;
     btUnfold.Visible:=True;
     btFold.Visible:=False;
   end;
@@ -437,7 +442,7 @@ begin
     else
     begin
       //HACK: en utilisant WindowState, toutes les fenêtres de copies sont réduites
-      //      j'utilise dont direct l'API
+      //      j'utilise donc direct l'API
       SetForegroundWindow(Handle);
       ShowWindow(Handle,SW_SHOWMINIMIZED);
 
@@ -479,7 +484,7 @@ begin
           Log.Add(Format('%s %s %s : %s',[Caption,SubItems[0],SubItems[1],SubItems[2]]));
         end;
 
-      // on s'assure sue le rep du log existe
+      // on s'assure que le rep du log existe
       WideForceDirectories(WideExtractFilePath(FileName));
 
       // on crée le fichier si il n'existe pas et on l'ouvre si il existe
@@ -514,6 +519,7 @@ begin
   BorderStyle:=bsSizeToolWin;
 
   // init variables
+  NonClientHeight:=Height-ClientHeight;
   UnfoldedHeight:=Round(UNFOLDED_HEIGHT_DPI_MULTIPLIER*PixelsPerInch);
   Constraints.MinWidth:=Round(WIDTH_DPI_MULTIPLIER*PixelsPerInch);
 
@@ -615,7 +621,7 @@ begin
   // accepter le drag & drop
   DragAcceptFiles(Handle,True);
 
-  // réafficher le bouton de titre (qui disparait qunad on change les params de la form)
+  // réafficher le bouton de titre (qui disparait quand on change les params de la form)
   btTitleBar.Refresh;
 
   pcPages.ActivePage:=tsCopyList;
@@ -911,6 +917,7 @@ end;
 procedure TCopyForm.tiSystrayTimer(Sender: TObject);
 var PrgHeight,PrgPercent:integer;
 begin
+//  writeln(minimized,' ',Systray.Visible);
   if Minimized and Systray.Visible then
   begin
     // dessin de la mini-progressbar
@@ -963,18 +970,32 @@ begin
 end;
 
 procedure TCopyForm.btPauseClick(Sender: TObject; ItemIndex: Integer);
+var PFoc,RFoc:Boolean;
 begin
+  PFoc:=btPause.Focused;
+  RFoc:=btResume.Focused;
+
   Paused:=not Paused;
 
   btPause.Visible:=not Paused;
   btResume.Visible:=Paused;
   miStPause.Visible:=btPause.Visible;
   miStResume.Visible:=btResume.Visible;
+
+  if PFoc then FocusControl(btResume);
+  if RFoc then FocusControl(btPause);
 end;
 
 procedure TCopyForm.btUnfoldClick(Sender: TObject; ItemIndex: Integer);
+var FFoc,UFFoc:Boolean;
 begin
+  FFoc:=btFold.Focused;
+  UFFoc:=btUnfold.Focused;
+
   Unfolded:=not Unfolded;
+
+  if FFoc then FocusControl(btUnfold);
+  if UFFoc then FocusControl(btFold);
 end;
 
 procedure TCopyForm.btTitleBarClick(Sender: TObject);

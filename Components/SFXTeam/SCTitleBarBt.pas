@@ -228,11 +228,12 @@ begin
 
     WM_NCMOUSEMOVE :
           begin
-            if InArea(false) then
+            if InArea(true) then
             begin
               if (BtStatus<>bsPressed) and (BtStatus<>bsOver) then
               begin
-                BtStatus:=bsOver;PostMessage((Owner as TForm).Handle, WM_REPAINTSCTBB,0,0);//DrawTitleBarBt;
+                BtStatus:=bsOver;
+                PostMessage((Owner as TForm).Handle, WM_REPAINTSCTBB,0,0);//DrawTitleBarBt;
                 Msg.Result := 1;
               end
             end
@@ -245,12 +246,11 @@ begin
               end;
               Msg.Result := CallWindowProc(OldWndProc, (Owner as TForm).Handle, msg.Msg, msg.wParam, msg.lParam);
             end;
-
           end;
 
     WM_MOUSEMOVE:
         begin
-          if not InArea(false) then
+          if not InArea(true) then
           begin
             if (BtStatus=bsPressed) or (BtStatus=bsOver) then
             begin

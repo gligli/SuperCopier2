@@ -89,11 +89,7 @@ type
     FOnBallonTimeOut:TNotifyEvent;
     FOnBallonClick:TNotifyEvent;
     WM_TASKBARCREATED:Cardinal;// Message
-    WinVer:TWinVer;
     HIconBmp:HICON;
-    HndDll:Cardinal;
-    ShellNotifyIconA:function (dwMessage: DWORD; lpData: PNotifyIconDataA): BOOL; stdcall;
-    ShellNotifyIconW:function (dwMessage: DWORD; lpData: PNotifyIconDataW): BOOL; stdcall;
     procedure SetBitmap(const Value:TBitmap);
     procedure SetHint(const Value:WideString);
     procedure SetIcon(const Value:TIcon);
@@ -136,11 +132,14 @@ type
 
   end;
 
-
+var
+    WinVer:TWinVer;
+    HndDll:Cardinal;
+    ShellNotifyIconA:function (dwMessage: DWORD; lpData: PNotifyIconDataA): BOOL; stdcall;
+    ShellNotifyIconW:function (dwMessage: DWORD; lpData: PNotifyIconDataW): BOOL; stdcall;
 procedure Register;
 
 implementation
-
 uses Math;
 
 procedure Register;
@@ -159,27 +158,10 @@ begin
   inherited;
   if not(csDesigning in ComponentState) then
   begin
-    {détermine la version de Windows}
-    if Win32Platform=VER_PLATFORM_WIN32_NT then
-    begin
-      if Win32MajorVersion>4 then
-        WinVer:=Win2kXP
-      else
-        WinVer:=WinNT;
-    end else
-    begin
-      if (Win32MajorVersion=4) and (Win32MinorVersion=9) then
-        WinVer:=WinMe
-      else
-        WinVer:=Win9x;
-    end;
-    
+
     Case Winver of
       Win9x:{WINDOWS 9x}
         begin
-          HndDll:=LoadLibraryA(shell32);
-          if HndDll<>0 then
-            ShellNotifyIconA:=GetProcAddress(HndDll,'Shell_NotifyIconA');
           SysIconStruc9x.cbSize:=Sizeof(SysIconStruc9x);
           SysIconStruc9x.Wnd:=AllocateHWnd(SysTrayMessages);
           SysIconStruc9x.uID:=0;
@@ -190,9 +172,6 @@ begin
         end;
       WinMe:{WINDOWS Me}
         begin
-          HndDll:=LoadLibraryA(shell32);
-          if HndDll<>0 then
-            ShellNotifyIconA:=GetProcAddress(HndDll,'Shell_NotifyIconA');
           SysIconStrucMe.cbSize:=sizeof(SysIconStrucMe);
           SysIconStrucMe.Wnd := AllocateHWnd(SysTrayMessages);
           SysIconStrucMe.uID := 0;
@@ -205,9 +184,6 @@ begin
         end;
       WinNT:{WINDOWS NT <=4}
         begin
-          HndDll:=LoadLibraryA(shell32);
-          if HndDll<>0 then
-            ShellNotifyIconW:=GetProcAddress(HndDll,'Shell_NotifyIconW');
           SysIconStrucNt.cbSize:=Sizeof(SysIconStrucNt);
           SysIconStrucNt.Wnd:=AllocateHWnd(SysTrayMessages);
           SysIconStrucNt.uID:=0;
@@ -218,9 +194,6 @@ begin
         end;
       Win2kXP:{WINDOWS 2000 et >}
         begin
-          HndDll:=LoadLibraryA(shell32);
-          if HndDll<>0 then
-            ShellNotifyIconW:=GetProcAddress(HndDll,'Shell_NotifyIconW');
           SysIconStruc2kXp.cbSize:=sizeof(SysIconStruc2kXp);
           SysIconStruc2kXp.Wnd := AllocateHWnd(SysTrayMessages);
           SysIconStruc2kXp.uID := 0;
@@ -485,7 +458,14 @@ begin
       WM_RBUTTONUP:;
       WM_RBUTTONDBLCLK:;
       NIN_BALLOONSHOW:if Assigned(FOnBallonShow) then FOnBallonShow(Self);
-      NIN_BALLOONHIDE:if Assigned(FOnBallonHide) then FOnBallonHide(Self);
+      NIN_BALLOONHIDE:begin
+                        if not FVisible then
+                        case WinVer of
+                          WinMe : ShellNotifyIconA(NIM_DELETE, @SysIconStrucMe);
+                          Win2kXP: ShellNotifyIconW(NIM_DELETE, @SysIconStruc2kXp);
+                        end;
+                        if Assigned(FOnBallonHide) then FOnBallonHide(Self);
+                      end;
       NIN_BALLOONTIMEOUT:if Assigned(FOnBallonTimeOut) then FOnBallonTimeOut(Self);
       NIN_BALLOONUSERCLICK:if Assigned(FOnBallonClick) then FOnBallonClick(Self);
      end;
@@ -575,8 +555,8 @@ var
 begin
 
   {Seulement valable pour windows 2000/Me et >}
-  if (FVisible)then
-  begin
+//  if (FVisible)then
+//  begin
     case WinVer of
       WinMe :
         begin
@@ -592,6 +572,7 @@ begin
           if size>254 then size:=254;
           move(TmpStr[1],SysIconStrucMe.szInfo,size+1);
           SysIconStrucMe.szInfo[254]:=#0;
+          SysIconStrucMe.uCallbackMessage := WM_TRAYICON;
           {icon}
           case IconType of
             IBNone:     SysIconStrucMe.dwInfoFlags:=NIIF_NONE;
@@ -601,7 +582,7 @@ begin
           end;
           SysIconStrucMe.uFlags:=NIF_INFO;
           SysIconStrucMe.DUMMYUNIONNAME.uTimeout:=500;
-          ShellNotifyIconW(NIM_MODIFY, @SysIconStrucMe);
+          if FVisible then  ShellNotifyIconW(NIM_MODIFY, @SysIconStrucMe) else ShellNotifyIconW(NIM_ADD, @SysIconStrucMe)
         end;
       Win2kXP:
         begin
@@ -616,6 +597,7 @@ begin
           if size>63 then size:=63;
             Move(Title[1],SysIconStruc2kXp.szInfoTitle,size*2+2);
           SysIconStruc2kXp.szInfoTitle[63]:=#0;
+          SysIconStruc2kXp.uCallbackMessage := WM_TRAYICON;
          case IconType of
             IBNone:     SysIconStruc2kXp.dwInfoFlags:=NIIF_NONE;
             IBInfo:     SysIconStruc2kXp.dwInfoFlags:=NIIF_INFO;
@@ -624,10 +606,10 @@ begin
           end;
           SysIconStruc2kXp.uFlags:=NIF_INFO;
           SysIconStruc2kXp.DUMMYUNIONNAME.uTimeout:=500;
-          ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp);
+          if FVisible then  ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp) else ShellNotifyIconW(NIM_ADD, @SysIconStruc2kXp)
       end;
     end;{fin case}
-  end;
+  //end;
 end;
 
 //##############################################################################
@@ -647,9 +629,35 @@ begin
     WinNT:   DeallocateHWnd(SysIconStrucNt.wnd);
     Win2kXP: DeallocateHWnd(SysIconStruc2kXp.wnd);
   end;
-  FreeLibrary(HndDll);
   inherited;
 end;
+initialization
+    {détermine la version de Windows}
+    if Win32Platform=VER_PLATFORM_WIN32_NT then
+    begin
+      if Win32MajorVersion>4 then
+        WinVer:=Win2kXP
+      else
+        WinVer:=WinNT;
+    end else
+    begin
+      if (Win32MajorVersion=4) and (Win32MinorVersion=9) then
+        WinVer:=WinMe
+      else
+        WinVer:=Win9x;
+    end;
+
+    HndDll:=LoadLibraryA(shell32);
+    if HndDll<>0 then
+      case Winver of
+        Win9x,WinMe: ShellNotifyIconA:=GetProcAddress(HndDll,'Shell_NotifyIconA');
+        WinNT,Win2kXp: ShellNotifyIconW:=GetProcAddress(HndDll,'Shell_NotifyIconW');
+      end;
+
+Finalization
+  if HndDll<>0 then
+    FreeLibrary(HndDll);
+
 
 end.
 

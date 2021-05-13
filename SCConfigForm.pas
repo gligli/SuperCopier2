@@ -199,7 +199,7 @@ begin
   begin
     //tsLanguage
     cbLanguage.Items.Add(DEFAULT_LANGUAGE);
-    FindHandle:=SCWin32.FindFirstFile(PWideChar(WideExtractFilePath(TntApplication.ExeName)+LANG_SUBDIR+'*.*'),FindData);
+    FindHandle:=SCWin32.FindFirstFile(PWideChar(WideExtractFilePath(TntApplication.ExeName)+LANG_SUBDIR+'*.lng'),FindData);
     if FindHandle<>INVALID_HANDLE_VALUE then
     begin
       repeat
@@ -467,7 +467,7 @@ end;
 
 procedure TConfigForm.FileNameOnly(Sender: TObject; var Key: Char);
 begin
-  if Key in ['/',':','?','*','"','<','>','|'] then Key:=#0; //caractères interdits dans un nom de fichier
+  if Key in ['/','?','*','"','<','>','|'] then Key:=#0; //caractères interdits dans un nom de fichier
 end;
 
 procedure TConfigForm.TntFormShow(Sender: TObject);

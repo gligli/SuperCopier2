@@ -45,7 +45,7 @@ function GetVolumeInformation(lpRootPathName: PWideChar;
 function MessageBox(hWnd: HWND; lpText, lpCaption: WideString; uType: UINT): Integer;
 function GetTempPath:WideString;
 function CopyFile(lpExistingFileName, lpNewFileName: PWideChar; bFailIfExists: BOOL): BOOL;
-
+function PathIsUNC(pszPath:PWideChar):LongBool;
 
 var
   HKernel32_dll:Cardinal;
@@ -58,6 +58,9 @@ var
 implementation
 
 uses TntWindows,Sysutils,SCCommon;
+
+function PathIsUNCA(pszPath:PChar):LongBool;stdcall;external 'shlwapi.dll' name 'PathIsUNCA';
+function PathIsUNCW(pszPath:PWideChar):LongBool;stdcall;external 'shlwapi.dll' name 'PathIsUNCW';
 
 //******************************************************************************
 // GetFileSize
@@ -251,6 +254,17 @@ end;
 function CopyFile(lpExistingFileName, lpNewFileName: PWideChar; bFailIfExists: BOOL): BOOL;
 begin
   Result:=Tnt_CopyFileW(lpExistingFileName,lpNewFileName,bFailIfExists);
+end;
+
+//******************************************************************************
+// PathIsUNC
+//******************************************************************************
+function PathIsUNC(pszPath:PWideChar):LongBool;
+begin
+  if Win32Platform=VER_PLATFORM_WIN32_NT then
+    Result:=PathIsUNCW(pszPath)
+  else
+    Result:=PathIsUNCA(PChar(String(pszPath)));
 end;
 
 initialization

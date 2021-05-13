@@ -70,6 +70,8 @@
   * tbbt qui s'efface (pb de taille du caption)
   * leak bitmap sur systray
 
+* multilangues
+
 === beta 1 ===
 
 * bug processes et casse
@@ -84,17 +86,37 @@ x moyen de ne pas incrémenter totalcount et totalsize quand on ajoute un fichier
 * delay de rééssai pour tout les fichiers en erreur, ajouter prop a tfileitem
 * pas de applyconfig au démarrage
 * pas de notification pour diskspace
+* gerer la taille de la fenetre du copier en fonction de la taille non cliente
+* btUnfold en default et concerver focus unfold/pause
 
 - pb avec always on top et opendialogs
 - ajouter choix police dans .lng
 - caption copyform pas unicode
-- gerer la taille de la fenetre du copier en fonction de la taille non cliente
 - compos
   - V pour popupbutton
   - modif scsystray pour afficher l'icone quand bulle
-  - clic sur tbbt ki foire si on bouge la souris
+  * clic sur tbbt ki foire si on bouge la souris
+  - scintillement barres de progression avec themes
+  * crash de delphi quand on le ferme (surement du au scsystray)
+  - sous 9x, pas d'affichage du temps restant pur la progressbar
+- pb maj icone progression systray (pb compo ???)
+* pb vitesse upload sur rezo (et aussi dl?)
+* ecraser si on peut po resume
+  * s'assurer ke ca marche si deplacement (fichier bien supprime)
+  * ajouter option avancee pour forcer le resume
+    - modif fenetre config
+? pb % > a 100 en ajoutant des fichiers
+- exception "Impossible de créer le repertoire" qd fermeture fenetre copie + erreur ou annulation
+- SC2 ne se lance pas sur un compte user
+  - hook non global
+  - rajouter evt launch explorer sur compo systray
+- gestion des liens dfs pour espace disque restant
+- pb creation rep qd prise en charge copie apres dl d'un fichier dans une page ie dans explorer
+-? se positionner sur le tab log + unfold si erreur a la fin
 
 === beta 2 ===
+
+- tris selon les colonnes
 
 - plantage quand timeout au quit
 
@@ -102,7 +124,6 @@ x moyen de ne pas incrémenter totalcount et totalsize quand on ajoute un fichier
   - focus qui s'efface du bouton
 
 - changement taille buffer quand copie vers mm dur
-- multilangues
 ? supression/déplacement
 
 

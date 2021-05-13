@@ -1,7 +1,6 @@
 unit SCCommon;
 
-//{$include 'SCBuildConfig.inc'}
-{$DEFINE DEBUG}
+{$include 'SCBuildConfig.inc'}
 
 interface
 
@@ -401,7 +400,7 @@ begin
      GetStorageDeviceNumber(Path1,SDN1) and
      GetStorageDeviceNumber(Path2,SDN2) then
   begin
-    // pour windows 2000 et supérieurs, on compare le numéro de prériphérique
+    // pour windows 2000 et supérieurs, on compare le numéro de périphérique
     Result:=(SDN1.DeviceType=SDN2.DeviceType) and (SDN1.DeviceNumber=SDN2.DeviceNumber);
   end
   else
@@ -412,7 +411,7 @@ begin
 end;
 
 //******************************************************************************
-// SetProcessPriority: channde la priorité du processus
+// SetProcessPriority: change la priorité du processus
 //******************************************************************************
 procedure SetProcessPriority(Priority:Cardinal);
 var ph:THandle;
@@ -466,7 +465,7 @@ begin
     end;
   end;
 
-  // échouer silencieusmeent si l'on a pas le droit de lire ou écrire la sécurité
+  // échouer silencieusement si l'on a pas le droit de lire ou écrire la sécurité
   LastError:=GetLastError;
   if not Result and
       (LastError=ERROR_ACCESS_DENIED) or

@@ -430,7 +430,7 @@ begin
             Sync.Copy.State:=cwsCopying;
             UpdateCopyWindow;
 
-            if Copier.ManageFileAction then
+            if Copier.ManageFileAction(Config.Values.CopyResumeNoAgeVerification) then
             begin
     //          dbgln('Copying: '+Copier.CurrentCopy.FileItem.SrcFullName);
     //          dbgln('      -> '+Copier.CurrentCopy.FileItem.DestFullName);
@@ -1119,7 +1119,7 @@ begin
       TheSystray:=Systray;
 
       // on force l'utilisation de l'icône principale si la fenêtre est réduite dans la taskbar
-      if (UseMainIcon or (not MinimizedToTray)) and Config.Values.TrayIcon then
+      if (UseMainIcon or (not MinimizedToTray)){ and Config.Values.TrayIcon} then
       begin
         TheSystray:=MainForm.Systray;
         MainForm.NotificationSourceThread:=Self;
