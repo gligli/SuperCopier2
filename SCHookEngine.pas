@@ -10,7 +10,14 @@ type
 
   THookEngine=class
   private
-    App2HookData:TSCApp2HookData;
+    App2HookData:PSCApp2HookData;
+    App2HookMapping:THandle;
+
+    FCopyHandlingActive:Boolean;
+    FIsUserHook:Boolean;
+    FProcessList:String;
+  protected
+    set
   public
     CopyHandlingActive:Boolean;
     IsUserHook:Boolean;
@@ -98,18 +105,31 @@ end;
 
 constructor THookEngine.Create;
 begin
+  // creation du lien IPC
   if not CreateIpcQueue(IPC_NAME,HookCallback) then
   begin
     raise EHookEngineInitFailed.Create(lsHookEngineNoIPC);
   end;
 
-  
+  // creation du filemapping
+  App2HookMapping:=CreateFileMapping(INVALID_HANDLE_VALUE,nil,PAGE_READWRITE,0,SizeOf(App2HookData),FILE_MAPING_NAME);
+  App2HookData:=nil;
+  if App2HookMapping<>0 then
+  begin
+    App2HookData:=MapViewOfFile(App2HookMapping,FILE_MAP_ALL_ACCESS,0,0,0);
+  end;
+
+  if (App2HookMapping=0) or (App2HookData=nil) then
+  begin
+    raise EHookEngineInitFailed.Create(lsHookEngineNoFileMapping);
+  end;
 end;
 
 destructor THookEngine.Destroy;
 begin
   DestroyIpcQueue(IPC_NAME);
-
+  UnmapViewOfFile(App2HookData); 
+  CloseHandle(App2HookMapping);
 end;
 
 procedure THookEngine.InstallHook;

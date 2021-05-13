@@ -62,7 +62,7 @@ var
 
 implementation
 uses SCConfig,SCCommon,SCWin32,SCCopyThread,SCBaseList,SCFileList,SCDirList,SCHookShared,SCWorkThreadList,madCodeHook,
-  Forms,SCConfigForm,SCAboutForm,SCLocStrings,SCCopyForm, Math;
+  Forms,SCConfigForm,SCAboutForm,SCLocStrings,SCCopyForm,SCHookEngine, Math;
 {$R *.dfm}
 
 procedure TMainForm.FormCreate(Sender: TObject);
@@ -91,6 +91,8 @@ begin
     Application.Terminate;
   end;
 }
+  HookEngine:=THookEngine.Create;
+
   NotificationSourceForm:=nil;
 
   LocEngine.TranslateForm(Self);
