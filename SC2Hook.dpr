@@ -1,3 +1,17 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
 library SC2Hook;
 
 uses
@@ -9,8 +23,10 @@ uses
 var
 	NextSHFileOperationA : function(const lpFileOp : TSHFileOpStructA):integer;stdcall;
 	NextSHFileOperationW : function(const lpFileOp : TSHFileOpStructW):integer;stdcall;
+{$IFDEF NEW_HOOK_ENGINE}
 	NextShellExecuteExA : function(var lpExecInfo : TShellExecuteInfoA):LongBool;stdcall;
 	NextShellExecuteExW : function(var lpExecInfo : TShellExecuteInfoW):LongBool;stdcall;
+{$ENDIF}
 
   App2HookData:PSCApp2HookData=nil;
   App2HookMapping:THandle=0;
@@ -172,6 +188,7 @@ end;
 //******************************************************************************
 // NewShellExecuteExW
 //******************************************************************************
+{$IFDEF NEW_HOOK_ENGINE}
 function NewShellExecuteExW(var lpExecInfo : TShellExecuteInfoW):LongBool;
 var HookData:TSCHook2AppData;
 var FN,ExplorersList:string;
@@ -201,6 +218,7 @@ begin
 		end;
 	end;
 end;
+{$ENDIF}
 
 //******************************************************************************
 // LibraryProc
@@ -220,7 +238,9 @@ begin
       if GetVersion and $80000000 = 0 then // Windows NT ?
       begin
         HookAPI('shell32.dll','SHFileOperationW',@NewSHFileOperationW,@NextSHFileOperationW);
+{$IFDEF NEW_HOOK_ENGINE}
         HookAPI('shell32.dll','ShellExecuteExW',@NewShellExecuteExW,@NextShellExecuteExW);
+{$ENDIF}
       end;
     end;
     DLL_PROCESS_DETACH:

@@ -1,3 +1,17 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
 unit SCCopyForm;
 
 interface
@@ -7,7 +21,7 @@ uses
   Dialogs, StdCtrls,TntStdCtrls, ComCtrls, TntComCtrls, Controls,
   ExtCtrls, TntExtCtrls, Spin, Menus, TntMenus,SCFilelist,ScBaseList,ShellApi,
   TntDialogs,TntClasses,SCCommon, SCProgessBar, SCTitleBarBt, ScSystray,
-  SCFileNameLabel, Buttons, TntButtons, ToolWin, ScPopupButton,SCLocEngine;
+  SCFileNameLabel, Buttons, TntButtons, ToolWin, ScPopupButton,SCLocEngine,Themes;
 
 const
   WIDTH_DPI_MULTIPLIER=408/96;
@@ -332,7 +346,8 @@ begin
 
   case FState of
     cwsWaiting,
-    cwsRecursing:
+    cwsRecursing,
+    cwsCopyEnd:
     begin
       btPause.Enabled:=True;
       btResume.Enabled:=True;
@@ -457,7 +472,7 @@ begin
     Systray.Visible:=False;
     tiSystray.Enabled:=False;
 
-    // si une form est en attente après une notification, l'afficher 
+    // si une form est en attente après une notification, l'afficher
     if Assigned(NotificationTargetForm) then NotificationTargetForm.Visible:=True;
     NotificationTargetForm:=nil;
   end;
@@ -517,6 +532,10 @@ begin
   //HACK: ne pas mettre directement la fenêtre en resizeable pour que
   //      la gestion des grandes polices puisse la redimentionner
   BorderStyle:=bsSizeToolWin;
+
+  //HACK: fix temporaire pour les pb de scintillement des barres de progression
+  //      avec les thèmes activés
+  DoubleBuffered:=ThemeServices.ThemesEnabled;
 
   // init variables
   NonClientHeight:=Height-ClientHeight;
@@ -917,8 +936,7 @@ end;
 procedure TCopyForm.tiSystrayTimer(Sender: TObject);
 var PrgHeight,PrgPercent:integer;
 begin
-//  writeln(minimized,' ',Systray.Visible);
-  if Minimized and Systray.Visible then
+  if Systray.Visible then
   begin
     // dessin de la mini-progressbar
     PrgPercent:=Round( (ggAll.Position / ggAll.Max) * 100 );
@@ -1057,7 +1075,6 @@ begin
   // gérer la propriété Minimized lorsque l'on réduit dans la taskbar
   if (Msg.WParamLo<>WA_INACTIVE) and (GetForegroundWindow=Handle) and IsIconic(Handle) then
   begin
-    dbgln('z');
     Minimized:=False;
   end;
 end;

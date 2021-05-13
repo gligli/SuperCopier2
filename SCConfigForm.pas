@@ -1,3 +1,17 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
 unit SCConfigForm;
 
 interface
@@ -114,7 +128,6 @@ type
     llMinimizedEventHandling: TTntLabel;
     cbMinimizedEventHandling: TTntComboBox;
     btApply: TTntButton;
-    chFailSafeCopier: TTntCheckBox;
     btProgressBorder: TTntButton;
     btProgressOutline: TTntButton;
     btProgressText: TTntButton;
@@ -124,6 +137,8 @@ type
     llLanguage: TTntLabel;
     cbLanguage: TTntComboBox;
     llLanguageInfo: TTntLabel;
+    chFailSafeCopier: TTntCheckBox;
+    chCopyResumeNoAgeVerification: TTntCheckBox;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure lvSectionsChange(Sender: TObject; Item: TListItem;
       Change: TItemChange);
@@ -280,6 +295,7 @@ begin
     edCopyThrottleInterval.Text:=IntToStr(CopyThrottleInterval);
     chFastFreeSpaceCheck.Checked:=FastFreeSpaceCheck;
     chFailSafeCopier.Checked:=FailSafeCopier;
+    chCopyResumeNoAgeVerification.Checked:=CopyResumeNoAgeVerification;
   end;
 end;
 
@@ -351,6 +367,7 @@ begin
     CopyThrottleInterval:=StrToIntDef(edCopyThrottleInterval.Text,CONFIG_DEFAULT_VALUES.CopyThrottleInterval);
     FastFreeSpaceCheck:=chFastFreeSpaceCheck.Checked;
     FailSafeCopier:=chFailSafeCopier.Checked;
+    CopyResumeNoAgeVerification:=chCopyResumeNoAgeVerification.Checked;
   end;
 end;
 

@@ -128,9 +128,11 @@ object CollisionForm: TCollisionForm
   object llCollisionText2: TTntLabel
     Left = 48
     Top = 96
-    Width = 126
+    Width = 318
     Height = 13
-    Caption = 'What would you like to to?'
+    Caption = 
+      'What would you like to to?  (keep buttons pressed for more optio' +
+      'ns)'
   end
   object llSourceData: TTntLabel
     Left = 112
@@ -225,7 +227,7 @@ object CollisionForm: TCollisionForm
     Images = MainForm.ilGlobal
     TrackButton = tbLeftButton
     Left = 248
-    Top = 80
+    Top = 72
     object Skip1: TTntMenuItem
       Caption = 'Skip'
       ImageIndex = 19
@@ -240,7 +242,7 @@ object CollisionForm: TCollisionForm
     Images = MainForm.ilGlobal
     TrackButton = tbLeftButton
     Left = 88
-    Top = 80
+    Top = 72
     object Resume1: TTntMenuItem
       Caption = 'Resume'
       ImageIndex = 21
@@ -255,7 +257,7 @@ object CollisionForm: TCollisionForm
     Images = MainForm.ilGlobal
     TrackButton = tbLeftButton
     Left = 8
-    Top = 80
+    Top = 72
     object Overwrite1: TTntMenuItem
       Caption = 'Overwrite'
       ImageIndex = 22
@@ -276,7 +278,7 @@ object CollisionForm: TCollisionForm
     Images = MainForm.ilGlobal
     TrackButton = tbLeftButton
     Left = 168
-    Top = 80
+    Top = 72
     object Rename1: TTntMenuItem
       Caption = 'Rename'
       ImageIndex = 20

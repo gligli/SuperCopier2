@@ -160,7 +160,7 @@ object ConfigForm: TConfigForm
           ItemHeight = 13
           TabOrder = 1
           OnClick = cbMinimizeClick
-          Items.WideStrings = (
+          Items.Strings = (
             'Minimize windows to system tray and set them as always on top'
             'Minimize windows to taskbar')
         end
@@ -172,7 +172,7 @@ object ConfigForm: TConfigForm
           Style = csDropDownList
           ItemHeight = 13
           TabOrder = 2
-          Items.WideStrings = (
+          Items.Strings = (
             'Do nothing (wait for the window to be restored)'
             
               'Display a balloon notification (will not work on Windows 98,95 &' +
@@ -193,7 +193,7 @@ object ConfigForm: TConfigForm
           Width = 401
           Height = 17
           Caption = 'Save copy window position'
-          TabOrder = 0
+          TabOrder = 1
         end
         object chCWSaveSize: TTntCheckBox
           Left = 8
@@ -201,7 +201,7 @@ object ConfigForm: TConfigForm
           Width = 401
           Height = 17
           Caption = 'Save copy window size'
-          TabOrder = 1
+          TabOrder = 2
         end
         object chCWStartMinimized: TTntCheckBox
           Left = 8
@@ -209,7 +209,7 @@ object ConfigForm: TConfigForm
           Width = 401
           Height = 17
           Caption = 'Start copies with copy window minimized'
-          TabOrder = 2
+          TabOrder = 0
         end
       end
       object gbSizeUnit: TTntGroupBox
@@ -234,7 +234,7 @@ object ConfigForm: TConfigForm
           Style = csDropDownList
           ItemHeight = 13
           TabOrder = 0
-          Items.WideStrings = (
+          Items.Strings = (
             'Auto'
             'Bytes'
             'KB (Kilobytes)'
@@ -395,7 +395,7 @@ object ConfigForm: TConfigForm
           ItemIndex = 0
           TabOrder = 0
           Text = 'Close the window'
-          Items.WideStrings = (
+          Items.Strings = (
             'Close the window'
             'Don'#39't close the window'
             'Don'#39't close if there was errors')
@@ -434,7 +434,7 @@ object ConfigForm: TConfigForm
           TabOrder = 1
           Text = '1024'
           OnKeyPress = NumbersOnly
-          Items.WideStrings = (
+          Items.Strings = (
             '64'
             '128'
             '256'
@@ -471,11 +471,11 @@ object ConfigForm: TConfigForm
           ItemIndex = 0
           TabOrder = 0
           Text = 'Ask what to do'
-          Items.WideStrings = (
+          Items.Strings = (
             'Ask what to do'
             'Cancel the whole copy'
             'Skip'
-            'Resume transfert'
+            'Resume transfer'
             'Overwrite'
             'Overwrite if different'
             'Rename new file'
@@ -520,7 +520,7 @@ object ConfigForm: TConfigForm
           ItemIndex = 0
           TabOrder = 0
           Text = 'Ask what to do'
-          Items.WideStrings = (
+          Items.Strings = (
             'Ask what to do'
             'Cancel then whole copy'
             'Skip'
@@ -568,7 +568,7 @@ object ConfigForm: TConfigForm
           Style = csDropDownList
           ItemHeight = 13
           TabOrder = 0
-          Items.WideStrings = (
+          Items.Strings = (
             'Never'
             'Always'
             'The source is the same'
@@ -713,7 +713,7 @@ object ConfigForm: TConfigForm
           ItemHeight = 13
           TabOrder = 0
           OnChange = cbErrorLogAutoSaveModeChange
-          Items.WideStrings = (
+          Items.Strings = (
             'The destination folder'
             'The source folder'
             'A custom folder')
@@ -832,7 +832,7 @@ object ConfigForm: TConfigForm
           Style = csDropDownList
           ItemHeight = 13
           TabOrder = 0
-          Items.WideStrings = (
+          Items.Strings = (
             'Idle'
             'Normal'
             'High')
@@ -842,7 +842,7 @@ object ConfigForm: TConfigForm
         Left = 8
         Top = 99
         Width = 425
-        Height = 175
+        Height = 198
         Caption = 'Advanced parameters'
         TabOrder = 3
         object llCopyBufferSize: TTntLabel
@@ -949,6 +949,14 @@ object ConfigForm: TConfigForm
           Caption = 'Use a failsafe copier (buffered copy and no unicode support)'
           TabOrder = 5
         end
+        object chCopyResumeNoAgeVerification: TTntCheckBox
+          Left = 8
+          Top = 172
+          Width = 413
+          Height = 17
+          Caption = 'Do not check for same file age before resuming file transfer'
+          TabOrder = 6
+        end
       end
       object gbConfigLocation: TTntGroupBox
         Left = 8
@@ -972,7 +980,7 @@ object ConfigForm: TConfigForm
           Style = csDropDownList
           ItemHeight = 13
           TabOrder = 0
-          Items.WideStrings = (
+          Items.Strings = (
             'The registry'
             '.ini file')
         end

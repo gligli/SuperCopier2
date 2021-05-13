@@ -1,3 +1,17 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
 unit SCMainForm;
 
 interface
@@ -28,9 +42,9 @@ type
     miThreadList: TTntMenuItem;
     miNoThreadList: TTntMenuItem;
     miDeactivate: TTntMenuItem;
-    ilGlobal: TImageList;
     miCancelAll: TTntMenuItem;
     miCancelThread: TTntMenuItem;
+    ilGlobal: TImageList;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure miConfigClick(Sender: TObject);
@@ -46,9 +60,6 @@ type
   private
     { Déclarations privées }
     procedure UpdateSystrayIcon;
-    function InstallAdminHook:Boolean;
-    function InstallUserHook:Boolean;
-    function UninstallHook:Boolean;
     procedure OpenDialog(var AMsg:TMessage); message WM_OPENDIALOG;
   public
     { Déclarations publiques }
@@ -58,7 +69,6 @@ type
 
 var
   MainForm: TMainForm;
-  CopyHandlingActive,IsUserHook:Boolean;
 
 implementation
 uses SCConfig,SCCommon,SCWin32,SCCopyThread,SCBaseList,SCFileList,SCDirList,SCHookShared,SCWorkThreadList,madCodeHook,
@@ -66,7 +76,6 @@ uses SCConfig,SCCommon,SCWin32,SCCopyThread,SCBaseList,SCFileList,SCDirList,SCHo
 {$R *.dfm}
 
 procedure TMainForm.FormCreate(Sender: TObject);
-var HookData:TSCApp2HookData;
 begin
   Windows.SetParent(Handle,THandle(HWND_MESSAGE)); // cacher la form
   Caption:=SC2_MAINFORM_CAPTION;
@@ -78,20 +87,30 @@ begin
   OpenConfig;
   ApplyConfig;
 
-  CopyHandlingActive:=Config.Values.ActivateOnStart;
-  miActivate.Visible:=not CopyHandlingActive;
-  miDeactivate.Visible:=CopyHandlingActive;
-{
   Systray.Hint:='SuperCopier 2';
   UpdateSystrayIcon;
-  if not InstallAdminHook or
-     not CreateIpcQueue(IPC_NAME,HookCallback) then
-  begin
-    SCWin32.MessageBox(Handle,lsHookErrorText,lsHookErrorCaption,MB_OK or MB_ICONERROR);
-    Application.Terminate;
+
+  try
+    HookEngine:=THookEngine.Create;
+    HookEngine.InstallHook;
+    HookEngine.CopyHandlingActive:=Config.Values.ActivateOnStart;
+  except
+    on E:EHookEngineInitFailed do
+    begin
+        SCWin32.MessageBox(Handle,lsHookErrorText+e.Message,lsHookErrorCaption,MB_OK or MB_ICONERROR);
+        Application.Terminate;
+    end;
+    on E:EHookingFailed do
+    begin
+        SCWin32.MessageBox(Handle,lsHookErrorText+e.Message,lsHookErrorCaption,MB_OK or MB_ICONERROR);
+        Application.Terminate;
+    end;
   end;
-}
-  HookEngine:=THookEngine.Create;
+
+  miActivate.Visible:=not HookEngine.CopyHandlingActive;
+  miDeactivate.Visible:=HookEngine.CopyHandlingActive;
+
+  UpdateSystrayIcon;
 
   NotificationSourceForm:=nil;
 
@@ -102,11 +121,10 @@ procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose:=True;
 
+  HookEngine.UninstallHook;
+  HookEngine.Free;
+
   WorkThreadList.CancelAllAndWaitTermination(CANCEL_TIMEOUT);
-
-  UninstallHook;
-  DestroyIpcQueue(IPC_NAME);
-
   WorkThreadList.Free;
 
   CloseConfig;
@@ -181,10 +199,10 @@ end;
 
 procedure TMainForm.miActivateClick(Sender: TObject);
 begin
-  CopyHandlingActive:=not CopyHandlingActive;
+  HookEngine.CopyHandlingActive:=not HookEngine.CopyHandlingActive;
 
-  miActivate.Visible:=not CopyHandlingActive;
-  miDeactivate.Visible:=CopyHandlingActive;
+  miActivate.Visible:=not HookEngine.CopyHandlingActive;
+  miDeactivate.Visible:=HookEngine.CopyHandlingActive;
 
   UpdateSystrayIcon;
 end;
@@ -216,42 +234,11 @@ var TmpIcon:TIcon;
 begin
   TmpIcon:=TIcon.Create;
   try
-    if CopyHandlingActive then Idx:=28 else Idx:=29;
+    if Assigned(HookEngine) and HookEngine.CopyHandlingActive then Idx:=28 else Idx:=29;
     ilGlobal.GetIcon(Idx,TmpIcon);
     Systray.Icone:=TmpIcon;
   finally
     TmpIcon.Free;
-  end;
-end;
-
-//******************************************************************************
-// InstallAdminHook: tente d'installer un hook global, revoie false si échoue
-//******************************************************************************
-function TMainForm.InstallAdminHook:Boolean;
-begin
-  Result:=InjectLibrary(CURRENT_USER,DLL_NAME);
-  IsUserHook:=False;
-end;
-
-//******************************************************************************
-// InstallUserHook: tente d'installer un hook pour compte utilisateur,
-//                  revoie false si échoue
-//******************************************************************************
-function TMainForm.InstallUserHook:Boolean;
-begin
-end;
-
-//******************************************************************************
-// UninstallHook: désinstalle le hook
-//******************************************************************************
-function TMainForm.UninstallHook:Boolean;
-begin
-  if IsUserHook then
-  begin
-  end
-  else
-  begin
-    UninjectLibrary(CURRENT_USER,DLL_NAME);
   end;
 end;
 

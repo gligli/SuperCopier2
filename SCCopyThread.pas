@@ -1,3 +1,17 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
 unit SCCopyThread;
 
 interface
@@ -391,12 +405,14 @@ var CopyError,UnfinishedCopy:Boolean;
 begin
   try
     try
+      // état de départ
+      Sync.Copy.State:=cwsWaiting;
+
       repeat
         UpdateCopyWindow;
         // attendre les données
         while (not CheckWaitingBaseList) and (not Sync.Copy.CancelPending) and (Copier.FileList.Count=0) do
         begin
-          Sync.Copy.State:=cwsWaiting;
           UpdateCopyWindow;
           Sleep(DEFAULT_WAIT);
         end;
@@ -465,6 +481,8 @@ begin
 
           dbgln('Copy End');
         end;
+
+        Sync.Copy.State:=cwsCopyEnd;
 
         // tout afficher a 100% si la fenêtre reste ouverte alors que la copie est finie
         Sync.Copy.ggFileProgress:=Sync.Copy.ggFileMax;
@@ -870,6 +888,11 @@ begin
           FormCaption:=WideFormat(lsCopyWindowPausedCaption,[GetDisplayName]);
         cwsCancelling:
           FormCaption:=WideFormat(lsCopyWindowCancellingCaption,[GetDisplayName]);
+        cwsCopyEnd:
+          if lvErrorListEmpty then
+            FormCaption:=WideFormat(lsCopyWindowCopyEndCaption,[GetDisplayName])
+          else
+            FormCaption:=WideFormat(lsCopyWindowCopyEndErrorsCaption,[GetDisplayName]);
         else
         begin
           if ggAllMax>0 then Percent:=Round(ggAllProgress*100/ggAllMax) else Percent:=0;
@@ -985,9 +1008,7 @@ begin
   begin
     // thread -> form
 
-//    Caption:=FormCaption;
-    writeln(iswindowunicode(handle));
-    SetWindowTextW(Handle,PWideChar(FormCaption));
+    Caption:=FormCaption;
 
     llFrom.Caption:=llFromCaption;
     llTo.Caption:=llToCaption;

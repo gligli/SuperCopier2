@@ -42,8 +42,10 @@ IsUTF8=0
 38=Fin de copie
 39=%s|Vitesse de fin: %s
 40=SuperCopier2 ne peut pas être lancé
-41=SuperCopier2 n'a pu s'attacher aux processus, ceci est normal si vous l'avez lancé plusieurs fois.
+41=SuperCopier2 n'a pu s'attacher aux processus, ceci est normal si vous l'avez lancé plusieurs fois.|Texte de l'erreur: 
 42=Pas assez de place libre
+43=Fin de copie - %s
+44=Fin de copie (erreurs survenues) - %s
 
 [ConfigForm]
 -Caption-=Configuration
@@ -125,12 +127,13 @@ llCopyBufferSize=Taille du tampon de copie:
 llCopyBufferSizeUnit=Octets
 llCopyWindowUpdateInterval=Intervalle de màj de la fenêtre de copie:
 llCopyWindowUpdateIntervalUnit=Millisecondes
-llCopySpeedAveragingInterval=Moyennage de la vitesse de copie sur:
+llCopySpeedAveragingInterval=Moyenne de la vitesse calculée sur:
 llCopySpeedAveragingIntervalUnit=Millisecondes
 llCopyThrottleInterval=Intervalle de régulation de la copie:
 llCopyThrottleIntervalUnit=Millisecondes
 chFastFreeSpaceCheck=Calcul de l'espace libre rapide (défauts possibles avec les points de montage NTFS)
 chFailSafeCopier=Utiliser un copieur sans-échec (copie bufferisée et pas de support de l'unicode)
+chCopyResumeNoAgeVerification=Ne pas vérifier que la date des fichiers est identique avant de reprendre un transfert
 gbConfigLocation=Emplacement des paramètres
 llConfigLocation=Sauvegarder les paramètres dans:
 cbConfigLocation="La base des registres","Un fichier .ini"
@@ -229,7 +232,7 @@ miStCancel=Annuler
 llCollisionText1=Le fichier suivant existe déjà:
 llSourceTitle=Source:
 llDestiationTitle=Destination:
-llCollisionText2=Que voulez-vous faire?
+llCollisionText2=Que voulez-vous faire? (garder les boutons appuyés pour plus d'options)
 btCancel=Annuler,
 Skip1=Passer
 Alwaysskip1=Toujours passer
@@ -256,9 +259,9 @@ btRename=Renommer,
 
 [CopyErrorForm]
 -Caption-= - Erreur de copie
-llCopyErrorText3=Que voulez-vous faire?
+llCopyErrorText3=Que voulez-vous faire? (garder les boutons appuyés pour plus d'options)
 llCopyErrorText1=La copie de:
-llCopyErrorText2=à été interrompue poue la raison suivante:
+llCopyErrorText2=à été interrompue pour la raison suivante:
 btCancel=Annuler,
 Retry1=Rééssayer
 Alwaysretry1=Toujours rééssayer

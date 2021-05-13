@@ -106,9 +106,11 @@ object CopyErrorForm: TCopyErrorForm
   object llCopyErrorText3: TTntLabel
     Left = 48
     Top = 96
-    Width = 126
+    Width = 318
     Height = 13
-    Caption = 'What would you like to to?'
+    Caption = 
+      'What would you like to to?  (keep buttons pressed for more optio' +
+      'ns)'
   end
   object llCopyErrorText1: TTntLabel
     Left = 48

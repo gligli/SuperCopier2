@@ -1,3 +1,17 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
 unit SCHookEngine;
 
 interface
@@ -10,17 +24,20 @@ type
 
   THookEngine=class
   private
+    FCopyHandlingActive:Boolean;
+
+{$IFDEF NEW_HOOK_ENGINE}
     App2HookData:PSCApp2HookData;
     App2HookMapping:THandle;
 
-    FCopyHandlingActive:Boolean;
     FIsUserHook:Boolean;
     FProcessList:String;
+{$ENDIF}
   protected
-    set
   public
-    CopyHandlingActive:Boolean;
     IsUserHook:Boolean;
+
+    property CopyHandlingActive:Boolean read FCopyHandlingActive write FCopyHandlingActive;
 
     constructor Create;
     destructor Destroy;override;
@@ -52,7 +69,7 @@ begin
   Assert(Assigned(HookEngine));
 
   Handled:=False;
-  if HookEngine.CopyHandlingActive then
+  if HookEngine.FCopyHandlingActive then
   begin
     // on récup les données qui étaient collées les unes apres les autres
     Move(messageBuf^,HookData,SizeOf(TSCHook2AppData));
@@ -111,6 +128,7 @@ begin
     raise EHookEngineInitFailed.Create(lsHookEngineNoIPC);
   end;
 
+{$IFDEF NEW_HOOK_ENGINE}
   // creation du filemapping
   App2HookMapping:=CreateFileMapping(INVALID_HANDLE_VALUE,nil,PAGE_READWRITE,0,SizeOf(App2HookData),FILE_MAPING_NAME);
   App2HookData:=nil;
@@ -123,25 +141,31 @@ begin
   begin
     raise EHookEngineInitFailed.Create(lsHookEngineNoFileMapping);
   end;
+{$ENDIF}
 end;
 
 destructor THookEngine.Destroy;
 begin
   DestroyIpcQueue(IPC_NAME);
-  UnmapViewOfFile(App2HookData); 
+{$IFDEF NEW_HOOK_ENGINE}
+  UnmapViewOfFile(App2HookData);
   CloseHandle(App2HookMapping);
+{$ENDIF}
 end;
 
 procedure THookEngine.InstallHook;
 begin
+  if not InjectLibrary(CURRENT_USER,DLL_NAME) then raise EHookingFailed.Create(lsGlobalHookingFailed);
 end;
 
 procedure THookEngine.RefreshHook;
 begin
+  InstallHook;
 end;
 
 procedure THookEngine.UninstallHook;
 begin
+  UninjectLibrary(CURRENT_USER,DLL_NAME);
 end;
 
 end.

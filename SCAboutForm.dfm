@@ -1060,9 +1060,9 @@ object AboutForm: TAboutForm
   object llName: TTntLabel
     Left = 8
     Top = 8
-    Width = 100
+    Width = 110
     Height = 13
-    Caption = 'SuperCopier 2 Beta x'
+    Caption = 'SuperCopier 2 Beta 1.9'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWhite
     Font.Height = -11

@@ -97,23 +97,26 @@ x moyen de ne pas incrémenter totalcount et totalsize quand on ajoute un fichier
   - V pour popupbutton
   - modif scsystray pour afficher l'icone quand bulle
   * clic sur tbbt ki foire si on bouge la souris
-  - scintillement barres de progression avec themes
+  * scintillement barres de progression avec themes
+    * fix temporaire avec DoubleBuffered
   * crash de delphi quand on le ferme (surement du au scsystray)
-  - sous 9x, pas d'affichage du temps restant pur la progressbar
-- pb maj icone progression systray (pb compo ???)
+  * sous 9x, pas d'affichage du temps restant pour la progressbar
+    * a tester
+*? pb maj icone progression systray (pb compo ???)
 * pb vitesse upload sur rezo (et aussi dl?)
 * ecraser si on peut po resume
   * s'assurer ke ca marche si deplacement (fichier bien supprime)
   * ajouter option avancee pour forcer le resume
-    - modif fenetre config
+    * modif fenetre config
 ? pb % > a 100 en ajoutant des fichiers
 - exception "Impossible de créer le repertoire" qd fermeture fenetre copie + erreur ou annulation
 - SC2 ne se lance pas sur un compte user
   - hook non global
   - rajouter evt launch explorer sur compo systray
-- gestion des liens dfs pour espace disque restant
+? gestion des liens dfs pour espace disque restant
 - pb creation rep qd prise en charge copie apres dl d'un fichier dans une page ie dans explorer
--? se positionner sur le tab log + unfold si erreur a la fin
+x se positionner sur le tab log + unfold si erreur a la fin
+  * message d'état signalant les erreurs
 * pb calcul taille dans recursion
 
 === beta 2 ===

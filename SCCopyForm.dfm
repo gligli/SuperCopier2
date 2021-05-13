@@ -140,7 +140,7 @@ object CopyForm: TCopyForm
     Top = 150
     Width = 404
     Height = 254
-    ActivePage = tsCopyList
+    ActivePage = tsErrors
     Anchors = [akLeft, akTop, akRight, akBottom]
     Images = MainForm.ilGlobal
     MultiLine = True
@@ -244,7 +244,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 220
+        Height = 219
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -312,7 +312,7 @@ object CopyForm: TCopyForm
         Left = 25
         Top = 0
         Width = 371
-        Height = 220
+        Height = 219
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -432,7 +432,7 @@ object CopyForm: TCopyForm
             'Ask what to do'
             'Cancel the whole copy'
             'Skip'
-            'Resume transfert'
+            'Resume transfer'
             'Overwrite'
             'Overwrite if different'
             'Rename new file'

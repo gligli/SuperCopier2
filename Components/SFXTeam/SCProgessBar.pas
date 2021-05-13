@@ -1,9 +1,23 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
 unit SCProgessBar;
 
 interface
 
 uses
-  Windows,Controls,Messages,SysUtils,Classes,Graphics;
+  Windows,Controls,Messages,SysUtils,Classes,Graphics,TntWindows;
 
 type
 
@@ -43,7 +57,7 @@ type
     Procedure SetMin(const Value:Int64);
     Procedure SetPosition(const Value:Int64);
     Procedure SetTimeRemaining(const Value:WideString);
-    Procedure Resize(var Message:TWMWindowPosChanging);message WM_WINDOWPOSCHANGED;
+    Procedure ResizeMsg(var Message:TWMWindowPosChanging);message WM_WINDOWPOSCHANGED;
     Procedure CalculPalette;
 
     Procedure RecreerTmpBmp;
@@ -205,7 +219,11 @@ begin
       DrawText(Handle,PChar(PourcentProgressStr),length(PourcentProgressStr),TxtRect,DT_TEXTPERSO);
 
       Font:=FFontTxt;
-      GetTextExtentPoint32W(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),Textsize);
+      if Win32Platform=VER_PLATFORM_WIN32_NT then
+        GetTextExtentPoint32W(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),Textsize)
+      else
+        GetTextExtentPoint32(Handle,PChar(String(FTimeRemaining)),length(FTimeRemaining),Textsize);
+
       Brush.Style:=bsClear;
       Font.Color:=FFontTxtColor;
       With TxtRect do
@@ -215,24 +233,24 @@ begin
         Right:=left+Textsize.cx+2;
         Bottom:=Top+Textsize.cy+2;
         TxtRectB:=Rect(left-1,Top-1,Right-1,Bottom-1);
-        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
         TxtRectB:=Rect(left+1,Top+1,Right+1,Bottom+1);
-        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
         TxtRectB:=Rect(left-1,Top+1,Right-1,Bottom+1);
-        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
         TxtRectB:=Rect(left+1,Top-1,Right+1,Bottom-1);
-        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
         TxtRectB:=Rect(left,Top-1,Right,Bottom-1);
-        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
         TxtRectB:=Rect(left-1,Top,Right-1,Bottom);
-        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
         TxtRectB:=Rect(left,Top+1,Right,Bottom+1);
-        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
         TxtRectB:=Rect(left+1,Top,Right+1,Bottom);
-        DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
+        Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRectB,DT_TEXTPERSO);
       end;
       Font.Color:=FFontTxt.Color;
-      DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRect,DT_TEXTPERSO);
+      Tnt_DrawTextW(Handle,PWidechar(FTimeRemaining),length(FTimeRemaining),TxtRect,DT_TEXTPERSO);
 
       {dessine le cadre}
       Pen.Color:=FBorderColor;
@@ -359,7 +377,7 @@ end;
 // Reçois: Rien
 // But: Appeler lors du resize de la progressbar il permet de recalculer la palette
 //      qui change lorsque la hauteur de la progressbar change
-procedure TSCProgessBar.Resize(var Message: TWMWindowPosChanging);
+procedure TSCProgessBar.ResizeMsg(var Message: TWMWindowPosChanging);
 begin
   inherited;
 

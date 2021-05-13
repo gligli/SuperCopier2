@@ -69,7 +69,9 @@ Section $(Sec1Name)
   SetOutPath $INSTDIR\Languages
 
   ; Put file there
-	File ..\compil\Languages\Français.lng
+  File ..\compil\Languages\Français.lng
+  File ..\compil\Languages\Español.lng
+  File ..\compil\Languages\Português.lng
 
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
@@ -79,7 +81,7 @@ Section $(Sec1Name)
   File ..\compil\SC2Config.exe
   File ..\compil\SC2Hook.dll
   File ..\compil\ReadMe.txt
-	File ..\compil\LisezMoi.txt
+  File ..\compil\LisezMoi.txt
 
   ; Write the uninstall keys for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SuperCopier2" "DisplayName" "SuperCopier2"

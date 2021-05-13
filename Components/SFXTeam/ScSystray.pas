@@ -1,3 +1,19 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
+{$WARN SYMBOL_DEPRECATED OFF}
+
 unit ScSystray;
 {
   ScSystray V1.0
@@ -13,6 +29,7 @@ unit ScSystray;
   gligli@sfxteam.org
   www.sfxteam.org
 }
+
 interface
 
 uses
@@ -78,6 +95,7 @@ type
   private
     { Déclarations privées }
     FBitmapIco: Tbitmap;
+    FMaskBitmap: TBitmap;
     FHint:WideString;
     FIcon:TIcon;
     FPopup:TTNTPopupMenu;
@@ -205,8 +223,22 @@ begin
           SysIconStruc2kXp.szInfoTitle[0]:=#0;
         end;
       end;{case}
+
     HIconBmp:=0;
-    WM_TASKBARCREATED:=RegisterWindowMessage('TaskbarCreated')
+
+    WM_TASKBARCREATED:=RegisterWindowMessage('TaskbarCreated');
+
+    // création du masque pour les icônes
+    FMaskBitmap:=TBitmap.Create;
+    With FMaskBitmap do
+    begin
+      Width:=16;
+      Height:=16;
+      Canvas.Brush.Color:=clBlack;
+      Canvas.Brush.Style:=bsSolid;
+      Canvas.FillRect(Canvas.ClipRect);
+      PixelFormat:=pf4bit;
+    end;
   end
   else
   begin
@@ -268,63 +300,49 @@ end;
 // But: Créer une icone pour le systray à partir d'un Tbitmap et change l'icone
 procedure TScSystray.SetBitmap(const Value: TBitmap);
 var
-  MaskBitmap:TBitmap;
   IconBmp:TIconInfo;
 begin
-  if Value<>FBitmapIco then
-  begin
-    if FBitmapIco=nil then FBitmapIco:=TBitmap.Create;
-    FBitmapIco.Assign(Value);
-    MaskBitmap:=TBitmap.Create;
-    With MaskBitmap do
-    begin
-      Width:=16;
-      Height:=16;
-      Canvas.Pen.Color:=$000000;
-      Canvas.Brush.Color:=$000000;
-      Canvas.FillRect(Canvas.ClipRect);
-      PixelFormat:=pf4bit;
-    end;
-    with IconBmp do
-    begin
-      ficon:=true;
-      xHotspot:=0;
-      yHotspot:=0;
-      hbmMask:=MaskBitmap.Handle;
-      hbmColor:=FBitmapIco.Handle;
-    end;
-    if HIconBmp<>0 then DestroyIcon(HIconBmp);
-    HIconBmp:=CreateIconIndirect(IconBmp);
+  FBitmapIco:=Value;
 
-    case WinVer of // Selon les versions de windows
-      Win9x:
-        begin
-          SysIconStruc9x.hIcon:=HIconBmp;
-          if FVisible then
-            ShellNotifyIconA(NIM_MODIFY, @SysIconStruc9x);
-        end;
-      WinMe:
-        begin
-          SysIconStrucMe.hIcon:=HIconBmp;
-          SysIconStrucMe.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
-          if FVisible then
-            ShellNotifyIconA(NIM_MODIFY, @SysIconStrucMe);
-        end;
-      WinNT:
-        begin
-          SysIconStrucNt.hIcon:=HIconBmp;
-          if FVisible then
-            ShellNotifyIconW(NIM_MODIFY, @SysIconStrucNt)
-        end;
-      Win2kXP:
-        begin
-          SysIconStruc2kXp.hIcon:=HIconBmp;
-          SysIconStruc2kXp.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
-          if FVisible then
-            ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp)
-        end;
-      end;{case}
-    MaskBitmap.Free;
+  with IconBmp do
+  begin
+    fIcon:=true;
+    xHotspot:=0;
+    yHotspot:=0;
+    hbmMask:=FMaskBitmap.Handle;
+    hbmColor:=FBitmapIco.Handle;
+  end;
+
+  if HIconBmp<>0 then DestroyIcon(HIconBmp);
+  HIconBmp:=CreateIconIndirect(IconBmp);
+
+  case WinVer of // Selon les versions de windows
+    Win9x:
+      begin
+        SysIconStruc9x.hIcon:=HIconBmp;
+        if FVisible then
+          ShellNotifyIconA(NIM_MODIFY, @SysIconStruc9x);
+      end;
+    WinMe:
+      begin
+        SysIconStrucMe.hIcon:=HIconBmp;
+        SysIconStrucMe.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
+        if FVisible then
+          ShellNotifyIconA(NIM_MODIFY, @SysIconStrucMe);
+      end;
+    WinNT:
+      begin
+        SysIconStrucNt.hIcon:=HIconBmp;
+        if FVisible then
+          ShellNotifyIconW(NIM_MODIFY, @SysIconStrucNt)
+      end;
+    Win2kXP:
+      begin
+        SysIconStruc2kXp.hIcon:=HIconBmp;
+        SysIconStruc2kXp.uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
+        if FVisible then
+          ShellNotifyIconW(NIM_MODIFY, @SysIconStruc2kXp)
+      end;
   end;
 end;
 
@@ -620,7 +638,7 @@ destructor TScSystray.Destroy; // Libération du systray
 begin
   if FVisible then HideIcon; // enlève l'icone du systray
   if FIcon<>nil then FreeAndNil(FIcon); // libération de l'icone
-  if FBitmapIco<>nil then FreeAndNil(FBitmapIco); // libération de la bitmap
+  if FMaskBitmap<>nil then FreeAndNil(FMaskBitmap);
   if HIconBmp<>0 then DestroyIcon(HIconBmp);
 
   Case WinVer of {déstruction de la fenêtre des messages}

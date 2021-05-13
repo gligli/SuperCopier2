@@ -1,3 +1,17 @@
+{
+    This file is part of SuperCopier2.
+
+    SuperCopier2 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    SuperCopier2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+}
+
 unit SCLocStrings;
 
 interface
@@ -21,6 +35,8 @@ lsRemaining:WideString='%s Remaining';
 lsCopyWindowCancellingCaption:WideString='Cancelling - %s';
 lsCopyWindowPausedCaption:WideString='Paused - %s';
 lsCopyWindowWaitingCaption:WideString='Waiting - %s';
+lsCopyWindowCopyEndCaption:WideString='Copy end - %s';
+lsCopyWindowCopyEndErrorsCaption:WideString='Copy end (errors occured) - %s';
 
 lsCollisionFileData:WideString='%s, Modified: %s';
 
@@ -66,11 +82,12 @@ lsCopyEndNotifyTitle:WideString='Copy end';
 lsCopyEndNotifyText:WideString='%s'+#13#10+'End speed: %s';
 
 lsHookErrorCaption:WideString='SuperCopier2 can''t run';
-lsHookErrorText:WideString='SuperCopier2 couldn''t attach to processes, this is normal if you ran it twice.';
+lsHookErrorText:WideString='SuperCopier2 couldn''t attach to processes, this is normal if you ran it twice.'+#13#10+'Error text: ';
 lsDiskSpaceNotifyTitle:WideString='Not enough free space';
 
 lsHookEngineNoIPC:WideString='Failed to initialize the hooking engine: IPC creation failed';
 lsHookEngineNoFileMapping:WideString='Failed to initialize the hooking engine: file mapping creation failed';
+lsGlobalHookingFailed:WideString='Failed to hook processes: global hooking only works with administrator rights.';
 
 procedure TranslateAllStrings;
 
@@ -122,6 +139,8 @@ begin
     TranslateString(40,lsHookErrorCaption);
     TranslateString(41,lsHookErrorText);
     TranslateString(42,lsDiskSpaceNotifyTitle);
+    TranslateString(43,lsCopyWindowCopyEndCaption);
+    TranslateString(44,lsCopyWindowCopyEndErrorsCaption);
   end;
 end;
 
