@@ -1,0 +1,138 @@
+
+-Thread:
+prop:
+IsMove
+DefaultDir
+SrcRoot
+
+Sync
+	Copy
+		...
+	Error
+	ChooseAction
+	DiskSpace
+			
+func:
+//AcceptedPlaylist(Destdir)
+//AddFiles(BaseList,ChooseDestDir)
+*CanHandle(DestDir,SrcRoot):Boolean
+*AddBaseList(BaseList, (amDefaultDir,amSpecifyDest,amPromptForDest)=amDefaultDir ,Dir='');
+
+*LockCopier():TCopier
+*UnlockCopier()
+
+InitCopyWnd()
+EndCopyWnd()
+
+SyncChooseAction()
+SyncError()
+SyncDiskSpace()
+SyncUpdateCopy()
+SyncDestDir()
+
+créer des classes BaseList FileList et DirList
+-Base:
+prop:
+SrcName
+IsDir
+
+-File:
+prop:
+SrcSize
+SrcName
+DestName
+Directory
+
+func:
+DestSize()
+SrcAge()
+DestAge()
+DestExists()
+DestIsSameFile()
+
+SrcRename(NewName)
+DestRename(NewName)
+
+-FileList:
+prop:
+TotalCount
+TotalSize
+Size
+
+-Dir:
+prop:
+SrcPath
+DestPath:
+ParentDir
+Created
+SamePhysicalDrive
+
+func:
+VerifyOrCreate()
+
+
+-Copier
+prop:
+FileList
+DirList
+
+LastAddedIdx
+CopiedCount
+CopiedSize
+
+CurrentCopy
+	File
+	Dir
+	CopiedSize
+	NextAction:TCopyAction
+	
+func:
+*NextCopy()
+DoCopy()
+*CreateEmptyDirs()
+*RemoveSrcDirs()
+*ManageFileAction()
+
+*AddBaseList(BaseList,DestDir)
+*RecurseSubs(DirItem)
+*VerifyFreeSpace()
+*RemoveLastAdded()
+
+evt:
+OnError(Text):TCopyAction
+*OnFileCollision():Action
+OnProgress()
+
+
+*******************************************************
+
+Exceptions
+
+/!\ gestion des erreurs /!\
+
+
+
+**********************************************************
+RenameNewString
+RenameOldString
+
+<full>
+<name>
+<ext>
+
+<num><num0>
+<num00>
+<num000>
+<num0000>
+
+Chooseaction:
+on envoie filename
+on recup CA
+
+Manage:
+
+
+
+Progress:
+gestion skip/cancel par le result
+pause -> boucle infinie

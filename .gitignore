@@ -67,3 +67,9 @@ __recovery/
 
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
+*.bak
+*.bk1
+*.bk2
+*.dcr
+*.DCR
+/Compil/*.prf

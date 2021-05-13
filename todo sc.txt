@@ -1,0 +1,30 @@
+* bug menu d&d caption 1er item
+* pb \ \\ qd copie volume
+* pb d&d quand pause 
+* hook 9x
+* renommage
+* sauvegarde liste de copie
+* fenetres
+  * collisions
+  * renommage
+  * place libre
+  * erreurs
+  * enable des boutons sur copyform
+* option collision/erreurs sur CopyForm
+* timer quand retry auto sur erreur
+* timestamp pour les erreurs
+* sauvegarde log
+  * options sauvegarde automatique
+* prise en charge mount points NTFS
+  * pour la prise en charge de la copie
+  * pour la verif place libre
+    * option pour choisir le mode lent-fidele/rapide-legerement bugge
+* ajout à copie en cours (canhandle)
+
+- config
+- WideUnbufferedCopier
+  - overlapped
+  - droits ntfs
+- multilangues
+? supression/déplacement
+
