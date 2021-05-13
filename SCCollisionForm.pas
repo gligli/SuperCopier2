@@ -4,13 +4,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
-  Dialogs, StdCtrls, TntStdCtrls, ExtCtrls, TntExtCtrls,SCCopier,SCCommon;
+  Dialogs, StdCtrls, TntStdCtrls, ExtCtrls, TntExtCtrls,SCCopier,SCCommon,
+  SCFileNameLabel;
 
 type
   TCollisionForm = class(TTntForm)
     imIcon: TTntImage;
     llCollisionText1: TTntLabel;
-    llFileName: TTntLabel;
     llSourceTitle: TTntLabel;
     llDestiationTitle: TTntLabel;
     llCollisionText2: TTntLabel;
@@ -25,6 +25,7 @@ type
     btRenameOld: TTntButton;
     chSameForNext: TTntCheckBox;
     btCustomRename: TTntButton;
+    llFileName: TSCFileNameLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btCancelClick(Sender: TObject);
@@ -70,6 +71,14 @@ end;
 
 procedure TCollisionForm.FormCreate(Sender: TObject);
 begin
+  //HACK: ne pas mettre directement la fenêtre en resizeable pour que
+  //      la gestion des grandes polices puisse la redimentionner
+  BorderStyle:=bsSizeable;
+
+  // empécher le resize vertical
+  Constraints.MaxHeight:=Height;
+  Constraints.MinHeight:=Height;
+
   Action:=claNone;
   SameForNext:=False;
   FileName:='';
@@ -134,7 +143,7 @@ end;
 procedure TCollisionForm.btCustomRenameClick(Sender: TObject);
 begin
   try
-    Application.CreateForm(TCollisionRenameForm,CollisionRenameForm);
+    CollisionRenameForm:=TCollisionRenameForm.Create(Self);
 
     with CollisionRenameForm do
     begin

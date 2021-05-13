@@ -1,21 +1,28 @@
 object CopyErrorForm: TCopyErrorForm
-  Left = 427
-  Top = 102
+  Left = 511
+  Top = 123
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = ' - Copy error'
   ClientHeight = 150
   ClientWidth = 400
   Color = clBtnFace
+  Constraints.MinWidth = 408
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poOwnerFormCenter
   OnCloseQuery = TntFormCloseQuery
   OnCreate = FormCreate
+  DesignSize = (
+    400
+    150)
   PixelsPerInch = 96
   TextHeight = 13
   object imIcon: TTntImage
@@ -68,11 +75,12 @@ object CopyErrorForm: TCopyErrorForm
     Height = 13
     Caption = 'was interrupted for the following reason:'
   end
-  object llFileName: TTntLabel
+  object llFileName: TSCFileNameLabel
     Left = 48
     Top = 24
     Width = 345
     Height = 13
+    Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llFileName'
   end
@@ -81,6 +89,7 @@ object CopyErrorForm: TCopyErrorForm
     Top = 56
     Width = 345
     Height = 32
+    Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 0

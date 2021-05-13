@@ -1,16 +1,21 @@
 object CollisionForm: TCollisionForm
-  Left = 251
-  Top = 102
-  Width = 408
-  Height = 177
+  Left = 303
+  Top = 105
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
   Caption = ' - File already exists'
+  ClientHeight = 150
+  ClientWidth = 400
   Color = clBtnFace
+  Constraints.MinWidth = 408
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poOwnerFormCenter
   OnCloseQuery = FormCloseQuery
@@ -56,15 +61,6 @@ object CollisionForm: TCollisionForm
     Height = 13
     Caption = 'The following file already exists:'
   end
-  object llFileName: TTntLabel
-    Left = 48
-    Top = 24
-    Width = 345
-    Height = 13
-    Anchors = [akLeft, akTop, akRight]
-    AutoSize = False
-    Caption = 'llFileName'
-  end
   object llSourceTitle: TTntLabel
     Left = 48
     Top = 40
@@ -103,6 +99,15 @@ object CollisionForm: TCollisionForm
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'llDestinationData'
+  end
+  object llFileName: TSCFileNameLabel
+    Left = 47
+    Top = 24
+    Width = 346
+    Height = 13
+    Anchors = [akLeft, akTop, akRight]
+    AutoSize = False
+    Caption = 'llFileName'
   end
   object btCancel: TTntButton
     Left = 8

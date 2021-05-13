@@ -143,18 +143,9 @@ C:\Program Files\madCollection\madBasic\Delphi 7\madHelp_.bpl=madHelp 1.1a  -  w
 C:\Program Files\madCollection\madDisAsm\Delphi 7\madDisAsm_.bpl=madDisAsm 2.1b  -  www.madshi.net
 c:\program files\borland\delphi7\Projects\Bpl\dclusr70.bpl=Composants utilisateur Borland
 c:\program files\borland\delphi7\Projects\Bpl\VirtualTreesD7D.bpl=Virtual Treeview
-[HistoryLists\hlDebugSourcePath]
-Count=1
-Item0=D:\MyProj\LanFTP\composants\LFPortScanner\
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
 Count=1
-Item0=D:\MyProj\LanFTP\composants\LFPortScanner
-[HistoryLists\hlUnitOutputDirectory]
-Count=1
-Item0=D:\Delphi7\Lib
-[HistoryLists\hlBPLOutput]
-Count=1
-Item0=D:\Delphi7\Lib
+Item0=F:\Projects\SuperCopier2\Components\Other\tntunicodecontrols

@@ -8,6 +8,8 @@ uses
   Windows,SCWin32;
 
 type
+  TConfigLocation=(clRegistry,clIniFile);
+
   TBaselistAddMode=(amDefaultDir,amSpecifyDest,amPromptForDest,amPromptForDestAndSetDefault);
 
   TCopyListHandlingMode=(chmNever,chmAlways,chmSameSource,chmSameDestination,chmSameSourceAndDestination,chmSameSourceorDestination);
@@ -39,6 +41,10 @@ type
   end;
   TDiskSpaceWarningVolumeArray=array of TDiskSpaceWarningVolume;
 
+  TSizeUnit=(suAuto,suBytes,suKB,suMB,suGB);
+
+  TMinimizedEventHandling=(mehDoNothing,mehShowBalloon,mehPopupWindow);
+
 const
   DEFAULT_WAIT=20; //ms
   SCL_SIGNATURE='SC2 CopyList    ';
@@ -46,9 +52,9 @@ const
 
 function GetFileSizeByName(FileName:WideString):Int64;
 function SetFileSize(TheFile:THandle;Size:Int64):Boolean;
-function BrowseForFolder(Caption:WideString;var Folder:WideString):boolean;
+function BrowseForFolder(Caption:WideString;var Folder:WideString;OwnerWindowHandle:THandle):boolean;
 function GetLastErrorText:WideString;
-function SizeToString(Size:int64):WideString;
+function SizeToString(Size:int64;SizeUnit:TSizeUnit=suAuto):WideString;
 function PaddedIntToStr(Int,Width:Integer):WideString;
 function PatternRename(FileName,Path,Pattern:WideString):WideString;
 function GetVolumeReadableName(Volume:WideString):WideString;
@@ -56,7 +62,7 @@ function GetStorageDeviceNumber(Path:WideString;var SDN:TStorageDeviceNumber):Bo
 function GetVolumeNameString(Path:WideString):WideString;
 function SameVolume(Path1,Path2:WideString):boolean;
 function SamePhysicalDrive(Path1,Path2:WideString):boolean;
-
+procedure SetProcessPriority(Priority:Cardinal);
 
 procedure dbg(msg:string);overload;
 procedure dbg(val:cardinal);overload;
@@ -131,7 +137,7 @@ end;
     result := 0;
   end;
 
-function BrowseForFolder(Caption:WideString;var Folder:WideString):boolean;
+function BrowseForFolder(Caption:WideString;var Folder:WideString;OwnerWindowHandle:THandle):boolean;
 var BrowseInfo:_browseinfoW;
     Item:PItemIDList;
     Buffer:array[0..MAX_PATH] of WideChar;
@@ -140,11 +146,11 @@ begin
 
   with BrowseInfo do
   begin
-    hwndOwner:=Application.MainForm.Handle;
+    hwndOwner:=OwnerWindowHandle;
     pidlRoot:=nil;
     pszDisplayName:=nil;
     lpszTitle:=PWideChar(Caption);
-    ulFlags:=BIF_RETURNONLYFSDIRS or BIF_NEWDIALOGSTYLE or BIF_EDITBOX;
+    ulFlags:=BIF_RETURNONLYFSDIRS or BIF_EDITBOX or BIF_NEWDIALOGSTYLE;
     lpfn:=nil;
 
     if Folder <> '' then
@@ -174,23 +180,39 @@ end;
 //*********************************************************************************
 // SizeToString: renvoie en chaine une taille spécifiée en octets
 //*********************************************************************************
-function SizeToString(Size:int64):WideString; //TODO: rendre le choix d'unité configurable
+function SizeToString(Size:int64;SizeUnit:TSizeUnit=suAuto):WideString;
+const
+  SIZE_FORMAT=',0.00 ';
 begin
-  if Size>=1024*1024*1024 then // >= 1Go
+  if SizeUnit=suAuto then
   begin
-    Result:=FormatFloat('0.00 ',Size/(1024*1024*1024))+lsGBytes;
-  end
-  else if Size>=1024*1024 then // >= 1Mo
-  begin
-    Result:=FormatFloat('0.00 ',Size/(1024*1024))+lsMBytes;
-  end
-  else if Size>=1024 then // >= 1Ko
-  begin
-    Result:=FormatFloat('0.00 ',Size/1024)+lsKBytes;
-  end
-  else
-  begin
-    Result:=IntToStr(Size)+' '+lsBytes;
+    if Size>=1024*1024*1024 then // >= 1Go
+    begin
+      SizeUnit:=suGB;
+    end
+    else if Size>=1024*1024 then // >= 1Mo
+    begin
+      SizeUnit:=suMB;
+    end
+    else if Size>=1024 then // >= 1Ko
+    begin
+      SizeUnit:=suKB;
+    end
+    else
+    begin
+      SizeUnit:=suBytes;
+    end;
+  end;
+
+  case SizeUnit of
+    suGB:
+      Result:=FormatFloat(SIZE_FORMAT,Size/(1024*1024*1024))+lsGBytes;
+    suMB:
+      Result:=FormatFloat(SIZE_FORMAT,Size/(1024*1024))+lsMBytes;
+    suKB:
+      Result:=FormatFloat(SIZE_FORMAT,Size/1024)+lsKBytes;
+    suBytes:
+      Result:=FormatFloat(',0 ',Size)+lsBytes;
   end;
 end;
 
@@ -385,6 +407,18 @@ begin
     // pour Win NT4/9x ou si problème, on fait une simple comparaison de texte
     Result:=WideExtractFileDrive(Path1)=WideExtractFileDrive(Path2);
   end;
+end;
+
+//*********************************************************************************
+// SetProcessPriority
+//*********************************************************************************
+procedure SetProcessPriority(Priority:Cardinal);
+var ph:THandle;
+begin
+  ph:=OpenProcess(PROCESS_SET_INFORMATION,False,GetCurrentProcessId);
+  if ph=0 then exit;
+  SetPriorityClass(ph,Priority);
+  CloseHandle(ph);
 end;
 
 //******************************************************************************

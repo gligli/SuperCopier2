@@ -72,4 +72,6 @@ modules/
 *.bk2
 *.dcr
 *.DCR
-/Compil/*.prf
+*.prf
+*.db
+/Compil/Compil.rar

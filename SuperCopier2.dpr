@@ -6,6 +6,8 @@ program SuperCopier2;
 
 uses
   Forms,
+  Windows,
+  Messages,
   SCMainForm in 'SCMainForm.pas' {MainForm},
   SCBaseList in 'SCBaseList.pas',
   SCCopier in 'SCCopier.pas',
@@ -24,13 +26,18 @@ uses
   SCDiskSpaceForm in 'SCDiskSpaceForm.pas' {DiskSpaceForm},
   SCCollisionForm in 'SCCollisionForm.pas' {CollisionForm},
   SCCollisionRenameForm in 'SCCollisionRenameForm.pas' {CollisionRenameForm},
-  SCCopyErrorForm in 'SCCopyErrorForm.pas' {CopyErrorForm};
+  SCCopyErrorForm in 'SCCopyErrorForm.pas' {CopyErrorForm},
+  SCConfigForm in 'SCConfigForm.pas' {ConfigForm},
+  SCAboutForm in 'SCAboutForm.pas' {AboutForm};
 
 {$R *.res}
 
 begin
   Application.Initialize;
-//  Application.ShowMainForm:=False;
+
+  SetParent(Application.Handle,THandle(HWND_MESSAGE)); // cacher la form du TApplication
+  Application.ShowMainForm:=False;
+
   Application.CreateForm(TMainForm, MainForm);
   Application.Run;
 end.

@@ -68,6 +68,7 @@ type
     procedure CreateEmptyDirs;
     procedure DeleteSrcDirs;
     procedure DeleteSrcFile;
+    procedure DeleteDestFile;
     procedure CopyAttributes;
 
     function DoCopy:Boolean;virtual;abstract;
@@ -279,9 +280,9 @@ procedure TCopier.AddBaseList(BaseList:TBaseList;DestDir:WideString);
 		NewInc:=1;
 		repeat
 			if NewInc>1 then
-				Result:=Format(lsCopyOf2,[NewInc,OldName])
+				Result:=WideFormat(lsCopyOf2,[NewInc,OldName])
 			else
-				Result:=Format(lsCopyOf1,[OldName]);
+				Result:=WideFormat(lsCopyOf1,[OldName]);
 
 			NotFound:=True;
 
@@ -783,6 +784,18 @@ begin
   begin
     // gestion de l'erreur
     GenericError(lsDeleteAction,CurrentCopy.FileItem.SrcFullName,GetLastErrorText);
+  end;
+end;
+
+//******************************************************************************
+// DeleteDestFile : supprime le fichier destination en cours (copie non terminée ou erreur)
+//******************************************************************************
+procedure TCopier.DeleteDestFile;
+begin
+  if not CurrentCopy.FileItem.DestDelete then
+  begin
+    // gestion de l'erreur
+    GenericError(lsDeleteAction,CurrentCopy.FileItem.DestFullName,GetLastErrorText);
   end;
 end;
 

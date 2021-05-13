@@ -4,7 +4,7 @@ interface
 
 uses
   Windows,Commctrl,Classes,SCObjectThreadList,SCWorkThread,SCWorkThreadList,SCCopier,SCCommon,
-  SCConfig,SCBaseList,SCDirList,SCCopyForm,SCDiskSpaceForm,SCCollisionForm,SCCopyErrorForm,Forms;
+  SCConfig,SCBaseList,SCDirList,SCSystray,SCCopyForm,SCDiskSpaceForm,SCCollisionForm,SCCopyErrorForm,Forms,TntForms;
 
 type
   TCopyThread=class(TWorkThread)
@@ -52,6 +52,11 @@ type
           Time:TDateTime;
           Action,Target,ErrorText:WideString;
         end;
+        Notification:record
+          TargetForm:TTntForm;
+          IconType:TIcoBalloon;
+          Title,Text:WideString;
+        end;
       end;
       DiskSpace:record
         Form:TDiskSpaceForm;
@@ -88,6 +93,7 @@ type
     procedure SyncUpdateFileListview;
     procedure SyncAddToErrorLog;
     procedure SyncSaveErrorLog;
+    procedure SyncShowNotificationBalloon;
 
     //DiskSpace
     procedure SyncInitDiskSpace;
@@ -120,8 +126,6 @@ type
     function LockCopier:TCopier;
     procedure UnlockCopier;
     procedure UpdateCopyWindow;
-  published
-    property Handle;
   end;
 
 
@@ -199,9 +203,9 @@ end;
 function TCopyThread.GetDisplayName:WideString;
 begin
   if FIsMove then
-    Result:=Format(lsMoveDisplayName,[SrcDir,FDefaultDir])
+    Result:=WideFormat(lsMoveDisplayName,[SrcDir,FDefaultDir])
   else
-    Result:=Format(lsCopyDisplayName,[SrcDir,FDefaultDir]);
+    Result:=WideFormat(lsCopyDisplayName,[SrcDir,FDefaultDir]);
 end;
 
 //******************************************************************************
@@ -228,9 +232,12 @@ begin
       Result:=SameSource or SameDest;
   end;
 
-  if Config.Values.CopyListHandlingConfirm then
+  if Result and Config.Values.CopyListHandlingConfirm then
   begin
-    Result:=MessageBoxW(Application.Handle,PWideChar(lsConfirmCopylistAdd),PWideChar(DisplayName),MB_YESNO)=IDYES;
+    Result:=MessageBoxW(Sync.Copy.Form.Handle,
+                        PWideChar(lsConfirmCopylistAdd),
+                        PWideChar(DisplayName),
+                        MB_YESNO or MB_ICONQUESTION or MB_APPLMODAL or MB_SETFOREGROUND)=IDYES;
   end;
 end;
 
@@ -257,7 +264,7 @@ begin
     amPromptForDestAndSetDefault:
     begin
       DestDir:=FDefaultDir;
-      AddOk:=BrowseForFolder(lsChooseDestDir,DestDir);
+      AddOk:=BrowseForFolder(lsChooseDestDir,DestDir,Sync.Copy.Form.Handle);
 
       if (AddMode=amPromptForDestAndSetDefault) and AddOk then FDefaultDir:=DestDir;
     end;
@@ -341,11 +348,13 @@ end;
 // Execute: corps de la thread, sers de chef d'orchestre pour le copier
 //******************************************************************************
 procedure TCopyThread.Execute;
+var CopyError:Boolean;
 begin
   repeat
     // attendre les données
     while (not CheckWaitingBaseList) and (Copier.FileList.Count=0) and (Sync.Copy.Action<>cwaCancel) do
     begin
+      Sync.Copy.State:=cwsWaiting;
       Synchronize(SyncUpdateCopy);
       Sleep(DEFAULT_WAIT);
     end;
@@ -382,11 +391,22 @@ begin
 
           Copier.CurrentCopy.DirItem.VerifyOrCreate;
 
-          if Copier.DoCopy then
+          CopyError:=not Copier.DoCopy;
+          if not CopyError then
           begin
-            Copier.CopyAttributes; //TODO: a gérer en fonction de ismove et de la config
+            if (Config.Values.SaveAttributesOnCopy and not IsMove) or
+               (Config.Values.SaveAttributesOnMove and IsMove) then
+              Copier.CopyAttributes;
 
             if FIsMove then Copier.DeleteSrcFile;
+          end;
+
+          // gestion suppression copies non terminées
+          if (Copier.CurrentCopy.CopiedSize+Copier.CurrentCopy.SkippedSize<>Copier.CurrentCopy.FileItem.SrcSize) and
+             Config.Values.DeleteUnfinishedCopies and
+             not (CopyError and Config.Values.DontDeleteOnCopyError) then
+          begin
+            Copier.DeleteDestFile;
           end;
         end;
 
@@ -395,6 +415,12 @@ begin
       dbgln('Copy End');
     end;
 
+    // tout afficher a 100% si la fenêtre reste ouverte alors que la copie est finie
+    Sync.Copy.ggFileProgress:=Sync.Copy.ggFileMax;
+    Sync.Copy.ggAllProgress:=Sync.Copy.ggAllMax;
+    Synchronize(SyncUpdateFileListview); // lvFileList n'est pas à jour après la copie du dernier item
+
+    // créer les reps vide et supprimer les reps source
     if Copier.CurrentCopy.NextAction<>cpaCancel then
     begin
       Copier.CreateEmptyDirs;
@@ -430,6 +456,16 @@ begin
       FileName:=Copier.CurrentCopy.FileItem.DestName;
 
       Synchronize(SyncInitCollision);
+
+      // notification pour le systray
+      with Sync.Copy.Notification do
+      begin
+        TargetForm:=Form;
+        Title:=lsCollisionNotifyTitle;
+        Text:=WideFormat(lsCollisionNotifyText,[DisplayName,Copier.CurrentCopy.FileItem.DestFullName]);
+        IconType:=IBWarning;
+      end;
+      Synchronize(SyncShowNotificationBalloon);
 
       while Action=claNone do
       begin
@@ -518,6 +554,16 @@ begin
     begin
       Synchronize(SyncInitCopyError);
 
+      // notification pour le systray
+      with Sync.Copy.Notification do
+      begin
+        TargetForm:=Form;
+        Title:=lsCopyErrorNotifyTitle;
+        Text:=WideFormat(lsCopyErrorNotifyText,[DisplayName,Copier.CurrentCopy.FileItem.DestFullName,ErrorText]);
+        IconType:=IBError;
+      end;
+      Synchronize(SyncShowNotificationBalloon);
+
       while Action=ceaNone do
       begin
         Synchronize(SyncCheckCopyError);
@@ -555,6 +601,16 @@ end;
 procedure TCopyThread.CopierGenericError(Action,Target,ErrorText:WideString);
 begin
   dbgln('CopierGenericError: '+Action+' '+ErrorText+' '+Target);
+
+  // notification pour le systray
+  with Sync.Copy.Notification do
+  begin
+    TargetForm:=nil;
+    Title:=lsGenericErrorNotifyTitle;
+    Text:=WideFormat(lsGenericErrorNotifyText,[DisplayName,Action,Target,ErrorText]);
+    IconType:=IBError;
+  end;
+  Synchronize(SyncShowNotificationBalloon);
 
   Sync.Copy.Error.Time:=Now;
   Sync.Copy.Error.Action:=Action;
@@ -724,7 +780,7 @@ var TmpStr:String;
   end;
 
 begin
-  if Assigned(Copier.CurrentCopy.FileItem) then
+  if Assigned(Copier.CurrentCopy.FileItem) and (Copier.FileList.Count>0) then
   begin
     ComputeRemainingTime;
 
@@ -733,8 +789,8 @@ begin
       llFromCaption:=CurrentCopy.DirItem.SrcPath;
       llToCaption:=CurrentCopy.DirItem.Destpath;
 
-      llAllCaption:=WideFormat(lsAll,[CopiedCount+1,FileList.TotalCount,SizeToString(FileList.TotalSize)]);
-      llFileCaption:=WideFormat(lsFile,[CurrentCopy.FileItem.SrcName,SizeToString(CurrentCopy.FileItem.SrcSize)]);
+      llAllCaption:=WideFormat(lsAll,[CopiedCount+1,FileList.TotalCount,SizeToString(FileList.TotalSize,Config.Values.SizeUnit)]);
+      llFileCaption:=WideFormat(lsFile,[CurrentCopy.FileItem.SrcName,SizeToString(CurrentCopy.FileItem.SrcSize,Config.Values.SizeUnit)]);
 
       ggFileProgress:=CurrentCopy.CopiedSize+CurrentCopy.SkippedSize;
       ggFileMax:=CurrentCopy.FileItem.SrcSize;
@@ -769,7 +825,7 @@ procedure TCopyThread.SyncInitCopy;
 begin
   with Sync.Copy do
   begin
-    Application.CreateForm(TCopyForm,Form);
+    Form:=TCopyForm.Create(nil);
 
     Form.CopyThread:=Self;
 
@@ -782,7 +838,12 @@ begin
 
     SyncUpdateCopy;
 
-    Form.Show;
+    if not Form.Minimized then
+    begin
+      Form.Show;
+      Application.BringToFront;
+      Form.BringToFront;
+    end;
   end;
 end;
 
@@ -802,12 +863,13 @@ end;
 // SyncUpdatecopy: màj de la fenêtre de copie
 //******************************************************************************
 procedure TCopyThread.SyncUpdatecopy;
+var Percent:Integer;
 begin
   with Sync.Copy,Sync.Copy.Form do
   begin
     // thread -> form
-
-    Caption:=GetDisplayName;
+    if ggAllMax>0 then Percent:=Round(ggAllProgress*100/ggAllMax) else Percent:=0;
+    Caption:=WideFormat('%d%% - %s',[Percent,GetDisplayName]);
 
     llFrom.Caption:=llFromCaption;
     llTo.Caption:=llToCaption;
@@ -815,17 +877,10 @@ begin
     llAll.Caption:=llAllCaption;
     llSpeed.Caption:=llSpeedCaption;
 
-    //TODO: temporaire
-    ggFile.Progress:=ggFileProgress div 1024;
-    ggFile.MaxValue:=ggFileMax div 1024;
-    ggAll.Progress:=ggAllProgress div 1024;
-    ggAll.MaxValue:=ggAllMax div 1024;
-    {
-    ggFile.Progress:=ggFileProgress;
-    ggFile.MaxValue:=ggFileMax;
-    ggAll.Progress:=ggAllProgress;
-    ggAll.MaxValue:=ggAllMax;
-    }
+    ggFile.Position:=ggFileProgress;
+    ggFile.Max:=ggFileMax;
+    ggAll.Position:=ggAllProgress;
+    ggAll.Max:=ggAllMax;
 
     llAllRemaining.Caption:=ggAllRemaining;
     llFileRemaining.Caption:=ggFileRemaining;
@@ -901,6 +956,12 @@ begin
 
     Sync.Copy.lvErrorListEmpty:=False;
   end;
+
+  with Sync.Copy.Form do
+  begin
+    // notifier de la présence d'une nouvelle erreur
+    if pcPages.ActivePage<>tsErrors then tsErrors.Highlighted:=True;
+  end;
 end;
 
 //******************************************************************************
@@ -928,6 +989,25 @@ begin
 end;
 
 //******************************************************************************
+// SyncShowNotificationBalloon: afiche une bulle de notification dans le systray
+//                              en fonction de la config et de l'état de CopyForm
+//******************************************************************************
+procedure TCopyThread.SyncShowNotificationBalloon;
+begin
+  with Sync.Copy.Form,Sync.Copy.Notification do
+  begin
+    if MinimizedToTray  then
+    begin
+      if Config.Values.MinimizedEventHandling=mehShowBalloon then
+        Systray.ShowBalloon(Title,Text,IconType);
+
+      if Config.Values.MinimizedEventHandling<>mehPopupWindow then
+        NotificationTargetForm:=TargetForm;
+    end;
+  end;
+end;
+
+//******************************************************************************
 // SyncInitDiskSpace:
 //******************************************************************************
 procedure TCopyThread.SyncInitDiskSpace;
@@ -935,7 +1015,8 @@ var i:Integer;
 begin
   with Sync.DiskSpace do
   begin
-    Application.CreateForm(TDiskSpaceForm,Form);
+    Form:=TDiskSpaceForm.Create(Sync.Copy.Form);
+
     Form.Caption:=DisplayName+Form.Caption;
 
     //on remplit la liste des volumes
@@ -943,14 +1024,14 @@ begin
       with Form.lvDiskSpace.Items.Add,Volumes[i] do
       begin
         Caption:=GetVolumeReadableName(Volume);
-        SubItems.Add(SizeToString(VolumeSize));
-        SubItems.Add(SizeToString(FreeSize));
-        SubItems.Add(SizeToString(LackSize));
+        SubItems.Add(SizeToString(VolumeSize,Config.Values.SizeUnit));
+        SubItems.Add(SizeToString(FreeSize,Config.Values.SizeUnit));
+        SubItems.Add(SizeToString(LackSize,Config.Values.SizeUnit));
       end;
 
     SyncCheckDiskSpace;
 
-    Form.Show;
+    if (not Sync.Copy.Form.MinimizedToTray) or (Config.Values.MinimizedEventHandling=mehPopupWindow) then Form.Show;
   end;
 end;
 
@@ -981,18 +1062,19 @@ procedure TCopyThread.SyncInitCollision;
 begin
   with Sync.Collision,Copier.CurrentCopy.FileItem do
   begin
-    Application.CreateForm(TCollisionForm,Form);
+    Form:=TCollisionForm.Create(Sync.Copy.Form);
+
     Form.Caption:=DisplayName+Form.Caption;
 
     Form.llFileName.Caption:=DestFullName;
-    Form.llSourceData.Caption:=Format(lsCollisionFileData,[SizeToString(SrcSize),DateTimeToStr(FileDateToDateTime(SrcAge))]);
-    Form.llDestinationData.Caption:=Format(lsCollisionFileData,[SizeToString(DestSize),DateTimeToStr(FileDateToDateTime(DestAge))]);
+    Form.llSourceData.Caption:=Format(lsCollisionFileData,[SizeToString(SrcSize,Config.Values.SizeUnit),DateTimeToStr(FileDateToDateTime(SrcAge))]);
+    Form.llDestinationData.Caption:=Format(lsCollisionFileData,[SizeToString(DestSize,Config.Values.SizeUnit),DateTimeToStr(FileDateToDateTime(DestAge))]);
 
     Form.FileName:=FileName;
 
     SyncCheckCollision;
 
-    Form.Show;
+    if (not Sync.Copy.Form.MinimizedToTray) or (Config.Values.MinimizedEventHandling=mehPopupWindow) then Form.Show;
   end;
 end;
 
@@ -1029,7 +1111,8 @@ procedure TCopyThread.SyncInitCopyError;
 begin
   with Sync.CopyError do
   begin
-    Application.CreateForm(TCopyErrorForm,Form);
+    Form:=TCopyErrorForm.Create(Sync.Copy.Form);
+
     Form.Caption:=DisplayName+Form.Caption;
 
     Form.llFileName.Caption:=Copier.CurrentCopy.FileItem.DestFullName;
@@ -1037,7 +1120,7 @@ begin
 
     SyncCheckCopyError;
 
-    Form.Show;
+    if (not Sync.Copy.Form.MinimizedToTray) or (Config.Values.MinimizedEventHandling=mehPopupWindow) then Form.Show;
   end;
 end;
 
@@ -1066,3 +1149,4 @@ begin
 end;
 
 end.
+

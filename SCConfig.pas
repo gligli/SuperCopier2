@@ -1,7 +1,7 @@
 unit SCConfig;
 
 interface
-uses Registry,IniFiles,SCCommon;
+uses Registry,IniFiles,SCCommon,Graphics,Windows;
 
 type
   // /!\ a chaque modification de cette structure, modifier en concéquence
@@ -22,6 +22,30 @@ type
     FastFreeSpaceCheck:Boolean;
     CopyListHandlingMode:TCopyListHandlingMode;
     CopyListHandlingConfirm:Boolean;
+    SaveAttributesOnCopy:Boolean;
+    SaveAttributesOnMove:Boolean;
+    SizeUnit:TSizeUnit;
+    DeleteUnfinishedCopies:Boolean;
+    DontDeleteOnCopyError:Boolean;
+    CopyWindowSavePosition:Boolean;
+    CopyWindowSaveSize:Boolean;
+    CopyWindowTop:Integer;
+    CopyWindowLeft:Integer;
+    CopyWindowWidth:Integer;
+    CopyWindowHeight:Integer;
+    CopyWindowUnfolded:Boolean;
+    StartWithWindows:Boolean;
+    ActivateOnStart:Boolean;
+    TrayIcon:Boolean;
+    MinimizeToTray:Boolean;
+    CopyWindowStartMinimized:Boolean;
+    Priority:Integer;
+    ProgressForegroundColor1:TColor;
+    ProgressForegroundColor2:TColor;
+    ProgressBackgroundColor1:TColor;
+    ProgressBackgroundColor2:TColor;
+    ProgressBorderColor:TColor;
+    MinimizedEventHandling:TMinimizedEventHandling;
   end;
 
   TConfig=class
@@ -41,6 +65,7 @@ type
     procedure LoadDefaultConfig;
     procedure LoadConfig;
     procedure SaveConfig;
+    procedure DeleteData;virtual;abstract;
 
     constructor Create;
   end;
@@ -48,6 +73,7 @@ type
   TRegistryConfig=class(TConfig)
   private
     Reg:TRegistry;
+    FKey:String;
   protected
     function ReadInteger(Name:string):Integer;override;
     function ReadBoolean(Name:string):Boolean;override;
@@ -61,11 +87,15 @@ type
   public
     constructor Create(Key:String);
     destructor Destroy;override;
+
+    procedure DeleteData;override;
   end;
 
   TIniConfig=class(TConfig)
   private
     Ini:TMemIniFile;
+    Section:String;
+    FFilename:WideString;
 
     procedure VerifyValueExists(Name:String);
   protected
@@ -79,8 +109,10 @@ type
     procedure WriteFloat(Name:String;Value:Double);override;
     procedure WriteString(Name:String;Value:String);override;
   public
-    constructor Create(FileName:String);
+    constructor Create(FileName:WideString);
     destructor Destroy;override;
+
+    procedure DeleteData;override;
   end;
 
 const
@@ -107,15 +139,115 @@ const
     FastFreeSpaceCheck:True;
     CopyListHandlingMode:chmNever;
     CopyListHandlingConfirm:True;
+    SaveAttributesOnCopy:False;
+    SaveAttributesOnMove:True;
+    SizeUnit:suAuto;
+    DeleteUnfinishedCopies:True;
+    DontDeleteOnCopyError:True;
+    CopyWindowSavePosition:False;
+    CopyWindowSaveSize:False;
+    CopyWindowTop:0;
+    CopyWindowLeft:0;
+    CopyWindowWidth:408;
+    CopyWindowHeight:177;
+    CopyWindowUnfolded:False;
+    StartWithWindows:True;
+    ActivateOnStart:True;
+    TrayIcon:True;
+    MinimizeToTray:True;
+    CopyWindowStartMinimized:False;
+    Priority:NORMAL_PRIORITY_CLASS;
+    ProgressForegroundColor1:clNavy;
+    ProgressForegroundColor2:clCream;
+    ProgressBackgroundColor1:clGray;
+    ProgressBackgroundColor2:clWhite;
+    ProgressBorderColor:clBlack;
+    MinimizedEventHandling:mehShowBalloon;
   );
 
-  INI_SECTION='SuperCopier2';
+  CONFIG_REGISTRY_KEY='Software\SFX TEAM\SuperCopier2';
 
 var
   Config:TConfig;
+  ConfigLocation:TConfigLocation;
+
+procedure OpenConfig;
+procedure CloseConfig;
+procedure ApplyConfig;
 
 implementation
-uses Windows,SysUtils;
+uses SysUtils, StrUtils,TntForms,TntSysutils,SCWin32,SCMainForm;
+
+//******************************************************************************
+// OpenConfig: crée l'objet de configuration et charge la config
+//******************************************************************************
+procedure OpenConfig;
+var IniFileName:WideString;
+begin
+  IniFileName:=ChangeFileExt(TntApplication.ExeName,'.ini');
+
+  if WideFileExists(IniFileName) then
+  begin
+    ConfigLocation:=clIniFile;
+    Config:=TIniConfig.Create(IniFileName);
+  end
+  else
+  begin
+    ConfigLocation:=clRegistry;
+    Config:=TRegistryConfig.Create(CONFIG_REGISTRY_KEY);
+  end;
+
+  Config.LoadConfig;
+end;
+
+//******************************************************************************
+// CloseConfig sauvegarde la config et détruit l'objet de configuration
+//******************************************************************************
+procedure CloseConfig;
+var IniFileName:WideString;
+    NewConfig:TConfig;
+begin
+  if (ConfigLocation=clRegistry) and (Config is TIniConfig) then
+  begin
+    Config.DeleteData;
+
+    NewConfig:=TRegistryConfig.Create(CONFIG_REGISTRY_KEY);
+    try
+      NewConfig.Values:=Config.Values;
+      NewConfig.SaveConfig;
+    finally
+      NewConfig.Free;
+    end;
+  end
+  else if (ConfigLocation=clIniFile) and (Config is TRegistryConfig) then
+  begin
+    Config.DeleteData;
+
+    IniFileName:=ChangeFileExt(TntApplication.ExeName,'.ini');
+    NewConfig:=TIniConfig.Create(IniFileName);
+    try
+      NewConfig.Values:=Config.Values;
+      NewConfig.SaveConfig;
+    finally
+      NewConfig.Free;
+    end;
+  end
+  else
+  begin
+    Config.SaveConfig;
+  end;
+
+  Config.Free;
+end;
+
+//******************************************************************************
+// ApplyConfig: applique la configuration 'instantannée' 
+//******************************************************************************
+procedure ApplyConfig;
+begin
+  SetProcessPriority(Config.Values.Priority);
+  MainForm.Systray.Visible:=Config.Values.TrayIcon;
+end;
 
 //******************************************************************************
 //******************************************************************************
@@ -161,7 +293,32 @@ begin
       ErrorLogFileName:=ReadString('ErrorLogFileName');
       FastFreeSpaceCheck:=ReadBoolean('FastFreeSpaceCheck');
       CopyListHandlingMode:=TCopyListHandlingMode(ReadInteger('CopyListHandlingMode'));
-      CopyListHandlingConfirm:=ReadBoolean('CopyListHandlingConfirm')
+      CopyListHandlingConfirm:=ReadBoolean('CopyListHandlingConfirm');
+      SaveAttributesOnCopy:=ReadBoolean('SaveAttributesOnCopy');
+      SaveAttributesOnMove:=ReadBoolean('SaveAttributesOnMove');
+      SizeUnit:=TSizeUnit(ReadInteger('SizeUnit'));
+      DeleteUnfinishedCopies:=ReadBoolean('DeleteUnfinishedCopies');
+      DontDeleteOnCopyError:=ReadBoolean('DontDeleteOnCopyError');
+      CopyWindowSavePosition:=ReadBoolean('CopyWindowSavePosition');
+      CopyWindowSaveSize:=ReadBoolean('CopyWindowSaveSize');
+      CopyWindowTop:=ReadInteger('CopyWindowTop');
+      CopyWindowLeft:=ReadInteger('CopyWindowLeft');
+      CopyWindowWidth:=ReadInteger('CopyWindowWidth');
+      CopyWindowHeight:=ReadInteger('CopyWindowHeight');
+      CopyWindowUnfolded:=ReadBoolean('CopyWindowUnfolded');
+
+      StartWithWindows:=ReadBoolean('StartWithWindows');
+      ActivateOnStart:=ReadBoolean('ActivateOnStart');
+      TrayIcon:=ReadBoolean('TrayIcon');
+      MinimizeToTray:=ReadBoolean('MinimizeToTray');
+      CopyWindowStartMinimized:=ReadBoolean('CopyWindowStartMinimized');
+      Priority:=ReadInteger('Priority');
+      ProgressForegroundColor1:=StringToColor(ReadString('ProgressForegroundColor1'));
+      ProgressForegroundColor2:=StringToColor(ReadString('ProgressForegroundColor2'));
+      ProgressBackgroundColor1:=StringToColor(ReadString('ProgressBackgroundColor1'));
+      ProgressBackgroundColor2:=StringToColor(ReadString('ProgressBackgroundColor2'));
+      ProgressBorderColor:=StringToColor(ReadString('ProgressBorderColor'));
+      MinimizedEventHandling:=TMinimizedEventHandling(ReadInteger('MinimizedEventHandling'));
     except
       LoadDefaultConfig;
     end;
@@ -194,6 +351,31 @@ begin
     WriteBoolean('FastFreeSpaceCheck',FastFreeSpaceCheck);
     WriteInteger('CopyListHandlingMode',Integer(CopyListHandlingMode));
     WriteBoolean('CopyListHandlingConfirm',CopyListHandlingConfirm);
+    WriteBoolean('SaveAttributesOnCopy',SaveAttributesOnCopy);
+    WriteBoolean('SaveAttributesOnMove',SaveAttributesOnMove);
+    WriteInteger('SizeUnit',Integer(SizeUnit));
+    WriteBoolean('DeleteUnfinishedCopies',DeleteUnfinishedCopies);
+    WriteBoolean('DontDeleteOnCopyError',DontDeleteOnCopyError);
+    WriteBoolean('CopyWindowSavePosition',CopyWindowSavePosition);
+    WriteBoolean('CopyWindowSaveSize',CopyWindowSaveSize);
+    WriteInteger('CopyWindowTop',CopyWindowTop);
+    WriteInteger('CopyWindowLeft',CopyWindowLeft);
+    WriteInteger('CopyWindowWidth',CopyWindowWidth);
+    WriteInteger('CopyWindowHeight',CopyWindowHeight);
+    WriteBoolean('CopyWindowUnfolded',CopyWindowUnfolded);
+
+    WriteBoolean('StartWithWindows',StartWithWindows);
+    WriteBoolean('ActivateOnStart',ActivateOnStart);
+    WriteBoolean('TrayIcon',TrayIcon);
+    WriteBoolean('MinimizeToTray',MinimizeToTray);
+    WriteBoolean('CopyWindowStartMinimized',CopyWindowStartMinimized);
+    WriteInteger('Priority',Priority);
+    WriteString('ProgressForegroundColor1',ColorToString(ProgressForegroundColor1));
+    WriteString('ProgressForegroundColor2',ColorToString(ProgressForegroundColor2));
+    WriteString('ProgressBackgroundColor1',ColorToString(ProgressBackgroundColor1));
+    WriteString('ProgressBackgroundColor2',ColorToString(ProgressBackgroundColor2));
+    WriteString('ProgressBorderColor',ColorToString(ProgressBorderColor));
+    WriteInteger('MinimizedEventHandling',Integer(MinimizedEventHandling));
   end;
 end;
 
@@ -212,14 +394,27 @@ begin
   Reg:=TRegistry.Create;
   Reg.RootKey:=HKEY_CURRENT_USER;
   Reg.OpenKey(Key,True);
+
+  FKey:=Key;
 end;
 
 destructor TRegistryConfig.Destroy;
 begin
-  Reg.CloseKey;
-  Reg.Free;
+  if Assigned(Reg) then
+  begin
+    Reg.CloseKey;
+    Reg.Free;
+  end;
 
   inherited Destroy;
+end;
+
+procedure TRegistryConfig.DeleteData;
+begin
+  Reg.CloseKey;
+  Reg.DeleteKey(FKey);
+  Reg.Free;
+  Reg:=nil;
 end;
 
 function TRegistryConfig.ReadInteger(Name:string):Integer;
@@ -270,68 +465,83 @@ end;
 //******************************************************************************
 //******************************************************************************
 
-constructor TIniConfig.Create(FileName:String);
+constructor TIniConfig.Create(FileName:WideString);
 begin
   inherited Create;
 
   Ini:=TMemIniFile.Create(FileName);
+
+  Section:=ExtractFileName(FileName);
+  Section:=LeftStr(Section,Pos('.',Section)-1);
+
+  FFilename:=FileName;
 end;
 
 destructor TIniConfig.Destroy;
 begin
-  Ini.UpdateFile;
-  Ini.Free;
+  if Assigned(Ini) then
+  begin
+    Ini.UpdateFile;
+    Ini.Free;
+  end;
 
   inherited Destroy;
 end;
 
+procedure TIniConfig.DeleteData;
+begin
+  Ini.Free;
+  Ini:=nil;
+  SCWin32.DeleteFile(PWidechar(FFileName));
+end;
+
 procedure TIniConfig.VerifyValueExists(Name:String);
 begin
-  if not Ini.ValueExists(INI_SECTION,Name) then Raise Exception.Create(''''+Name+''' doesn''t exists');
+  if not Ini.ValueExists(Section,Name) then Raise Exception.Create(''''+Name+''' doesn''t exists');
 end;
 
 function TIniConfig.ReadInteger(Name:string):Integer;
 begin
   VerifyValueExists(Name);
-  Result:=Ini.ReadInteger(INI_SECTION,Name,0);
+  Result:=Ini.ReadInteger(Section,Name,0);
 end;
 
 function TIniConfig.ReadBoolean(Name:string):Boolean;
 begin
   VerifyValueExists(Name);
-  Result:=Ini.ReadBool(INI_SECTION,Name,False);
+  Result:=Ini.ReadBool(Section,Name,False);
 end;
 
 function TIniConfig.ReadFloat(Name:string):Double;
 begin
   VerifyValueExists(Name);
-  Result:=Ini.ReadFloat(INI_SECTION,Name,0.0);
+  Result:=Ini.ReadFloat(Section,Name,0.0);
 end;
 
 function TIniConfig.ReadString(Name:string):String;
 begin
   VerifyValueExists(Name);
-  Result:=Ini.ReadString(INI_SECTION,Name,'');
+  Result:=Ini.ReadString(Section,Name,'');
 end;
 
 procedure TIniConfig.WriteInteger(Name:String;Value:Integer);
 begin
-  Ini.WriteInteger(INI_SECTION,Name,Value);
+  Ini.WriteInteger(Section,Name,Value);
 end;
 
 procedure TIniConfig.WriteBoolean(Name:String;Value:Boolean);
 begin
-  Ini.WriteBool(INI_SECTION,Name,Value);
+  Ini.WriteBool(Section,Name,Value);
 end;
 
 procedure TIniConfig.WriteFloat(Name:String;Value:Double);
 begin
-  Ini.WriteFloat(INI_SECTION,Name,Value);
+  Ini.WriteFloat(Section,Name,Value);
 end;
 
 procedure TIniConfig.WriteString(Name:String;Value:String);
 begin
-  Ini.WriteString(INI_SECTION,Name,Value);
+  Ini.WriteString(Section,Name,Value);
 end;
 
 end.

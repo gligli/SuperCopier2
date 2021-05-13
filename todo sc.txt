@@ -20,11 +20,42 @@
   * pour la verif place libre
     * option pour choisir le mode lent-fidele/rapide-legerement bugge
 * ajout à copie en cours (canhandle)
+* surligner le tab du log d'erreur quand erreur
+* suppression copie sur cancel/erreur
+* support gdes polices
+* ouverture fenetre copie
+* sauvegarde position/taille
+* bt ajout de fichier a une copylist
+* config
+* destination config reg/ini
+* % dans le titre de la form
+* always on top
+* config 'instantannée' (prio/systray/...)
+* opendialog/bff et stayontop
+* compo label a filename
+* systray
+  * systray principal
+    * liste des threads
+      ? a koi ca peut servir?
+  * progression
+  * option demarrage reduit
+  * option systray/taskbar
+  * bulles
+    * erreurs
+    * collisions
+    * fin de copie
 
-- config
+- startwithwindows
+
 - WideUnbufferedCopier
   - overlapped
   - droits ntfs
+
+- changement taille buffer quand copie vers mm dur
+- icones
+
+=== beta 1 ===
+
 - multilangues
 ? supression/déplacement
 

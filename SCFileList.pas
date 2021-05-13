@@ -30,6 +30,7 @@ type
 		function DestExists:Boolean;
 		function DestIsSameFile:Boolean;
     function SrcDelete:Boolean;
+    function DestDelete:Boolean;
     function DestCopyAttributes:boolean;
     function DestClearAttributes:boolean;
 	end;
@@ -161,6 +162,22 @@ var ErrCode:Integer;
 
 begin
   SrcDelete_;
+  SetLastError(ErrCode);
+end;
+
+function TFileItem.DestDelete:Boolean;
+var ErrCode:Integer;
+
+  //HACK: la gestion interne de l'unicode de delphi pourrit le code d'erreur win32
+  //      lors du retour d'une fonction, ceci permets de le conserver
+  procedure DestDelete_;
+  begin
+    Result:=SCWin32.DeleteFile(PWideChar(DestFullName));
+    ErrCode:=GetLastError;
+  end;
+
+begin
+  DestDelete_;
   SetLastError(ErrCode);
 end;
 

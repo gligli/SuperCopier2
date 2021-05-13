@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,TntForms,
-  Dialogs, StdCtrls, TntStdCtrls, ExtCtrls, TntExtCtrls,SCCopier,SCCommon;
+  Dialogs, StdCtrls, TntStdCtrls, ExtCtrls, TntExtCtrls,SCCopier,SCCommon,
+  SCFileNameLabel;
 
 type
   TCopyErrorForm = class(TTntForm)
@@ -13,12 +14,12 @@ type
     llCopyErrorText1: TTntLabel;
     llCopyErrorText2: TTntLabel;
     mmErrorText: TTntMemo;
-    llFileName: TTntLabel;
     btCancel: TTntButton;
     btSkip: TTntButton;
     btRetry: TTntButton;
     btEndOfList: TTntButton;
     chSameForNext: TTntCheckBox;
+    llFileName: TSCFileNameLabel;
     procedure FormCreate(Sender: TObject);
     procedure btCancelClick(Sender: TObject);
     procedure btSkipClick(Sender: TObject);
@@ -53,6 +54,14 @@ end;
 
 procedure TCopyErrorForm.FormCreate(Sender: TObject);
 begin
+  //HACK: ne pas mettre directement la fenêtre en resizeable pour que
+  //      la gestion des grandes polices puisse la redimentionner
+  BorderStyle:=bsSizeable;
+
+  // empécher le resize vertical
+  Constraints.MaxHeight:=Height;
+  Constraints.MinHeight:=Height;
+
   Action:=ceaNone;
   SameForNext:=False;
 end;

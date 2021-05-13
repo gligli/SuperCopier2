@@ -1,8 +1,8 @@
 object MainForm: TMainForm
-  Left = 567
-  Top = 99
-  Width = 252
-  Height = 216
+  Left = 637
+  Top = 101
+  Width = 200
+  Height = 111
   Caption = 'MainForm'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -10,6 +10,7 @@ object MainForm: TMainForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poDesktopCenter
   OnCloseQuery = FormCloseQuery
@@ -17,54 +18,75 @@ object MainForm: TMainForm
   PixelsPerInch = 96
   TextHeight = 13
   object TntButton1: TTntButton
-    Left = 16
-    Top = 8
+    Left = 24
+    Top = 48
     Width = 75
     Height = 25
     Caption = 'TntButton1'
     TabOrder = 0
-    OnClick = Button1Click
   end
-  object TntButton2: TTntButton
-    Left = 16
-    Top = 160
-    Width = 75
-    Height = 25
-    Caption = 'TntButton2'
-    TabOrder = 1
-    OnClick = TntButton2Click
-  end
-  object TntCheckBox1: TTntCheckBox
-    Left = 144
-    Top = 168
-    Width = 97
-    Height = 17
-    Caption = 'TntCheckBox1'
-    TabOrder = 2
-  end
-  object TntListBox1: TTntListBox
-    Left = 16
-    Top = 40
-    Width = 201
-    Height = 97
-    ItemHeight = 13
-    TabOrder = 3
-  end
-  object TntButton3: TTntButton
-    Left = 128
+  object XPManifest: TXPManifest
+    Left = 72
     Top = 8
-    Width = 75
-    Height = 25
-    Caption = 'TntButton3'
-    TabOrder = 4
-    OnClick = TntButton3Click
   end
-  object TntEdit1: TTntEdit
-    Left = 112
-    Top = 144
-    Width = 121
-    Height = 21
-    TabOrder = 5
-    Text = 'TntEdit1'
+  object Systray: TScSystray
+    Popup = pmSystray
+    Visible = True
+    Left = 40
+    Top = 8
+  end
+  object pmSystray: TTntPopupMenu
+    Left = 8
+    Top = 8
+    object miActivate: TTntMenuItem
+      Caption = 'Activate'
+      OnClick = miActivateClick
+    end
+    object miDeactivate: TTntMenuItem
+      Caption = 'Deactivate'
+      Visible = False
+      OnClick = miActivateClick
+    end
+    object N2: TTntMenuItem
+      Caption = '-'
+    end
+    object miNewThread: TTntMenuItem
+      Caption = 'New thread'
+      object miNewCopyThread: TTntMenuItem
+        Caption = 'Copy...'
+        OnClick = miNewCopyThreadClick
+      end
+      object miNewMoveThread: TTntMenuItem
+        Caption = 'Move...'
+        OnClick = miNewMoveThreadClick
+      end
+    end
+    object miThreadList: TTntMenuItem
+      Caption = 'Thread list'
+      OnClick = miThreadListClick
+      object miNoThreadList: TTntMenuItem
+        Caption = 'empty'
+        Visible = False
+      end
+    end
+    object N1: TTntMenuItem
+      Caption = '-'
+    end
+    object miConfig: TTntMenuItem
+      Caption = 'Configuration...'
+      OnClick = miConfigClick
+    end
+    object miAbout: TTntMenuItem
+      Caption = 'About...'
+      OnClick = miAboutClick
+    end
+    object miExit: TTntMenuItem
+      Caption = 'Exit'
+      OnClick = miExitClick
+    end
+  end
+  object ilGlobal: TImageList
+    Left = 104
+    Top = 8
   end
 end
